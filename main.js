@@ -1,9 +1,8 @@
 "use strict";
 exports.__esModule = true;
-var test = 'Hello world';
+var test = 'Hello worldd';
 console.log(test);
-var special = document.querySelectorAll("p");
-special.innerText('fff');
+alert("esee");
 var Http = new XMLHttpRequest();
 var url = 'index.html';
 Http.open("GET", url);

@@ -1,10 +1,10 @@
 export {};
-let test: string  = 'Hello world';
+let test: string  = 'Hello worldd';
 console.log(test);
+alert("esee");
 
 
-const special = document.querySelectorAll("p") as HTMLParagraphElement;
-special.innerText('fff');
+
 
 const Http = new XMLHttpRequest();
 const url ='index.html';
