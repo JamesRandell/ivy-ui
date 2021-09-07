@@ -1,0 +1,23 @@
+{
+    "name": "ivy_ui",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "node resource/script/server.js",
+        "dev": "npx nodemon server.js"
+    },
+    "dependencies": {
+        "nodemon": "^2.0.12",
+        "ws": "^8.2.1"
+    },
+    "type": "module",
+    "nodemonConfig": {
+        "ignore": [
+            "resource/script/client.js",
+            "docs/*"
+        ],
+        "delay": 1,
+        "execMap": {
+            "pl": "perl"
+          }
+      }
+}

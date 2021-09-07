@@ -1,7 +1,7 @@
 export {};
 let test: string  = 'Hello worldd';
 console.log(test);
-alert("eseweeee");
+//alert("eseweeee");
 
 
 
@@ -23,7 +23,7 @@ function greeter(person) {
   document.body.textContent = greeter(user);
 
   function setBackgroundColor() {
-    document.body.style.backgroundColor = "rgb(255,0,0)";
+    //document.body.style.backgroundColor = "rgb(255,0,0)";
 }
 
 setBackgroundColor();

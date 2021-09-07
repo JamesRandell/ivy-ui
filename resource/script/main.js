@@ -1,6 +1,6 @@
 let test = 'Hello worldd';
 console.log(test);
-alert("eseweeee");
+//alert("eseweeee");
 const Http = new XMLHttpRequest();
 const url = 'index.html';
 Http.open("GET", url);
@@ -14,7 +14,7 @@ function greeter(person) {
 let user = "Jane User";
 document.body.textContent = greeter(user);
 function setBackgroundColor() {
-    document.body.style.backgroundColor = "rgb(255,0,0)";
+    //document.body.style.backgroundColor = "rgb(255,0,0)";
 }
 setBackgroundColor();
 export {};
