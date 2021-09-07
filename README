@@ -10,3 +10,12 @@ You can ommit the -g if you want, just install tsc in the ivy-ui directory.
 You may also want a Live Server addon in VSCode too:
 
 
+Lets get a webserver for dev
+docker pull nginx
+
+WINDOWS:
+sudo docker run -it --rm -d -p 8080:80 --name web -v /mnt/c/Users/James/Code/Ivy-project-2020/ivy-ui:/usr/share/nginx/html nginx
+
+Node Server
+// check out the package.json for what 'dev' is
+npm run dev

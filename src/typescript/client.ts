@@ -1,9 +1,19 @@
+'use strict';
+
 var config = {
-    poll: 5000
+    poll: 2000
 };
 
-document.addEventListener("DOMContentLoaded", connectSocket);
+document.addEventListener("DOMContentLoaded", ivyui);
 
+var dom: ivyDOM;
+
+function ivyui () {
+    dom = new ivyDOM();
+    connectSocket();
+
+    dom.updateConnectionStatus('DOM Loaded');
+}
 function connectSocket() {
 
     'use strict';
@@ -15,16 +25,23 @@ function connectSocket() {
 
         socket.onopen = function(){
             console.log('connected!!');
-            updateConnectionStatus('Connected!!');
-            changeBGColor(1);
+            dom.updateConnectionStatus('Connected!!');
+            dom.changeBGColor(1);
         };
         /*socket.addEventListener('open', function (e) {
             socket.send('Hello Server!');
             console.log('Connection open');
         });*/
 
-        socket.onmessage = function(e){
-            console.log(e.data);
+        socket.onmessage = function(data){
+            try {
+                const result = JSON.parse(data.data);
+                ivySocket.payload(result);
+            } catch (e) {
+                
+            
+            }
+
         };
         // Listen for messages
         /*socket.addEventListener('message', function (e) {
@@ -33,8 +50,8 @@ function connectSocket() {
         });*/
 
         socket.onclose = function(code, reason){
-            updateConnectionStatus('No Connction :(');
-            changeBGColor(0);
+            dom.updateConnectionStatus('No Connction :(');
+            dom.changeBGColor(0);
             // need to see if reason exists. If it does, check for the code.
             // I think this is to do if the connection exists, or it it just closed. 
             // I needed to do this because it would poll forever and crash the browser.
@@ -55,51 +72,134 @@ function connectSocket() {
     }
     
     start();
-    setInterval(check, 5000);
+    setInterval(check, config.poll);
 }
 
 
-var tag = document.createElement("div");
-updateConnectionStatus('DOM Loaded');
-tag.setAttribute('class', 'status');
+var ivySocket = new class  {
 
-var element = document.getElementsByTagName("body")[0];
-element.appendChild(tag);
 
-function updateConnectionStatus (text: string) {
-   // var node = document.createTextNode(text);
-    tag.innerText = text;
-;    //tag.appendChild(node);
-}
+    payload(data) {
+        const key = Object.keys(data)[0];
 
-function changeBGColor (e) {
-    if (e === 1) {
-        element.setAttribute('class', 'connected');
-    } else {
-        element.removeAttribute('class');
+        console.log("return " + key + "('" + data[key] + "');");
+socketHandler[key](data[key]);
+
+        //var func = new Function(
+            //"return " + key + "(" + data[key] + ");"
+        //)();
+
+        //func();
+
+        
+    }
+};
+
+
+class SocketHandler {
+    constructor () {}
+
+    cssFile (data) {
+        dom.insertCSSLink(data);
+    }
+
+    jsFile (data) {
+        dom.insertJSLink(data);
     }
 }
+const socketHandler = new SocketHandler();
+export default socketHandler;
 
-class DOM {
 
-    body:       object = {};
-    console;
+
+class ivyDOM {
+
+    console:    any;
+    status;
+    head = document.head || document.getElementsByTagName('head')[0];
 
     constructor() {
-        this.body = document.getElementsByName('body')[0];
         this.createConsole();
+        this.createStatus();
     }
 
     createConsole () {
         this.console = document.createElement("div");
         this.console.setAttribute('class', 'console');
-console.log(80);
-        this.console.appendChild(this.body);
+        document.body.appendChild(this.console);
+    }
+
+    createStatus () {
+        this.status = document.createElement("div");
+        this.status.setAttribute('class', 'status');
+        
+        this.status.innerText ='init';
+        document.body.appendChild(this.status); 
     }
 
     insert (content: any, location: string = 'console') {
-        let node = document.createTextNode(content);
-        this.console.appendChild(node);
+        //let node = document.createTextNode(content);
+        //this.console.appendChild(node);
+    
+        let line = document.createElement("p");
+        line.textContent = content;
+        this.console.appendChild(line);
+    }
+
+    updateConnectionStatus(update) {
+        this.status.innerText = update;
+    }
+
+    changeBGColor (e: number) {
+        if (e === 1) {
+            document.body.setAttribute('class', 'connected');
+        } else {
+            document.body.removeAttribute('class');
+        }
+    }
+
+    insertCSS (data: string) {
+        const tag = document.createElement('style');
+        this.head.appendChild(tag);
+        tag.id = 'werd';
+        tag.appendChild(document.createTextNode(data));
+    }
+
+    insertCSSLink (filename: string) {
+       
+        // lets see if this already exists
+        var linkTag = this.head.querySelector("[href='" + filename + "']");
+        
+        
+        if (linkTag) {console.log(filename);console.log(linkTag);
+            linkTag.setAttribute('href', linkTag.getAttribute('href') + "");
+            return;
+        }
+        
+        const tag = document.createElement('link');
+        //tag.id   = filename;
+        tag.rel  = 'stylesheet';
+        tag.type = 'text/css';
+        tag.href = filename;
+        tag.media = 'all';
+        this.head.appendChild(tag);
+    }
+
+    insertJSLink (filename: string) {
+       
+        // lets see if this already exists
+        var linkTag = this.head.querySelector("[src='" + filename + "']");
+        
+        
+        if (linkTag) {console.log(filename);console.log(linkTag);
+            linkTag.setAttribute('src', linkTag.getAttribute('src') + "");
+            return;
+        }
+        
+        const tag = document.createElement('script');
+        tag.type = 'module';
+        tag.src = filename;
+        this.head.appendChild(tag);
     }
 }
 
@@ -107,15 +207,23 @@ console.log(80);
 (function(){
     var oldLog = console.log;
     console.log = function (message) {
-        //alert(message);
+        dom.insert(message, 'console');
         oldLog.apply(console, arguments);
     };
 })();
-new DOM();
 
-/*window.console = {
-    log : function(msg) {...},
-    info : function(msg) {...},
-    warn : function(msg) {...},
-    //...
-  }*/
+
+/*
+window.console = {
+    log : function(msg) {
+        dom.insert(msg, 'console');
+    },
+    info : function(msg) {
+        dom.insert(msg, 'console');
+    },
+    warn : function(msg) {
+        dom.insert(msg, 'console');
+    },
+
+  }
+  */

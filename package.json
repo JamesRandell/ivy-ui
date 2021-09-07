@@ -11,13 +11,20 @@
     },
     "type": "module",
     "nodemonConfig": {
+        "watch": [
+            "resource/script/server.js"
+        ],
         "ignore": [
             "resource/script/client.js",
-            "docs/*"
+            "src/*"
         ],
         "delay": 1,
         "execMap": {
             "pl": "perl"
-          }
-      }
+        },
+        "ext": "js"
+    },
+    "devDependencies": {
+        "@types/node": "^16.7.13"
+    }
 }
