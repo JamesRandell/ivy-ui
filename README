@@ -1,0 +1,12 @@
+Setup
+
+Install Node for the NPM module
+Installed tsc (TypeScript compiler/transpiler thingy)
+
+npm install -g typescript
+
+You can ommit the -g if you want, just install tsc in the ivy-ui directory.
+
+You may also want a Live Server addon in VSCode too:
+
+

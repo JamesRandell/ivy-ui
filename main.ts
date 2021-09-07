@@ -1,10 +1,10 @@
 export {};
-let test: string  = 'Hello world';
+let test: string  = 'Hello worldd';
 console.log(test);
+alert("eseweeee");
 
 
-const special = document.querySelectorAll("p") as HTMLParagraphElement;
-special.innerText('fff');
+
 
 const Http = new XMLHttpRequest();
 const url ='index.html';
@@ -13,3 +13,17 @@ Http.send();
 Http.onreadystatechange=(e)=>{
 console.log(Http.responseText)
 }
+
+function greeter(person) {
+    return "Hello, " + person;
+  }
+   
+  let user = "Jane User";
+   
+  document.body.textContent = greeter(user);
+
+  function setBackgroundColor() {
+    document.body.style.backgroundColor = "rgb(255,0,0)";
+}
+
+setBackgroundColor();
