@@ -13,9 +13,12 @@ You may also want a Live Server addon in VSCode too:
 Lets get a webserver for dev
 docker pull nginx
 
-WINDOWS:
 sudo docker run -it --rm -d -p 8080:80 --name web -v /mnt/c/Users/James/Code/Ivy-project-2020/ivy-ui:/usr/share/nginx/html nginx
+docker run -it --rm -d -p 8080:80 --name web -v /Users/x2010149/Sites/ivy-project-2020/ivy-ui:/usr/share/nginx/html nginx
+
 
 Node Server
 // check out the package.json for what 'dev' is
 npm run dev
+
+npx tsc -w
