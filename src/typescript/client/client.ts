@@ -98,6 +98,10 @@ socketHandler[key](data[key]);
         
     }
 };
+/* 
+could not get this working, It errors in tsc watch but works in browser
+*/
+//@ts-ignore
 import { ClassMapper } from '/resource/script/client/ClassMapper.js';
 class SocketHandler {
     constructor () {}
