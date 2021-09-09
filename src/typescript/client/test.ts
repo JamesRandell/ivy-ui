@@ -10,6 +10,9 @@ export default class test {
 
     Save(){
       // Send to server....
-      alert("Thanks, we have saved this record");
+      alert("Thansdddks, we haddve saved this record");
     }
 }
+//const t = new test();
+//t.Save();
+//alert('44dd');

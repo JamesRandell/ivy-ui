@@ -5,6 +5,7 @@ export class ClassMapper<T> {
 
     constructor(original: T, newItem: T) {
         this.Original = original;
+        
         this.New = newItem;
     }
 
@@ -109,21 +110,21 @@ export class ClassMapper<T> {
         let simplePropertyNames = Object.getOwnPropertyNames(this.New);
         let allProperties = complexPropertyNames.concat(simplePropertyNames);
 
-        // console.group("Merging ");
-        // console.log("Prototype", prototype);
-        // console.log("Object", this.New);
-        // console.table(allProperties);
-        // console.log("-------------");
+         console.group("Merging ");
+         //console.log("Prototype", prototype);
+         console.log("Object", this.New);
+         //console.table(allProperties);
+         //console.log("-------------");
+         console.groupEnd();
         
         // Iterate through each property/function we have found
         allProperties.map((propertyName: string) => {
-            // console.group(propertyName);
+             //console.group(propertyName);
             this.MergeProperty(propertyName);
-            // console.groupEnd();
+             //console.groupEnd();
         });
 
-        // console.groupEnd();
-
+        
         return this.Original;
     }
 }

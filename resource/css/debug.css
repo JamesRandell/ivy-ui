@@ -1,23 +1,31 @@
 .console {
     display: block;
     max-height: 200px;
-    border: 1px solid black;
+    border-top: 1px solid black;
     bottom: 0;
-    margin: 1em;
-    width: 100%-2em;
+    margin: 1em 0;
+    width: 100vw;
+    margin: 0;
     position: absolute;
     background-color: aliceblue;
-    border-radius: 5px;
     overflow: scroll;
 }
 
+.console > div {
+
+    display:block;
+    width: 100%;
+    
+}
 .console p {
-    border-bottom: 1px solid grey;
-    padding: .1em .8em;
+    border-bottom: 1px solid #ddd;
+    padding: .3em .8em;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    width: 400px;
+    font-family: 'Lucida Grande', sans-serif;
+    font-size: .75em;
+
 }
 .console :last-child {
     border-bottom: none

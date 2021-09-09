@@ -30,7 +30,7 @@ fs.watch('resource/css', (eventType, filename) => {
         }
     })();
 });
-fs.watch('resource/script', (eventType, filename) => {
+fs.watch('resource/script/client', (eventType, filename) => {
     // eventType could be either 'rename' or 'change'. new file event and delete
     // also generally emit 'rename'
     // check if anyone has connected first, otherwise there's no point in push stuff
@@ -44,7 +44,7 @@ fs.watch('resource/script', (eventType, filename) => {
                 //filePush('resource/css/' + filename);
                 console.log('File changed: ' + filename);
                 // instead we just send the file name and let the client deal with it
-                broadcast(processPush('resource/script/' + filename, 'jsFile'));
+                broadcast(processPush('resource/script/client/' + filename, 'jsFile'));
         }
     })();
 });
@@ -66,6 +66,7 @@ wss.on('connection', function connection(t) {
         console.log('received: %s', message);
         //let string = fs.readFile('index.html', 'utf8', returnFile);
     });
+    ws.send(processPush('resource/css/reset.css', 'cssFile'));
     ws.send(processPush('resource/css/debug.css', 'cssFile'));
 });
 /*

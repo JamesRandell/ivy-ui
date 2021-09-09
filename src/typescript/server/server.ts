@@ -45,7 +45,7 @@ fs.watch('resource/css', (eventType: string, filename: string) => {
 })
 
 
-fs.watch('resource/script', (eventType: string, filename: string) => {
+fs.watch('resource/script/client', (eventType: string, filename: string) => {
 
   // eventType could be either 'rename' or 'change'. new file event and delete
   // also generally emit 'rename'
@@ -64,7 +64,7 @@ fs.watch('resource/script', (eventType: string, filename: string) => {
 console.log('File changed: ' + filename);
           // instead we just send the file name and let the client deal with it
           broadcast( 
-            processPush('resource/script/' + filename, 'jsFile')
+            processPush('resource/script/client/' + filename, 'jsFile')
           );
       }
     })();
@@ -101,6 +101,9 @@ ws = t;
     
   });
 
+  ws.send(
+    processPush('resource/css/reset.css', 'cssFile')
+  );
   ws.send(
     processPush('resource/css/debug.css', 'cssFile')
   );

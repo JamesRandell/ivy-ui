@@ -2,7 +2,7 @@
     "name": "ivy_ui",
     "version": "1.0.0",
     "scripts": {
-        "start": "node resource/script/server.js",
+        "start": "node resource/script/server/server.js",
         "dev": "npx nodemon server.js"
     },
     "dependencies": {
@@ -12,12 +12,13 @@
     },
     "type": "module",
     "nodemonConfig": {
+        
         "watch": [
-            "resource/script/server.js"
+            "/resource/script/server*"
         ],
         "ignore": [
-            "resource/script/client.js",
-            "src/*"
+            "/src/typescript/*",
+            "/resource/client/*"
         ],
         "delay": 1,
         "execMap": {
