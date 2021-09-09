@@ -1,0 +1,24 @@
+.console {
+    display: block;
+    max-height: 200px;
+    border: 1px solid black;
+    bottom: 0;
+    margin: 1em;
+    width: 100%-2em;
+    position: absolute;
+    background-color: aliceblue;
+    border-radius: 5px;
+    overflow: scroll;
+}
+
+.console p {
+    border-bottom: 1px solid grey;
+    padding: .1em .8em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 400px;
+}
+.console :last-child {
+    border-bottom: none
+}

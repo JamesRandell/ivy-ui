@@ -42,6 +42,7 @@ fs.watch('resource/script', (eventType, filename) => {
             case 'change':
                 // old way to send file contents out
                 //filePush('resource/css/' + filename);
+                console.log('File changed: ' + filename);
                 // instead we just send the file name and let the client deal with it
                 broadcast(processPush('resource/script/' + filename, 'jsFile'));
         }
@@ -65,7 +66,7 @@ wss.on('connection', function connection(t) {
         console.log('received: %s', message);
         //let string = fs.readFile('index.html', 'utf8', returnFile);
     });
-    ws.send('something!!');
+    ws.send(processPush('resource/css/debug.css', 'cssFile'));
 });
 /*
 wss.on('connection', (ws: WebSocket) => {

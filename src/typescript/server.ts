@@ -61,7 +61,7 @@ fs.watch('resource/script', (eventType: string, filename: string) => {
         case 'change' :
           // old way to send file contents out
           //filePush('resource/css/' + filename);
-
+console.log('File changed: ' + filename);
           // instead we just send the file name and let the client deal with it
           broadcast( 
             processPush('resource/script/' + filename, 'jsFile')
@@ -101,7 +101,9 @@ ws = t;
     
   });
 
-  ws.send('something!!');
+  ws.send(
+    processPush('resource/css/debug.css', 'cssFile')
+  );
 });
  
 /*

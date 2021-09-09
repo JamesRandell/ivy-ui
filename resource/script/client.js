@@ -158,5 +158,7 @@ class ivyDOM {
     console.log = function (message) {
         dom.insert(message, 'console');
         oldLog.apply(console, arguments);
+        //dom.console.scrollIntoView(false);
+        dom.console.scrollTop = dom.console.scrollHeight;
     };
 })();
