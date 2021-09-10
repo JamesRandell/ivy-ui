@@ -5,6 +5,9 @@ var config = {
 };
 
 document.addEventListener("DOMContentLoaded", ivyui);
+//@ts-ignore
+import myInstance from '/resource/script/client/dommanipulation.js';
+
 
 var dom: ivyDOM;
 
@@ -87,7 +90,9 @@ var ivySocket = new class  {
         const key = Object.keys(data)[0];
 
         console.log("return " + key + "('" + data[key] + "');");
-socketHandler[key](data[key]);
+        socketHandler[key](data[key]);
+
+        myInstance.payload(key, data[key]);
 
         //var func = new Function(
             //"return " + key + "(" + data[key] + ");"
@@ -103,6 +108,7 @@ could not get this working, It errors in tsc watch but works in browser
 */
 //@ts-ignore
 import { ClassMapper } from '/resource/script/client/ClassMapper.js';
+
 class SocketHandler {
     constructor () {}
 
