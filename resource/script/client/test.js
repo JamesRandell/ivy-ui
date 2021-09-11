@@ -5,7 +5,7 @@ export default class test {
     }
     Save() {
         // Send to server....
-        alert("Thafnsdks, we haddve saved this record");
+        alert("Thansdddks, we haddve saved this record");
     }
 }
 //const t = new test();
