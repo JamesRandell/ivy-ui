@@ -1,0 +1,23 @@
+{
+    "ui":{
+      "html": ["<div class=\"myclass\"></div>"],
+      "node":{
+        "div":[
+          {
+            "attr": {
+              "class": "myclass",
+              "id": "myid"
+            },
+            "verb":"INSERT/PUT/DELETE/UPDATE"
+          }
+        ]
+      },
+      "css":"",
+      "cssLink":"",
+      "js":"",
+      "jsLink":""
+    },
+    "data":{
+      "<id goes here>": {}
+    }
+  }

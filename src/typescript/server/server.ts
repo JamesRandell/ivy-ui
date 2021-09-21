@@ -38,7 +38,7 @@ fs.watch('resource/css', (eventType: string, filename: string) => {
 
           // instead we just send the file name and let the client deal with it
           broadcast( 
-            processPush('resource/css/' + filename, 'cssFile')
+            buildJSON('resource/css/' + filename, 'cssFile')
           );
       }
     })();
@@ -64,7 +64,7 @@ fs.watch('resource/script/client', (eventType: string, filename: string) => {
 console.log('File changed: ' + filename);
           // instead we just send the file name and let the client deal with it
           broadcast( 
-            processPush('resource/script/client/' + filename, 'jsFile')
+            buildJSON('resource/script/client/' + filename, 'jsFile')
           );
       }
     })();
@@ -76,13 +76,13 @@ const filePush = (file: string) => {
 
   fs.readFile(file, 'utf8', 
   (err, data) => {
-    let result = processPush(data, 'css');
+    let result = buildJSON(data, 'css');
     returnFile(0, result);
   });
 
 };
 
-function processPush (data: any, key: string = 'default') {
+function buildJSON (data: any, key: string = 'default') {
   let result: object = {
     [key]: data
   }; 
@@ -99,13 +99,19 @@ ws = t;
     console.log('received: %s', message);
     //let string = fs.readFile('index.html', 'utf8', returnFile);
     
+    if (message == 'bringMeTheDOM'){
+      fs.readFile('resource/script/server/dom.json', 'utf8', function(e, result) {
+        console.log(result);
+        ws.send(result, 'DOM')
+      });
+    }
   });
 
   ws.send(
-    processPush('resource/css/reset.css', 'cssFile')
+    buildJSON('resource/css/reset.css', 'cssFile')
   );
   ws.send(
-    processPush('resource/css/debug.css', 'cssFile')
+    buildJSON('resource/css/debug.css', 'cssFile')
   );
 });
  

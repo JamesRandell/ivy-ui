@@ -4,9 +4,12 @@ var config = {
     poll: 2000
 };
 
+
+
+
 document.addEventListener("DOMContentLoaded", ivyui);
 //@ts-ignore
-import myInstance from '/resource/script/client/dommanipulation.js';
+import dommanipulationInstance from '/resource/script/client/dommanipulation.js';
 
 
 var dom: ivyDOM;
@@ -21,11 +24,13 @@ function ivyui () {
     const params = Object.fromEntries(urlSearchParams.entries());
     console.log(params);
 }
+var socket = null;
+
 function connectSocket() {
 
     'use strict';
 
-    var socket = null;
+    
 
     function start () {
         socket = new WebSocket('ws://localhost:8081');
@@ -43,7 +48,13 @@ function connectSocket() {
         socket.onmessage = function(data){
             try {
                 const result = JSON.parse(data.data);
-                ivySocket.payload(result);
+                //ivySocket.payload(result);
+
+                const key = Object.keys(data)[0];
+
+                console.log("return " + key + "('" + result[key] + "');");
+                socketHandler[key](result[key]);
+                dommanipulationInstance.payload(result);
             } catch (e) {
                 
             
@@ -83,28 +94,16 @@ function connectSocket() {
 }
 
 
-var ivySocket = new class  {
+document.addEventListener('click', e => {
+    const button = e.target.closest('button')
+
+    socket.send('bringMeTheDOM');
+})
 
 
-    payload(data) {
-        const key = Object.keys(data)[0];
-
-        console.log("return " + key + "('" + data[key] + "');");
-        socketHandler[key](data[key]);
-
-        myInstance.payload(key, data[key]);
-
-        //var func = new Function(
-            //"return " + key + "(" + data[key] + ");"
-        //)();
-
-        //func();  
-
-        
-    }
-};
 /* 
-could not get this working, It errors in tsc watch but works in browser
+could not get this working (the VSCode erroring not that actual class).
+It errors in tsc watch but works in browser
 */
 //@ts-ignore
 import { ClassMapper } from '/resource/script/client/ClassMapper.js';
@@ -156,7 +155,7 @@ class ivyDOM {
         this.status.innerText ='init';
         document.body.appendChild(this.status); 
     }
-
+    
     insert (content: any, location: string = 'console') {
         //let node = document.createTextNode(content);
         //this.console.appendChild(node);
@@ -251,3 +250,4 @@ window.console = {
 
   }
   */
+

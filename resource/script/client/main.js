@@ -1,13 +1,13 @@
-let test = 'Hello worldd';
-console.log(test);
 //alert("eseweeee");
+/*
 const Http = new XMLHttpRequest();
-const url = 'index.html';
+const url ='index.html';
 Http.open("GET", url);
 Http.send();
-Http.onreadystatechange = (e) => {
-    console.log(Http.responseText);
-};
+Http.onreadystatechange=(e)=>{
+  console.log(Http.responseText)
+}
+*/
 function greeter(person) {
     return "Hello, " + person;
 }

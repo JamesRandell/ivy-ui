@@ -26,7 +26,7 @@ fs.watch('resource/css', (eventType, filename) => {
                 // old way to send file contents out
                 //filePush('resource/css/' + filename);
                 // instead we just send the file name and let the client deal with it
-                broadcast(processPush('resource/css/' + filename, 'cssFile'));
+                broadcast(buildJSON('resource/css/' + filename, 'cssFile'));
         }
     })();
 });
@@ -44,17 +44,17 @@ fs.watch('resource/script/client', (eventType, filename) => {
                 //filePush('resource/css/' + filename);
                 console.log('File changed: ' + filename);
                 // instead we just send the file name and let the client deal with it
-                broadcast(processPush('resource/script/client/' + filename, 'jsFile'));
+                broadcast(buildJSON('resource/script/client/' + filename, 'jsFile'));
         }
     })();
 });
 const filePush = (file) => {
     fs.readFile(file, 'utf8', (err, data) => {
-        let result = processPush(data, 'css');
+        let result = buildJSON(data, 'css');
         returnFile(0, result);
     });
 };
-function processPush(data, key = 'default') {
+function buildJSON(data, key = 'default') {
     let result = {
         [key]: data
     };
@@ -65,9 +65,15 @@ wss.on('connection', function connection(t) {
     ws.on('message', (message) => {
         console.log('received: %s', message);
         //let string = fs.readFile('index.html', 'utf8', returnFile);
+        if (message == 'bringMeTheDOM') {
+            fs.readFile('resource/script/server/dom.json', 'utf8', function (e, result) {
+                console.log(result);
+                ws.send(result, 'DOM');
+            });
+        }
     });
-    ws.send(processPush('resource/css/reset.css', 'cssFile'));
-    ws.send(processPush('resource/css/debug.css', 'cssFile'));
+    ws.send(buildJSON('resource/css/reset.css', 'cssFile'));
+    ws.send(buildJSON('resource/css/debug.css', 'cssFile'));
 });
 /*
 wss.on('connection', (ws: WebSocket) => {
