@@ -8,7 +8,7 @@
               "class": "myclass",
               "id": "myid"
             },
-            "verb":"INSERT/PUT/DELETE/UPDATE"
+            "verb":"INSERT"
           }
         ]
       },
@@ -18,6 +18,8 @@
       "jsLink":""
     },
     "data":{
-      "<id goes here>": {}
+      "myid": {
+        "text": "some text here"
+      }
     }
   }

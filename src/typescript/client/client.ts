@@ -8,14 +8,26 @@ var config = {
 
 
 document.addEventListener("DOMContentLoaded", ivyui);
+
 //@ts-ignore
-import dommanipulationInstance from '/resource/script/client/dommanipulation.js';
+import BaseModule from '/resource/script/client/BaseModule.js';
+var hmr = new BaseModule();
+
+
+//@ts-ignore
+import DOMManipulation from '/resource/script/client/dommanipulation.js';
+var dommanipulationInstance = new DOMManipulation();
+
+
 
 
 var dom: ivyDOM;
 
 function ivyui () {
+   
+    
     dom = new ivyDOM();
+    
     connectSocket();
 
     dom.updateConnectionStatus('DOM Loaded');
@@ -46,19 +58,16 @@ function connectSocket() {
         });*/
 
         socket.onmessage = function(data){
-            try {
+            //try {
                 const result = JSON.parse(data.data);
-                //ivySocket.payload(result);
 
-                const key = Object.keys(data)[0];
+                const key = Object.keys(data.data)[0];
 
-                console.log("return " + key + "('" + result[key] + "');");
-                socketHandler[key](result[key]);
-                dommanipulationInstance.payload(result);
-            } catch (e) {
-                
+                dommanipulationInstance.payload(Object.keys(result)[0], result);
+            /*} catch (e) {
+               console.log(e);
             
-            }
+            }*/
 
         };
         // Listen for messages
@@ -95,7 +104,8 @@ function connectSocket() {
 
 
 document.addEventListener('click', e => {
-    const button = e.target.closest('button')
+    const button = e.target as Element;
+    button.closest('button');
 
     socket.send('bringMeTheDOM');
 })
@@ -108,19 +118,11 @@ It errors in tsc watch but works in browser
 //@ts-ignore
 import { ClassMapper } from '/resource/script/client/ClassMapper.js';
 
+
 class SocketHandler {
     constructor () {}
 
-    cssFile (data) {
-        dom.insertCSSLink(data);
-    }
-
-    jsFile (data) {
-       const t = dom.insertJSLink(data);
-        let mapper = new ClassMapper(t, data);
-        //mapper.Merge();
-        
-    }
+    
 }
 const socketHandler = new SocketHandler();
 export default socketHandler;
@@ -130,6 +132,7 @@ export default socketHandler;
 class ivyDOM {
 
     console:    any;
+    consoleWrapper: any;
     status;
     head = document.head || document.getElementsByTagName('head')[0];
 
@@ -141,11 +144,11 @@ class ivyDOM {
     createConsole () {
         this.console = document.createElement("div");
 
-        let consoleWrapper = document.createElement("section");
-        consoleWrapper.setAttribute('class', 'console');
+        this.consoleWrapper = document.createElement("section");
+        this.consoleWrapper.setAttribute('class', 'console');
 
-        consoleWrapper.appendChild(this.console);
-        document.body.appendChild(consoleWrapper);
+        this.consoleWrapper.appendChild(this.console);
+        document.body.appendChild(this.consoleWrapper);
     }
 
     createStatus () {
@@ -183,58 +186,22 @@ class ivyDOM {
         tag.id = 'werd';
         tag.appendChild(document.createTextNode(data));
     }
-
-    insertCSSLink (filename: string) {
-       
-        // lets see if this already exists
-        var linkTag = this.head.querySelector("[href='" + filename + "']");
-        
-        
-        if (linkTag) {console.log(filename);console.log(linkTag);
-            linkTag.setAttribute('href', linkTag.getAttribute('href') + "");
-            return;
-        }
-        
-        const tag = document.createElement('link');
-        //tag.id   = filename;
-        tag.rel  = 'stylesheet';
-        tag.type = 'text/css';
-        tag.href = filename;
-        tag.media = 'all';
-        this.head.appendChild(tag);
-    }
-
-    insertJSLink (filename: string) {
-       
-        // lets see if this already exists
-        var linkTag = this.head.querySelector("[src='" + filename + "']");
-        
-        
-        if (linkTag) {console.log(filename);console.log(linkTag);
-            //linkTag.setAttribute('src', linkTag.getAttribute('src') + "");
-            //return;
-            linkTag.parentNode.removeChild( linkTag )
-        }
-        
-        const tag = document.createElement('script');
-        tag.type = 'module';
-        tag.src = filename + '?' + Date.now();
-        this.head.appendChild(tag);
-    }
+   
 }
 
-
+/*
 (function(){
     var oldLog = console.log;
     console.log = function (message) {
-        dom.insert(message, 'console');
+        const g = JSON.stringify(message);
+        dom.insert(g, 'console');
         oldLog.apply(console, arguments);
-        //dom.console.scrollIntoView(false);
-        dom.console.scrollTop = dom.console.scrollHeight;
+
+        dom.consoleWrapper.scrollTop = dom.consoleWrapper.scrollHeight;
         
     };
 })();
-
+*/
 
 /*
 window.console = {

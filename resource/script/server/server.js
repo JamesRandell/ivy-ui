@@ -44,7 +44,13 @@ fs.watch('resource/script/client', (eventType, filename) => {
                 //filePush('resource/css/' + filename);
                 console.log('File changed: ' + filename);
                 // instead we just send the file name and let the client deal with it
-                broadcast(buildJSON('resource/script/client/' + filename, 'jsFile'));
+                //broadcast( 
+                //  buildJSON('resource/script/client/' + filename, 'jsFile')
+                //);
+                //fs.readFile('resource/script/client/' + filename, 'utf8', function(e, result) {
+                //  ws.send([{'data':result}], 'js')
+                //});
+                ws.send(buildJSON('resource/script/client/' + filename, 'jsFile'));
         }
     })();
 });
@@ -62,12 +68,12 @@ function buildJSON(data, key = 'default') {
 }
 wss.on('connection', function connection(t) {
     ws = t;
+    console.log('Client connected');
     ws.on('message', (message) => {
         console.log('received: %s', message);
         //let string = fs.readFile('index.html', 'utf8', returnFile);
         if (message == 'bringMeTheDOM') {
             fs.readFile('resource/script/server/dom.json', 'utf8', function (e, result) {
-                console.log(result);
                 ws.send(result, 'DOM');
             });
         }

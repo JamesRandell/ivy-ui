@@ -1,39 +1,11 @@
-/**
- * payload gets caled a lot which then cals what everfunctions it needs to
- */
+////@ts-ignore
+//import BaseModule from '/resource/script/client/BaseModule.js';
 //@ts-ignore
-import hotModuleReload from '/resource/script/client/hotModuleReload.js';
-export default class DOMManipulation extends hotModuleReload {
+import { ClassMapper } from "/resource/script/client/ClassMapper.js";
+export default class BaseModule {
     constructor() {
-        super();
         this.head = document.head || document.getElementsByTagName('head')[0];
-        let btn = document.createElement("button");
-        btn.innerText = 'Click me';
-        document.body.appendChild(btn);
-        console.log(99);
     }
-    payload(key, value) {
-        if (key === 'jsFile') {
-            const hmr = new hotModuleReload();
-            hmr.jsFile(value);
-        }
-        else if (key === 'cssFile') {
-            const hmr = new hotModuleReload();
-            hmr.cssFile(value);
-        }
-        else {
-            let that = this;
-            this[key](value);
-            console.log('wut: ' + this.constructor.name);
-            //alert(key); 
-            const y = 'ddd';
-            console.log(y);
-        }
-    }
-    ui(data) {
-        console.log(data.ui);
-    }
-    //public g () {}
     cssFile(data) {
         const filename = data['cssFile'];
         // lets see if this already exists
@@ -52,9 +24,6 @@ export default class DOMManipulation extends hotModuleReload {
         this.head.appendChild(tag);
         console.log('Adding: ' + filename);
     }
-    js(data) {
-        //super.Reload(s);
-    }
     jsFile(data) {
         const path = data['jsFile'];
         const filename = path.split(/.*[\/|\\]/)[1].split('.')[0];
@@ -70,11 +39,10 @@ export default class DOMManipulation extends hotModuleReload {
         tag.src = path; // + '?' + Date.now();
         this.head.appendChild(tag);
         console.log('Adding: ' + path + ' (' + filename + ')');
-        super.Reload(this);
+        this.Reload(this);
     }
-    ui_html(d) {
-        console.log(4444);
-        console.log(d);
+    Reload(updatedModuleInstance) {
+        let mapper = new ClassMapper(this, updatedModuleInstance);
+        mapper.Merge();
     }
 }
-//export default new DOMManipulation();
