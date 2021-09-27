@@ -2,18 +2,25 @@
 var config = {
     poll: 2000
 };
+var dom = {};
 document.addEventListener("DOMContentLoaded", ivyui);
 //@ts-ignore
 import BaseModule from '/resource/script/client/BaseModule.js';
 var hmr = new BaseModule();
 //@ts-ignore
+import socketRouter from '/resource/script/client/socketRouter.js';
+var sRouter = new socketRouter();
+//@ts-ignore
 import DOMManipulation from '/resource/script/client/dommanipulation.js';
-var dommanipulationInstance = new DOMManipulation();
-var dom;
+var ivyDOM;
+var devHandlerInstance;
+var dommanipulationinstance;
 function ivyui() {
-    dom = new ivyDOM();
+    ivyDOM = new initDOM();
+    dommanipulationinstance = new DOMManipulation();
+    devHandlerInstance = new devHandler();
+    devHandlerInstance.createStatusElement();
     connectSocket();
-    dom.updateConnectionStatus('DOM Loaded');
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     console.log(params);
@@ -24,9 +31,7 @@ function connectSocket() {
     function start() {
         socket = new WebSocket('ws://localhost:8081');
         socket.onopen = function () {
-            console.log('connected!!');
-            dom.updateConnectionStatus('Connected!!');
-            dom.changeBGColor(1);
+            devHandlerInstance.connected();
         };
         /*socket.addEventListener('open', function (e) {
             socket.send('Hello Server!');
@@ -36,7 +41,7 @@ function connectSocket() {
             //try {
             const result = JSON.parse(data.data);
             const key = Object.keys(data.data)[0];
-            dommanipulationInstance.payload(Object.keys(result)[0], result);
+            dommanipulationinstance.payload(Object.keys(result)[0], result);
             /*} catch (e) {
                console.log(e);
             
@@ -48,8 +53,7 @@ function connectSocket() {
             
         });*/
         socket.onclose = function (code, reason) {
-            dom.updateConnectionStatus('No Connction :(');
-            dom.changeBGColor(0);
+            devHandlerInstance.disconnected();
             // need to see if reason exists. If it does, check for the code.
             // I think this is to do if the connection exists, or it it just closed. 
             // I needed to do this because it would poll forever and crash the browser.
@@ -58,7 +62,7 @@ function connectSocket() {
             }
         };
         socket.onerror = function (evt) {
-            //console.log(evt);
+            devHandlerInstance.disconnected();
         };
     }
     function check() {
@@ -70,8 +74,8 @@ function connectSocket() {
     setInterval(check, config.poll);
 }
 document.addEventListener('click', e => {
-    const button = e.target;
-    button.closest('button');
+    //const button = e.target as Element;
+    //button.closest('button');
     socket.send('bringMeTheDOM');
 });
 class SocketHandler {
@@ -79,11 +83,10 @@ class SocketHandler {
 }
 const socketHandler = new SocketHandler();
 export default socketHandler;
-class ivyDOM {
+class initDOM {
     constructor() {
         this.head = document.head || document.getElementsByTagName('head')[0];
         this.createConsole();
-        this.createStatus();
     }
     createConsole() {
         this.console = document.createElement("div");
@@ -92,12 +95,6 @@ class ivyDOM {
         this.consoleWrapper.appendChild(this.console);
         document.body.appendChild(this.consoleWrapper);
     }
-    createStatus() {
-        this.status = document.createElement("div");
-        this.status.setAttribute('class', 'status');
-        this.status.innerText = 'init';
-        document.body.appendChild(this.status);
-    }
     insert(content, location = 'console') {
         //let node = document.createTextNode(content);
         //this.console.appendChild(node);
@@ -105,21 +102,147 @@ class ivyDOM {
         line.textContent = content;
         this.console.appendChild(line);
     }
-    updateConnectionStatus(update) {
-        this.status.innerText = update;
-    }
-    changeBGColor(e) {
-        if (e === 1) {
-            document.body.setAttribute('class', 'connected');
-        }
-        else {
-            document.body.removeAttribute('class');
-        }
-    }
     insertCSS(data) {
         const tag = document.createElement('style');
         this.head.appendChild(tag);
         tag.id = 'werd';
         tag.appendChild(document.createTextNode(data));
+    }
+}
+/*
+(function(){
+    var oldLog = console.log;
+    console.log = function (message) {
+        const g = JSON.stringify(message);
+        ivyDOM.insert(g, 'console');
+        oldLog.apply(console, arguments);
+
+        ivyDOM.consoleWrapper.scrollTop = ivyDOM.consoleWrapper.scrollHeight;
+        
+    };
+})();
+*/
+/*
+window.console = {
+    log : function(msg) {
+        ivyDOM.insert(msg, 'console');
+    },
+    info : function(msg) {
+        ivyDOM.insert(msg, 'console');
+    },
+    warn : function(msg) {
+        ivyDOM.insert(msg, 'console');
+    },
+
+  }
+  */
+/**
+ * This is going to be a development handler for socket comms.
+ * At the start it will build JSON payloads for my DOM class to build things like
+ * the console, status (connected etc), change background-color and so on.
+ *
+ * It's intended use is to trial the JSON payload feature, and hopefully not cross-contaminate
+ * my classes with functionality
+ */
+class devHandler extends DOMManipulation {
+    constructor() {
+        super();
+        var json = {
+            "ui": {
+                "node": {
+                    "button": [
+                        {
+                            "attr": {
+                                "id": "btn"
+                            },
+                            "verb": "add"
+                        }
+                    ]
+                }
+            },
+            "data": {
+                "btn": "Click me"
+            }
+        };
+        super.m(json);
+    }
+    createStatusElement() {
+        var json = {
+            "ui": {
+                "node": {
+                    "div": [
+                        {
+                            "attr": {
+                                "class": "status",
+                                "id": "status"
+                            },
+                            "verb": "add"
+                        }
+                    ]
+                }
+            },
+            "data": {
+                "status": "DOM Loaded"
+            }
+        };
+        super.m(json);
+    }
+    connected() {
+        var json = {
+            "ui": {
+                "node": {
+                    "div": [
+                        {
+                            "attr": {
+                                "addclass": "connected",
+                                "id": "status"
+                            },
+                            "verb": "update"
+                        }
+                    ],
+                    "body": [
+                        {
+                            "attr": {
+                                "addclass": "connected",
+                            },
+                            "verb": "update"
+                        }
+                    ],
+                }
+            },
+            "data": {
+                "status": "Connected"
+            }
+        };
+        super.m(json);
+    }
+    disconnected() {
+        var json = {
+            "ui": {
+                "node": {
+                    "div": [
+                        {
+                            "attr": {
+                                "removeclass": "connected",
+                                "id": "status"
+                            },
+                            "verb": "update"
+                        }
+                    ],
+                    "body": [
+                        {
+                            "attr": {
+                                "removeclass": "connected",
+                            },
+                            "verb": "update"
+                        }
+                    ]
+                }
+            },
+            "data": {
+                "status": "Lost connection"
+            }
+        };
+        super.m(json);
     }
 }

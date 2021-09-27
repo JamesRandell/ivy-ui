@@ -78,7 +78,6 @@ wss.on('connection', function connection(t) {
             });
         }
     });
-    ws.send(buildJSON('resource/css/reset.css', 'cssFile'));
     ws.send(buildJSON('resource/css/debug.css', 'cssFile'));
 });
 /*

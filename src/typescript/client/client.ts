@@ -4,7 +4,7 @@ var config = {
     poll: 2000
 };
 
-
+var dom: object = {};
 
 
 document.addEventListener("DOMContentLoaded", ivyui);
@@ -15,22 +15,31 @@ var hmr = new BaseModule();
 
 
 //@ts-ignore
+import socketRouter from '/resource/script/client/socketRouter.js';
+var sRouter = new socketRouter();
+
+//@ts-ignore
 import DOMManipulation from '/resource/script/client/dommanipulation.js';
-var dommanipulationInstance = new DOMManipulation();
 
+var ivyDOM;
+var devHandlerInstance;
+var dommanipulationinstance;
 
-
-
-var dom: ivyDOM;
 
 function ivyui () {
    
     
-    dom = new ivyDOM();
-    
+    ivyDOM = new initDOM();
+    dommanipulationinstance = new DOMManipulation();
+
+    devHandlerInstance = new devHandler();
+    devHandlerInstance.createStatusElement();
+
+
     connectSocket();
 
-    dom.updateConnectionStatus('DOM Loaded');
+
+    
 
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
@@ -42,15 +51,11 @@ function connectSocket() {
 
     'use strict';
 
-    
-
     function start () {
         socket = new WebSocket('ws://localhost:8081');
 
         socket.onopen = function(){
-            console.log('connected!!');
-            dom.updateConnectionStatus('Connected!!');
-            dom.changeBGColor(1);
+            devHandlerInstance.connected();
         };
         /*socket.addEventListener('open', function (e) {
             socket.send('Hello Server!');
@@ -63,7 +68,7 @@ function connectSocket() {
 
                 const key = Object.keys(data.data)[0];
 
-                dommanipulationInstance.payload(Object.keys(result)[0], result);
+                dommanipulationinstance.payload(Object.keys(result)[0], result);
             /*} catch (e) {
                console.log(e);
             
@@ -77,8 +82,8 @@ function connectSocket() {
         });*/
 
         socket.onclose = function(code, reason){
-            dom.updateConnectionStatus('No Connction :(');
-            dom.changeBGColor(0);
+            devHandlerInstance.disconnected();
+            
             // need to see if reason exists. If it does, check for the code.
             // I think this is to do if the connection exists, or it it just closed. 
             // I needed to do this because it would poll forever and crash the browser.
@@ -88,7 +93,7 @@ function connectSocket() {
         };
   
         socket.onerror = function(evt) {
-            //console.log(evt);
+            devHandlerInstance.disconnected();
         }
     }
   
@@ -104,8 +109,8 @@ function connectSocket() {
 
 
 document.addEventListener('click', e => {
-    const button = e.target as Element;
-    button.closest('button');
+    //const button = e.target as Element;
+    //button.closest('button');
 
     socket.send('bringMeTheDOM');
 })
@@ -121,15 +126,13 @@ import { ClassMapper } from '/resource/script/client/ClassMapper.js';
 
 class SocketHandler {
     constructor () {}
-
-    
 }
 const socketHandler = new SocketHandler();
 export default socketHandler;
 
 
 
-class ivyDOM {
+class initDOM {
 
     console:    any;
     consoleWrapper: any;
@@ -138,7 +141,6 @@ class ivyDOM {
 
     constructor() {
         this.createConsole();
-        this.createStatus();
     }
 
     createConsole () {
@@ -151,14 +153,6 @@ class ivyDOM {
         document.body.appendChild(this.consoleWrapper);
     }
 
-    createStatus () {
-        this.status = document.createElement("div");
-        this.status.setAttribute('class', 'status');
-        
-        this.status.innerText ='init';
-        document.body.appendChild(this.status); 
-    }
-    
     insert (content: any, location: string = 'console') {
         //let node = document.createTextNode(content);
         //this.console.appendChild(node);
@@ -168,17 +162,7 @@ class ivyDOM {
         this.console.appendChild(line);
     }
 
-    updateConnectionStatus(update) {
-        this.status.innerText = update;
-    }
 
-    changeBGColor (e: number) {
-        if (e === 1) {
-            document.body.setAttribute('class', 'connected');
-        } else {
-            document.body.removeAttribute('class');
-        }
-    }
 
     insertCSS (data: string) {
         const tag = document.createElement('style');
@@ -194,10 +178,10 @@ class ivyDOM {
     var oldLog = console.log;
     console.log = function (message) {
         const g = JSON.stringify(message);
-        dom.insert(g, 'console');
+        ivyDOM.insert(g, 'console');
         oldLog.apply(console, arguments);
 
-        dom.consoleWrapper.scrollTop = dom.consoleWrapper.scrollHeight;
+        ivyDOM.consoleWrapper.scrollTop = ivyDOM.consoleWrapper.scrollHeight;
         
     };
 })();
@@ -206,15 +190,135 @@ class ivyDOM {
 /*
 window.console = {
     log : function(msg) {
-        dom.insert(msg, 'console');
+        ivyDOM.insert(msg, 'console');
     },
     info : function(msg) {
-        dom.insert(msg, 'console');
+        ivyDOM.insert(msg, 'console');
     },
     warn : function(msg) {
-        dom.insert(msg, 'console');
+        ivyDOM.insert(msg, 'console');
     },
 
   }
   */
 
+
+/**
+ * This is going to be a development handler for socket comms.
+ * At the start it will build JSON payloads for my DOM class to build things like
+ * the console, status (connected etc), change background-color and so on.
+ * 
+ * It's intended use is to trial the JSON payload feature, and hopefully not cross-contaminate
+ * my classes with functionality
+ */
+class devHandler extends DOMManipulation {
+
+    public constructor () {
+        super();
+        var json = {
+            "ui":{
+              "node":{
+                "button":[
+                  {
+                    "attr": {
+                      "id": "btn"
+                    },
+                    "verb":"add"
+                  }
+                ]
+              }
+            },
+            "data": {
+                "btn": "Click me"
+            }
+        };
+    
+        super.m(json);
+    }
+
+    public createStatusElement () {
+
+        var json = {
+                "ui":{
+                  "node":{
+                    "div":[
+                      {
+                        "attr": {
+                          "class": "status",
+                          "id": "status"
+                        },
+                        "verb":"add"
+                      }
+                    ]
+                  }
+                },
+                "data": {
+                    "status": "DOM Loaded"
+                }
+            };
+        
+        super.m(json);
+    }
+
+    public connected () {
+        var json = {
+            "ui":{
+              "node":{
+                "div":[
+                  {
+                    "attr": {
+                      "addclass": "connected",
+                      "id": "status"
+                    },
+                    "verb":"update"
+                  }
+                ],
+                "body":[
+                    {
+                      "attr": {
+                        "addclass": "connected",
+                      },
+                      "verb":"update"
+                    }
+                  ],
+              }
+            },
+            "data": {
+                "status": "Connected"
+            }
+        };
+    
+        super.m(json);
+    }
+
+    public disconnected () {
+        var json = {
+            "ui":{
+            "node":{
+                "div":[
+                {
+                    "attr": {
+                    "removeclass": "connected",
+                    "id": "status"
+                    },
+                    "verb":"update"
+                }
+                ],
+                "body":[
+                    {
+                      "attr": {
+                        "removeclass": "connected",
+                      },
+                      "verb":"update"
+                    }
+                  ]
+                }
+            },
+            "data": {
+                "status": "Lost connection"
+            }
+        };
+
+        super.m(json);
+    }
+}

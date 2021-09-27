@@ -97,8 +97,8 @@ function buildJSON (data: any, key: string = 'default') {
 
 
 wss.on('connection', function connection(t) {
-ws = t; 
-console.log('Client connected');
+  ws = t; 
+  console.log('Client connected');
   ws.on('message', (message: string) => {
 
     console.log('received: %s', message);
@@ -111,9 +111,7 @@ console.log('Client connected');
     }
   });
 
-  ws.send(
-    buildJSON('resource/css/reset.css', 'cssFile')
-  );
+
   ws.send(
     buildJSON('resource/css/debug.css', 'cssFile')
   );

@@ -1,25 +1,16 @@
 {
     "ui":{
-      "html": ["<div class=\"myclass\"></div>"],
+      "HTMLFile": "test.html",
       "node":{
         "div":[
           {
             "attr": {
-              "class": "myclass",
-              "id": "myid"
+              "class": "ivy",
+              "id": "loading"
             },
-            "verb":"INSERT"
+            "verb":"add"
           }
         ]
-      },
-      "css":"",
-      "cssLink":"",
-      "js":"",
-      "jsLink":""
-    },
-    "data":{
-      "myid": {
-        "text": "some text here"
       }
     }
   }
