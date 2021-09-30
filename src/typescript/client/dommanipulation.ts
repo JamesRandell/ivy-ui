@@ -3,12 +3,23 @@
  */
 
 
+/**
+ * Import a server wrapper so we can request stuff fro mthe server if a payload
+ * comes in asking the client to load a file
+ */
+//@ts-ignore
+//import router from "/resource/script/client/router.js";
+
+
 /* 
 could not get this working (the VSCode erroring not that actual class).
 It errors in tsc watch but works in browser
 */
 //@ts-ignore
 import hotModuleReload from '/resource/script/client/socketRouter.js';
+
+//@ts-ignore
+import router from '/resource/script/client/router.js';
 
 interface IAttributes {
     class?: string;
@@ -117,8 +128,6 @@ export default class DOMManipulation extends hotModuleReload {
             e.classList.remove(attributes.class);
         }
 
-        
-
         this.body.appendChild(e);
     }
 
@@ -138,7 +147,20 @@ export default class DOMManipulation extends hotModuleReload {
         }
     }
 
+    private _html (html: string) {
+        var loadedContent = html;
+
+        loadedContent.getElementsByTagName('body');
+    }
+
+    private _htmlFile (path: string, parentNode: string = null) {
+        this._HTMLFile(path, parentNode);
+    }
+    
     private _HTMLFile (path: string, parentNode: string = null) {
+
+        //var i = new router();
+        //i.request('test.html')
         var e;
         if (parentNode=== null) {console.log(1);
              e = this.body;
@@ -157,7 +179,7 @@ export default class DOMManipulation extends hotModuleReload {
             if (xhr.readyState === DONE) {
               if (xhr.status === OK) {
                 console.log(xhr.responseText); // 'This is the returned text.'
-                e.innerHTML(xhr.responseText);
+                //e.innerHTML(xhr.responseText);
     
                 } else {
                 console.log('Error: ' + xhr.status); // An error occurred during the request.
