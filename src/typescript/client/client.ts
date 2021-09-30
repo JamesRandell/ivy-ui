@@ -15,8 +15,12 @@ var hmr = new BaseModule();
 
 
 //@ts-ignore
-import socketRouter from '/resource/script/client/socketRouter.js';
-var sRouter = new socketRouter();
+//import socketRouter from '/resource/script/client/socketRouter.js';
+//var sRouter = new socketRouter();
+
+//@ts-ignore
+import router from '/resource/script/client/router.js';
+var routerInstance = new router();
 
 //@ts-ignore
 import DOMManipulation from '/resource/script/client/dommanipulation.js';
@@ -46,6 +50,7 @@ function ivyui () {
     console.log(params);
 }
 var socket = null;
+
 
 function connectSocket() {
 
@@ -111,24 +116,10 @@ function connectSocket() {
 document.addEventListener('click', e => {
     //const button = e.target as Element;
     //button.closest('button');
-
-    socket.send('bringMeTheDOM');
+    //routerInstance.request('bringMeTheDOM');
+    routerInstance.go('index.html');
 })
 
-
-/* 
-could not get this working (the VSCode erroring not that actual class).
-It errors in tsc watch but works in browser
-*/
-//@ts-ignore
-import { ClassMapper } from '/resource/script/client/ClassMapper.js';
-
-
-class SocketHandler {
-    constructor () {}
-}
-const socketHandler = new SocketHandler();
-export default socketHandler;
 
 
 
@@ -322,3 +313,5 @@ class devHandler extends DOMManipulation {
         super.m(json);
     }
 }
+
+export { socket, routerInstance as router};

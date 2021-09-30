@@ -99,16 +99,36 @@ function buildJSON (data: any, key: string = 'default') {
 wss.on('connection', function connection(t) {
   ws = t; 
   console.log('Client connected');
-  ws.on('message', (message: string) => {
+
+  ws.on('message', (message: any) => {
 
     console.log('received: %s', message);
-    //let string = fs.readFile('index.html', 'utf8', returnFile);
-    
-    if (message == 'bringMeTheDOM'){
-      fs.readFile('resource/script/server/dom.json', 'utf8', function(e, result) {
-        ws.send(result, 'DOM')
-      });
+
+    try {
+      let payload = JSON.parse(message);
+
+      switch (Object.keys(payload)[0]) {
+        case 'file' : fs.readFile(payload.file, 'utf8', function(e, result) {
+                        ws.send(
+                          buildJSON(result, 'html')
+                        )
+                      });
+                      break;
+        case 'cmd'  : library[payload.cmd]();
+                      break;
+      }
+    } catch (e) {
+
     }
+    
+    
+    //let string = fs.readFile('index.html', 'utf8', returnFile); 
+    
+    //if (JSON.parse(message)) {
+    //  console.log(message);
+    //}
+    
+
   });
 
 
@@ -116,7 +136,21 @@ wss.on('connection', function connection(t) {
     buildJSON('resource/css/debug.css', 'cssFile')
   );
 });
- 
+
+
+var library = {
+  test () {
+
+  },
+  newImproved () {
+    console.log('newImproved');
+  },
+  bringMeTheDOM () {
+    fs.readFile('resource/script/server/dom.json', 'utf8', function(e, result) {
+        ws.send(result, 'DOM')
+    });
+  }
+}
 /*
 wss.on('connection', (ws: WebSocket) => {
 

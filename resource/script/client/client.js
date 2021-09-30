@@ -8,8 +8,11 @@ document.addEventListener("DOMContentLoaded", ivyui);
 import BaseModule from '/resource/script/client/BaseModule.js';
 var hmr = new BaseModule();
 //@ts-ignore
-import socketRouter from '/resource/script/client/socketRouter.js';
-var sRouter = new socketRouter();
+//import socketRouter from '/resource/script/client/socketRouter.js';
+//var sRouter = new socketRouter();
+//@ts-ignore
+import router from '/resource/script/client/router.js';
+var routerInstance = new router();
 //@ts-ignore
 import DOMManipulation from '/resource/script/client/dommanipulation.js';
 var ivyDOM;
@@ -76,13 +79,9 @@ function connectSocket() {
 document.addEventListener('click', e => {
     //const button = e.target as Element;
     //button.closest('button');
-    socket.send('bringMeTheDOM');
+    //routerInstance.request('bringMeTheDOM');
+    routerInstance.go('index.html');
 });
-class SocketHandler {
-    constructor() { }
-}
-const socketHandler = new SocketHandler();
-export default socketHandler;
 class initDOM {
     constructor() {
         this.head = document.head || document.getElementsByTagName('head')[0];
@@ -246,3 +245,4 @@ class devHandler extends DOMManipulation {
         super.m(json);
     }
 }
+export { socket, routerInstance as router };
