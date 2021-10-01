@@ -13,14 +13,24 @@ import { socket } from '/resource/script/client/client.js';
 export default {
     //url: Constants.API_URL,
     request (cmd: string, data: object = []) {
-        let json = JSON.stringify({'cmd':cmd});
-        socket.send(json);
+        let json = {'cmd':cmd};
+        this.build(json);
         return null
     },
 
     go (file: string) {
-        let json = JSON.stringify({'file':file});
-        socket.send(json);
+        let json = {'file':file};
+        this.build(json);
+        return null
+    },
+
+    build (json: object) {
+        const payload = {
+            'payload': json,
+            'key'   : ''
+        };
+
+        socket.send(JSON.stringify(payload));
         return null
     }
 

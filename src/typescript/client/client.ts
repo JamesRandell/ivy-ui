@@ -39,15 +39,10 @@ function ivyui () {
     devHandlerInstance = new devHandler();
     devHandlerInstance.createStatusElement();
 
-
     connectSocket();
-
-
-    
 
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
-    console.log(params);
 }
 var socket = null;
 
@@ -57,7 +52,7 @@ function connectSocket() {
     'use strict';
 
     function start () {
-        socket = new WebSocket('ws://localhost:8081');
+        socket = new WebSocket('ws://localhost:8082');
 
         socket.onopen = function(){
             devHandlerInstance.connected();
@@ -71,9 +66,9 @@ function connectSocket() {
             //try {
                 const result = JSON.parse(data.data);
 
-                const key = Object.keys(data.data)[0];
+                //const key = Object.keys(data.data)[0];
 
-                dommanipulationinstance.payload(Object.keys(result)[0], result);
+                dommanipulationinstance.message(result);
             /*} catch (e) {
                console.log(e);
             
@@ -144,23 +139,7 @@ class initDOM {
         document.body.appendChild(this.consoleWrapper);
     }
 
-    insert (content: any, location: string = 'console') {
-        //let node = document.createTextNode(content);
-        //this.console.appendChild(node);
-    
-        let line = document.createElement("p");
-        line.textContent = content;
-        this.console.appendChild(line);
-    }
 
-
-
-    insertCSS (data: string) {
-        const tag = document.createElement('style');
-        this.head.appendChild(tag);
-        tag.id = 'werd';
-        tag.appendChild(document.createTextNode(data));
-    }
    
 }
 

@@ -31,6 +31,22 @@ export default class DOMManipulation extends hotModuleReload {
         (json.hasOwnProperty('ui')) ? this._ui(json['ui']) : null;
         (json.hasOwnProperty('data')) ? this._data(json['data']) : null;
     }
+    /**
+     * I think this is what you can define as 'code smell' (as in, I know this is bad).
+     * It looks like its function chainging - because it is! I just changed the JSON
+     * structure to start with 'payload' as that's what I prefer.
+     *
+     * @param json The entire json object from the server, usually with
+     * a 'payload;
+     * @returns
+     */
+    _payload(json) {
+        const key = this._getKey(json);
+        // what if the value is a string (like loading an html file?)
+        if (typeof json[key] === 'string') {
+            return this['_' + key](json[key]);
+        }
+    }
     _ui(json) {
         const key = this._getKey(json);
         // what if the value is a string (like loading an html file?)
@@ -46,7 +62,7 @@ export default class DOMManipulation extends hotModuleReload {
         }
     }
     /**
-     * the paylaod is split into multiple sections, 'data' is seperate to 'ui' concerns.
+     * the payload is split into multiple sections, 'data' is seperate to 'ui' concerns.
      * I.e if we want to create an HTML node with 'ui' with some text, that text must go
      * into the 'data' part of the payload
      * @param json
@@ -113,7 +129,18 @@ export default class DOMManipulation extends hotModuleReload {
     }
     _html(html) {
         var loadedContent = html;
-        loadedContent.getElementsByTagName('body');
+        //html = this.sanitizeHTML(html);
+        let temp = document.createElement('div');
+        temp.innerHTML = html;
+        var ele = temp.querySelector('span');
+        console.log(ele);
+        if (ele) {
+            //if (replace) {
+            this.body.innerHTML = ele.innerHTML;
+            //} else {
+            //  targetContainer.appendChild(ele);
+            //}
+        }
     }
     _htmlFile(path, parentNode = null) {
         this._HTMLFile(path, parentNode);
@@ -158,6 +185,19 @@ export default class DOMManipulation extends hotModuleReload {
     _createHTML(html, parentNode = null) {
         this._insertHTML(html, parentNode);
     }
+    /**
+     * Sanitize and encode all HTML in a user-submitted string
+     * (c) 2018 Chris Ferdinandi, MIT License, https://gomakethings.com
+     *
+     * @param str The returned HTML (hopefully)
+     * @returns sanitized string
+     */
+    sanitizeHTML(str) {
+        var temp = document.createElement('div');
+        temp.textContent = str;
+        return temp.innerHTML;
+    }
+    ;
     /**
      *
      * @param object helper function to get the key from a JSON object

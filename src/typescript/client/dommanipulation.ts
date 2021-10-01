@@ -55,6 +55,26 @@ export default class DOMManipulation extends hotModuleReload {
 
     }
 
+    /**
+     * I think this is what you can define as 'code smell' (as in, I know this is bad).
+     * It looks like its function chainging - because it is! I just changed the JSON
+     * structure to start with 'payload' as that's what I prefer.
+     * 
+     * @param json The entire json object from the server, usually with 
+     * a 'payload;
+     * @returns 
+     */
+    private _payload (json: object) {
+        const key = this._getKey(json);
+
+        // what if the value is a string (like loading an html file?)
+        if (typeof json[key] === 'string') {
+            return this['_'+key](json[key]);
+        }
+
+
+    }
+
     protected _ui (json: object) {
         const key = this._getKey(json);
 
@@ -72,7 +92,7 @@ export default class DOMManipulation extends hotModuleReload {
     }
 
     /**
-     * the paylaod is split into multiple sections, 'data' is seperate to 'ui' concerns.
+     * the payload is split into multiple sections, 'data' is seperate to 'ui' concerns.
      * I.e if we want to create an HTML node with 'ui' with some text, that text must go 
      * into the 'data' part of the payload
      * @param json 
@@ -150,7 +170,24 @@ export default class DOMManipulation extends hotModuleReload {
     private _html (html: string) {
         var loadedContent = html;
 
-        loadedContent.getElementsByTagName('body');
+        //html = this.sanitizeHTML(html);
+        
+        
+
+let temp = document.createElement('div');
+temp.innerHTML = html;
+
+var ele = temp.querySelector('span');
+console.log(ele);
+if (ele) {
+    //if (replace) {
+      this.body.innerHTML = ele.innerHTML;
+    //} else {
+    //  targetContainer.appendChild(ele);
+    //}
+  }
+
+
     }
 
     private _htmlFile (path: string, parentNode: string = null) {
@@ -203,6 +240,21 @@ export default class DOMManipulation extends hotModuleReload {
     private _createHTML (html: string, parentNode: string = null) {
         this._insertHTML(html, parentNode);
     }
+
+
+    /**
+     * Sanitize and encode all HTML in a user-submitted string
+     * (c) 2018 Chris Ferdinandi, MIT License, https://gomakethings.com
+     * 
+     * @param str The returned HTML (hopefully)
+     * @returns sanitized string
+     */
+    private sanitizeHTML (str: string) {
+        var temp = document.createElement('div');
+        temp.textContent = str;
+        return temp.innerHTML;
+    };
+
 
     /**
      * 

@@ -5,28 +5,50 @@
 import { ClassMapper } from "/resource/script/client/ClassMapper.js";
 
 
-export default class routerSocket {
+export default class socketRouter {
 
 
     head = document.head || document.getElementsByTagName('head')[0];
 
-    public payload(key: string, value: object){
+    public message(json: any) {
 
-        if (key === 'jsFile') {
-            this.jsFile(value);
-        } else if (key === 'cssFile') {
-            this.cssFile(value);
-        } else {
-            // call the child method (i.e. _ui or _data)
-            this['_'+key](value[key]); 
+        if (!json.hasOwnProperty('payload')) {
+            // don't bother processing
+            console.warn('\'' + Object.keys(json)[0] + '\' is not a suitable message key');
+            return;
+        }
+
+        /**
+         * loop through the payload keys. We then test if the key is a string and try to run the function in our 'library'
+         */
+        var keys = Object.keys(json.payload),
+            len = keys.length,
+            i = 0,
+            cmd: string;
+
+        while (i < len) {
+            cmd = keys[i];
+
+            if (typeof cmd != 'string') {
+               continue;
+            }
+
+            console.log('Running \''+cmd+'\' with \''+json.payload[cmd]+'\'');
+            switch (cmd) {
+                case 'jsFile':  this.jsFile(json.payload['jsFile']);
+                                break;
+                case 'cssFile': this.cssFile(json.payload['cssFile']);
+                                break;
+                default:        this['_'+cmd](json.payload[cmd]);
+            }
+
+            i += 1;
         }
     }
 
-    public jsFile (filePath: object) {
+    public jsFile (filePath: string) {
 
-        const path: string = filePath['jsFile'];
-
-        this._jsFile(path);
+        this._jsFile(filePath);
     }
 
     private _jsFile (path: string) { 
@@ -53,11 +75,9 @@ export default class routerSocket {
         this.Reload(this);
     }
 
-    public cssFile (filePath: object) {
+    public cssFile (filePath: string) {
 
-        const path: string = filePath['cssFile'];
-
-        this._cssFile(path);
+        this._cssFile(filePath);
     }
 
     private _cssFile (path: string) {
@@ -65,9 +85,8 @@ export default class routerSocket {
 
         // lets see if this already exists
         var linkTag = this.head.querySelector("[href='" + path + "']");
-        
-        
-        if (linkTag) {console.log(path);console.log(linkTag);
+
+        if (linkTag) {
             linkTag.setAttribute('href', linkTag.getAttribute('href') + "");
             return;
         }

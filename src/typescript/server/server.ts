@@ -7,7 +7,7 @@ var registry = {
 }
 
 var ws = null;
-const wss = new WebSocketServer({ port: 8081 });
+const wss = new WebSocketServer({ port: 8082 });
 
 
 var returnFile = function (err, data) {
@@ -88,7 +88,9 @@ const filePush = (file: string) => {
 
 function buildJSON (data: any, key: string = 'default') {
   let result: object = {
-    [key]: data
+    'payload': {
+      [key]: data
+    }
   }; 
 
   return JSON.stringify(result);
@@ -102,35 +104,39 @@ wss.on('connection', function connection(t) {
 
   ws.on('message', (message: any) => {
 
-    console.log('received: %s', message);
+    //console.log('received: %s', message);
+    
+    message = JSON.parse(message);
 
-    try {
-      let payload = JSON.parse(message);
+    /**
+     * we use the key 'payload' to transmit and receive instructions. Along side the payload key
+     * will be other keys we can use to identify the validity of the sender
+     */ 
+    if (message.hasOwnProperty('payload')) {
 
-      switch (Object.keys(payload)[0]) {
-        case 'file' : fs.readFile(payload.file, 'utf8', function(e, result) {
-                        ws.send(
-                          buildJSON(result, 'html')
-                        )
-                      });
-                      break;
-        case 'cmd'  : library[payload.cmd]();
-                      break;
+      console.log('Recieved payload...');
+
+      /**
+       * loop through the payload keys. We then test if the key is a string and try to run the function in our 'library'
+       */
+      var keys = Object.keys(message.payload),
+        len = keys.length,
+        i = 0,
+        cmd: string;
+
+      while (i < len) {
+        cmd = keys[i];
+
+        if (typeof cmd === 'string') {
+          console.log('Running \''+cmd+'\' with \''+message.payload[cmd]+'\'');
+
+          library[ cmd ]( message.payload[cmd] );
+        }
+
+        i += 1;
       }
-    } catch (e) {
-
     }
-    
-    
-    //let string = fs.readFile('index.html', 'utf8', returnFile); 
-    
-    //if (JSON.parse(message)) {
-    //  console.log(message);
-    //}
-    
-
   });
-
 
   ws.send(
     buildJSON('resource/css/debug.css', 'cssFile')
@@ -142,12 +148,22 @@ var library = {
   test () {
 
   },
+  
   newImproved () {
     console.log('newImproved');
   },
+
   bringMeTheDOM () {
     fs.readFile('resource/script/server/dom.json', 'utf8', function(e, result) {
         ws.send(result, 'DOM')
+    });
+  },
+
+  file (file: string) {
+    fs.readFile(file, 'utf8', function(e, result) {
+      ws.send(
+        buildJSON(result, 'html')
+      )
     });
   }
 }
