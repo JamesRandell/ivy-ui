@@ -12,6 +12,9 @@ import protocolHTTP from "/resource/script/client/protocolHTTP.js";
 
 import iprotocol from "./interface/iprotocol";
 
+//@ts-ignore
+import DOMManipulation from "./dommanipulation.js";
+
 
 export default class router implements iprotocol {
 
@@ -37,7 +40,10 @@ export default class router implements iprotocol {
 
         }
 
-        // we also need to keep an eye on URI changes at some point for proper routing
+        /** 
+         * we also need to keep an eye on URI changes at some point for proper routing
+         */
+        this._linkHandler();
     }
 
     /**
@@ -47,8 +53,12 @@ export default class router implements iprotocol {
      * @param file name of thefile to retrieve from the server
      */
     public go (file: string) {
+
+        let t = DOMManipulation.getInstance();
+ 
         this.server.go(file);
 
+        return true;
     }
 
     /**
@@ -60,6 +70,45 @@ export default class router implements iprotocol {
      */
     public request (cmd: string, data: object = []) {
         this.server.request(cmd, data);
+    }
+
+    /**
+     * Intercepts hyperlink clicks and events in an attempt to load pages via a background process
+     * and display the page inline
+     * 
+     * Thinking about it, we can look for GLOBAL, LOCAL and WIDGET templates just like in IVY.
+     * By default, all pages should load via LOCAL, so we seemlessly navigate around a site.
+     * GLOBAL will change the entire layout and design
+     * WIDGET will load a single element of the page (or multiple elements, just not the entire page content)
+     */
+    private _linkHandler() {
+
+        const that: any = this;
+        if (document.querySelector('a') === null) {
+            return;
+        }
+        
+        document.querySelectorAll("a").forEach((e) => {
+
+            e.addEventListener("click", function(event) {
+
+                event.stopPropagation();
+                //document.getElementById("output-box").innerHTML += "Sorry! <code>preventDefault()</code> won't let you check this!<br>";
+                
+                let href = e.getAttribute('href');
+                event.preventDefault();
+                that.go(href);
+            }, false);
+        });
+
+        window.addEventListener('popstate',(e)=>{
+
+            if (e.state == null) {
+                return;
+            }
+            that.go(e.state.pageID);
+            //console.log(e.state);
+        });
 
     }
 }

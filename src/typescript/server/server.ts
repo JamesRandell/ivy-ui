@@ -86,12 +86,24 @@ const filePush = (file: string) => {
 
 };
 
-function buildJSON (data: any, key: string = 'default') {
-  let result: object = {
-    'payload': {
-      [key]: data
-    }
-  }; 
+function buildJSON (data: any, key: string = null) {
+  var result: object = {};
+  
+  if (!key) {
+    
+    result = {
+      'payload': data
+    };
+
+  } else {
+    
+    result = {
+      'payload': {
+        [key]: data
+      }
+    };
+    
+  }
 
   return JSON.stringify(result);
 }
@@ -160,10 +172,25 @@ var library = {
   },
 
   file (file: string) {
+
+    /**
+     * basic check to see if the path a string
+     */
+    if (typeof file !== 'string') {
+      console.warn('Filepath is not a string, cancelling call to file');
+      return;
+    }
+
+    /**
+     * add in more checks to see if the file does exist and is of type html (and
+     * not like a fucking config or password file)
+     */
     fs.readFile(file, 'utf8', function(e, result) {
       ws.send(
-        buildJSON(result, 'html')
+        buildJSON({html:{data:result,file:file}})
       )
+
+      
     });
   }
 }

@@ -60,12 +60,20 @@ const filePush = (file) => {
         returnFile(0, result);
     });
 };
-function buildJSON(data, key = 'default') {
-    let result = {
-        'payload': {
-            [key]: data
-        }
-    };
+function buildJSON(data, key = null) {
+    var result = {};
+    if (!key) {
+        result = {
+            'payload': data
+        };
+    }
+    else {
+        result = {
+            'payload': {
+                [key]: data
+            }
+        };
+    }
     return JSON.stringify(result);
 }
 wss.on('connection', function connection(t) {
@@ -108,8 +116,19 @@ var library = {
         });
     },
     file(file) {
+        /**
+         * basic check to see if the path a string
+         */
+        if (typeof file !== 'string') {
+            console.warn('Filepath is not a string, cancelling call to file');
+            return;
+        }
+        /**
+         * add in more checks to see if the file does exist and is of type html (and
+         * not like a fucking config or password file)
+         */
         fs.readFile(file, 'utf8', function (e, result) {
-            ws.send(buildJSON(result, 'html'));
+            ws.send(buildJSON({ html: { data: result, file: file } }));
         });
     }
 };

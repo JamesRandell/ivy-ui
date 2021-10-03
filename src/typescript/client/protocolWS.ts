@@ -21,7 +21,7 @@ export default {
     go (file: string) {
         let json = {'file':file};
         this.build(json);
-        return null
+        return true
     },
 
     build (json: object) {

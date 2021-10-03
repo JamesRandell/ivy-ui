@@ -13,11 +13,19 @@ It errors in tsc watch but works in browser
 */
 //@ts-ignore
 import hotModuleReload from '/resource/script/client/socketRouter.js';
+let instance = null;
 export default class DOMManipulation extends hotModuleReload {
     constructor() {
         super();
         this.head = document.head || document.getElementsByTagName('head')[0];
         this.body = document.body || document.getElementsByTagName('body')[0];
+        this.content = document.getElementsByClassName('content')[0];
+    }
+    static getInstance() {
+        if (instance === null) {
+            instance = new DOMManipulation();
+        }
+        return instance;
     }
     js(data) {
         //super.Reload(s);
@@ -96,7 +104,10 @@ export default class DOMManipulation extends hotModuleReload {
         }
     }
     _createNode(node, attributes) {
-        var e = this._getElement(attributes.id || node);
+        var e = this.body.querySelector(attributes.id);
+        /**
+         * This element doesn't exist on the current page, so create it instead of updating it
+         */
         if (e === null) {
             e = document.createElement(node);
         }
@@ -117,29 +128,104 @@ export default class DOMManipulation extends hotModuleReload {
     _updateNode(node, attributes) {
         const e = this._getElement(attributes.id || node);
         if (typeof attributes === 'object') {
+            var t;
             switch (this._getKey(attributes)) {
-                case 'class': e.setAttribute('class', attributes.class);
+                case 'class':
+                    t = attributes.class;
+                    if (typeof t === 'object') {
+                        for (const cssClass of t) {
+                            e.setAttribute('class', cssClass);
+                        }
+                    }
+                    else {
+                        e.setAttribute('class', t);
+                    }
                 //break;
-                case 'addclass': e.classList.add(attributes.addclass);
+                case 'addclass':
+                    t = attributes.addclass;
+                    if (typeof t === 'object') {
+                        for (const cssClass of t) {
+                            e.classList.add(cssClass);
+                        }
+                    }
+                    else {
+                        e.classList.add(t);
+                    }
                 //break;
-                case 'removeclass': e.classList.remove(attributes.removeclass);
+                case 'removeclass':
+                    t = attributes.removeclass;
+                    if (typeof t === 'object') {
+                        for (const cssClass of t) {
+                            e.classList.remove(cssClass);
+                        }
+                    }
+                    else {
+                        e.classList.remove(t);
+                    }
                 //break;
             }
         }
     }
-    _html(html) {
-        var loadedContent = html;
+    _html(json) {
+        /**
+         * we expect:
+         * json.html
+         * json.file (maybe)
+         */
+        var loadedContent = json.data;
         //html = this.sanitizeHTML(html);
-        let temp = document.createElement('div');
-        temp.innerHTML = html;
-        var ele = temp.querySelector('span');
-        console.log(ele);
-        if (ele) {
-            //if (replace) {
-            this.body.innerHTML = ele.innerHTML;
-            //} else {
-            //  targetContainer.appendChild(ele);
-            //}
+        let temp = document.createElement('html');
+        temp.innerHTML = loadedContent;
+        var r = this;
+        //setTimeout(() => {r.postGo()},200);
+        // i'll always have a body because the creation ofthe html node creates
+        // head and body nodes
+        /**
+         * we can check for the first element in the body and what it's class is. If it
+         * matches an element with the same class in the calling page, then replace its
+         * content.
+         */
+        const body = temp.querySelector("body");
+        let amIAWidgetTemplate = body.querySelector('*');
+        if (amIAWidgetTemplate.id.length > 0) {
+            let widgetID = amIAWidgetTemplate.id;
+            /**
+             * now lets see if the widget id exists in the current content
+             */
+            let currentPageWidget = this.body.querySelector('[id=' + widgetID + ']');
+            if (currentPageWidget !== null) {
+                currentPageWidget.innerHTML = amIAWidgetTemplate.innerHTML;
+                return;
+            }
+        }
+        var amIALocalTemplate = temp.querySelector('.content');
+        if (amIALocalTemplate !== null) {
+            this.content.innerHTML = amIALocalTemplate.innerHTML;
+            //} else if (doIHaveBody !== null) {
+            //  console.log('I have body');
+            //this.body.innerHTML = doIHaveBody.innerHTML;
+        }
+        else {
+            /**
+             * the page we loaded is possibly a LOCAL or a WIDGET because it doesn't contain
+             * <body> tags
+             *
+             * So we can just insert the whole thing. However we can look for an id on the first
+             * parent element to see if we need to replace anything
+             */
+            this.content.innerHTML = temp.innerHTML;
+        }
+        if (json.hasOwnProperty('file')) {
+            this._navigate(json.file);
+        }
+    }
+    _navigate(file) {
+        /**
+         * just assume the page load worked for now and return true;
+         */
+        let currentFile = window.location.pathname.replace(/^\/|\/$/g, '');
+        if (currentFile != file) {
+            window.history.pushState({ pageID: file }, file, '/' + file);
         }
     }
     _htmlFile(path, parentNode = null) {

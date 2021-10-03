@@ -21,13 +21,18 @@ export default class socketRouter {
             if (typeof cmd != 'string') {
                 continue;
             }
-            console.log('Running \'' + cmd + '\' with \'' + json.payload[cmd] + '\'');
+            if (typeof json.payload[cmd] === 'string') {
+                console.log('Running \'' + cmd + '\' with \'' + json.payload[cmd].substring(0, 30) + '\'');
+            }
+            else {
+                console.log('Running \'' + cmd + '\' with an object returned');
+            }
             switch (cmd) {
                 case 'jsFile':
-                    this.jsFile(json.payload['jsFile']);
+                    this.jsFile(json.payload[cmd]);
                     break;
                 case 'cssFile':
-                    this.cssFile(json.payload['cssFile']);
+                    this.cssFile(json.payload[cmd]);
                     break;
                 default: this['_' + cmd](json.payload[cmd]);
             }
@@ -48,7 +53,7 @@ export default class socketRouter {
         }
         const tag = document.createElement('script');
         tag.type = 'module';
-        tag.src = path; // + '?' + Date.now();
+        tag.src = path + '?' + Date.now();
         this.head.appendChild(tag);
         console.log('Adding: ' + path + ' (' + filename + ')');
         this.Reload(this);
@@ -57,10 +62,11 @@ export default class socketRouter {
         this._cssFile(filePath);
     }
     _cssFile(path) {
-        // lets see if this already exists
-        var linkTag = this.head.querySelector("[href='" + path + "']");
+        // lets see if this already exists, match the first part of the name so we don't look for timestamps
+        var linkTag = this.head.querySelector("[href^='" + path + "']");
         if (linkTag) {
-            linkTag.setAttribute('href', linkTag.getAttribute('href') + "");
+            console.log('Updating: ' + path);
+            linkTag.setAttribute('href', path + '?' + Date.now());
             return;
         }
         const tag = document.createElement('link');

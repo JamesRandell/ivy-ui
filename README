@@ -19,6 +19,14 @@ docker run -it --rm -d -p 8080:80 --name web -v /Users/jamesrandell/Sites/ivy-pr
 
 Node Server
 // check out the package.json for what 'dev' is
+npm install
 npm run dev
 
 npx tsc -w
+
+
+
+// test stuff for cassandra
+docker run --name cassandra -d cassandra:latest
+
+$ docker exec -it cassandra bash

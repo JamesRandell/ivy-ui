@@ -18,7 +18,7 @@ export default {
     go(file) {
         let json = { 'file': file };
         this.build(json);
-        return null;
+        return true;
     },
     build(json) {
         const payload = {

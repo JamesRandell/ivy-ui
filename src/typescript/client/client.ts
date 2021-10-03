@@ -7,7 +7,7 @@ var config = {
 var dom: object = {};
 
 
-document.addEventListener("DOMContentLoaded", ivyui);
+
 
 //@ts-ignore
 import BaseModule from '/resource/script/client/BaseModule.js';
@@ -34,7 +34,7 @@ function ivyui () {
    
     
     ivyDOM = new initDOM();
-    dommanipulationinstance = new DOMManipulation();
+    dommanipulationinstance = DOMManipulation.getInstance();
 
     devHandlerInstance = new devHandler();
     devHandlerInstance.createStatusElement();
@@ -108,12 +108,12 @@ function connectSocket() {
 }
 
 
-document.addEventListener('click', e => {
+//document.addEventListener('click', e => {
     //const button = e.target as Element;
     //button.closest('button');
     //routerInstance.request('bringMeTheDOM');
-    routerInstance.go('index.html');
-})
+    //routerInstance.go('index.html');
+//})
 
 
 
@@ -195,6 +195,14 @@ class devHandler extends DOMManipulation {
                     },
                     "verb":"add"
                   }
+                ],
+                "div":[
+                  {
+                    "attr": {
+                      "class":""
+                    },
+                    "verb":"add"
+                  }
                 ]
               }
             },
@@ -232,29 +240,29 @@ class devHandler extends DOMManipulation {
 
     public connected () {
         var json = {
-            "ui":{
-              "node":{
-                "div":[
+            ui:{
+              node:{
+                div:[
                   {
-                    "attr": {
-                      "addclass": "connected",
-                      "id": "status"
+                    attr: {
+                      addclass: ["connected","pulse"],
+                      id: "status"
                     },
-                    "verb":"update"
+                    verb:"update"
                   }
                 ],
-                "body":[
+                body:[
                     {
-                      "attr": {
-                        "addclass": "connected",
+                      attr: {
+                        addclass: "connected",
                       },
-                      "verb":"update"
+                      verb:"update"
                     }
                   ],
               }
             },
-            "data": {
-                "status": "Connected"
+            data: {
+                status: ""
             }
         };
     
@@ -268,7 +276,7 @@ class devHandler extends DOMManipulation {
                 "div":[
                 {
                     "attr": {
-                    "removeclass": "connected",
+                    removeclass: ["connected","pulse"],
                     "id": "status"
                     },
                     "verb":"update"
@@ -294,3 +302,5 @@ class devHandler extends DOMManipulation {
 }
 
 export { socket, routerInstance as router};
+
+document.addEventListener("DOMContentLoaded", ivyui);

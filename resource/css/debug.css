@@ -30,13 +30,3 @@
 .console :last-child {
     border-bottom: none
 }
-
-.status {
-            position: absolute;
-            bottom:10px;
-            right: 10px;
-            border:1px solid #efefef;
-            padding:4px;
-            color: #efefef
-        }
-        body { background-color: red;}

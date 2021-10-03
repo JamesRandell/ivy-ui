@@ -7,6 +7,8 @@
 import protocolWS from "/resource/script/client/protocolWS.js";
 //@ts-ignore
 import protocolHTTP from "/resource/script/client/protocolHTTP.js";
+//@ts-ignore
+import DOMManipulation from "./dommanipulation.js";
 export default class router {
     constructor() {
         /**
@@ -27,7 +29,10 @@ export default class router {
                 this.server = new protocolHTTP();
                 break;
         }
-        // we also need to keep an eye on URI changes at some point for proper routing
+        /**
+         * we also need to keep an eye on URI changes at some point for proper routing
+         */
+        this._linkHandler();
     }
     /**
      * This gets a file from the server and 'sends' the user to it by updating the page,
@@ -36,7 +41,9 @@ export default class router {
      * @param file name of thefile to retrieve from the server
      */
     go(file) {
+        let t = DOMManipulation.getInstance();
         this.server.go(file);
+        return true;
     }
     /**
      * This compliments the 'go' function in that it updates page elements instead of
@@ -47,5 +54,36 @@ export default class router {
      */
     request(cmd, data = []) {
         this.server.request(cmd, data);
+    }
+    /**
+     * Intercepts hyperlink clicks and events in an attempt to load pages via a background process
+     * and display the page inline
+     *
+     * Thinking about it, we can look for GLOBAL, LOCAL and WIDGET templates just like in IVY.
+     * By default, all pages should load via LOCAL, so we seemlessly navigate around a site.
+     * GLOBAL will change the entire layout and design
+     * WIDGET will load a single element of the page (or multiple elements, just not the entire page content)
+     */
+    _linkHandler() {
+        const that = this;
+        if (document.querySelector('a') === null) {
+            return;
+        }
+        document.querySelectorAll("a").forEach((e) => {
+            e.addEventListener("click", function (event) {
+                event.stopPropagation();
+                //document.getElementById("output-box").innerHTML += "Sorry! <code>preventDefault()</code> won't let you check this!<br>";
+                let href = e.getAttribute('href');
+                event.preventDefault();
+                that.go(href);
+            }, false);
+        });
+        window.addEventListener('popstate', (e) => {
+            if (e.state == null) {
+                return;
+            }
+            that.go(e.state.pageID);
+            //console.log(e.state);
+        });
     }
 }
