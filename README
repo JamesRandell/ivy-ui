@@ -30,3 +30,6 @@ npx tsc -w
 docker run --name cassandra -d cassandra:latest
 
 $ docker exec -it cassandra bash
+
+
+docker-compose up -d --force-recreate
