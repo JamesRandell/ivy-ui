@@ -29,7 +29,7 @@ npx tsc -w
 // test stuff for cassandra
 docker run --name cassandra -d cassandra:latest
 
-$ docker exec -it cassandra bash
+docker exec -it cassandra bash
 
-
-docker-compose up -d --force-recreate
+CREATE KEYSPACE james
+WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};
