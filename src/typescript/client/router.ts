@@ -5,10 +5,10 @@
  */
 
 //@ts-ignore
-import protocolWS from "/resource/script/client/protocolWS.js";
+import protocolWS from "./protocolWS.js";
 
 //@ts-ignore
-import protocolHTTP from "/resource/script/client/protocolHTTP.js";
+import protocolHTTP from "./protocolHTTP.js";
 
 import iprotocol from "./interface/iprotocol";
 

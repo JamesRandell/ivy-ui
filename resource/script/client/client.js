@@ -4,16 +4,16 @@ var config = {
 };
 var dom = {};
 //@ts-ignore
-import BaseModule from '/resource/script/client/BaseModule.js';
+import BaseModule from './BaseModule.js';
 var hmr = new BaseModule();
 //@ts-ignore
 //import socketRouter from '/resource/script/client/socketRouter.js';
 //var sRouter = new socketRouter();
 //@ts-ignore
-import router from '/resource/script/client/router.js';
+import router from './router.js';
 var routerInstance = new router();
 //@ts-ignore
-import DOMManipulation from '/resource/script/client/dommanipulation.js';
+import DOMManipulation from './dommanipulation.js';
 var ivyDOM;
 var devHandlerInstance;
 var dommanipulationinstance;

@@ -7,7 +7,7 @@
 // lts try object literal approach so we don't create new instances of this class every time we 
 // want to call a page
 //@ts-ignore
-import { socket } from '/resource/script/client/client.js';
+import { socket } from './client.js';
 export default {
     //url: Constants.API_URL,
     request(cmd, data = []) {

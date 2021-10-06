@@ -6,7 +6,7 @@
         "rootDir": "src/typescript",
         "moduleResolution": "Node",
         "types": ["node"],
-        "baseUrl":"/",
+        "baseUrl":"ui",
         "paths": {
             "@script/*": ["/resource/script/*"]
         }

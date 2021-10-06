@@ -1,5 +1,5 @@
 //@ts-ignore
-import { ClassMapper } from "/resource/script/client/ClassMapper.js";
+import { ClassMapper } from "./ClassMapper.js";
 export default class BaseModule {
     constructor() {
         //this.Reload(new.target.name);

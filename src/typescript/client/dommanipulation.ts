@@ -16,7 +16,7 @@ could not get this working (the VSCode erroring not that actual class).
 It errors in tsc watch but works in browser
 */
 //@ts-ignore
-import hotModuleReload from '/resource/script/client/socketRouter.js';
+import hotModuleReload from './socketRouter.js';
 
 interface IAttributes {
     class?: string;

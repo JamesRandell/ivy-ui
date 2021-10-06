@@ -4,9 +4,9 @@
  * will toally be to read from the URI and make simple updates to it
  */
 //@ts-ignore
-import protocolWS from "/resource/script/client/protocolWS.js";
+import protocolWS from "./protocolWS.js";
 //@ts-ignore
-import protocolHTTP from "/resource/script/client/protocolHTTP.js";
+import protocolHTTP from "./protocolHTTP.js";
 //@ts-ignore
 import DOMManipulation from "./dommanipulation.js";
 export default class router {

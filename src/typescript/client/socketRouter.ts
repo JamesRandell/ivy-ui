@@ -2,7 +2,7 @@
 //import BaseModule from '/resource/script/client/BaseModule.js';
 
 //@ts-ignore
-import { ClassMapper } from "/resource/script/client/ClassMapper.js";
+import { ClassMapper } from "./ClassMapper.js";
 
 
 export default class socketRouter {
