@@ -19,7 +19,23 @@ var broadcast = function(data) {
   ws.send(data);
 };
 
-fs.watch('resource/css', (eventType: string, filename: string) => {
+fs.watch('resource', {recursive:true}, (eventType: string, filePath: string) => {
+  
+  let fileArray = filePath.split('\\');
+  let fileName = fileArray[fileArray.length-1];
+  fileArray.pop();
+  let path = fileArray.join('/');
+
+  /**
+   * this returns all the parts after the first dot (.) incase we have a multi . extenion. We then strip the dots out.
+   */
+  let ext = fileName.substr(fileName.indexOf('.')+1, 100).replace('.', '');
+
+  /**
+   * don't return server changes to the client!!
+   */
+  if (path === 'server') return;
+
 
   // eventType could be either 'rename' or 'change'. new file event and delete
   // also generally emit 'rename'
@@ -36,15 +52,17 @@ fs.watch('resource/css', (eventType: string, filename: string) => {
           // old way to send file contents out
           //filePush('resource/css/' + filename);
 
+          console.log('File changed: ' + filePath);
+
           // instead we just send the file name and let the client deal with it
           broadcast( 
-            buildJSON('resource/css/' + filename, 'cssFile')
+            buildJSON('resource/' + path + '/' + fileName, ext + 'File')
           );
       }
     })();
 })
 
-
+/*
 fs.watch('resource/script/client', (eventType: string, filename: string) => {
 
   // eventType could be either 'rename' or 'change'. new file event and delete
@@ -73,7 +91,7 @@ console.log('File changed: ' + filename);
       }
     })();
 })
-
+*/
 
 const filePush = (file: string) => {
 

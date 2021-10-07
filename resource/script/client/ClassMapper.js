@@ -94,7 +94,7 @@ export class ClassMapper {
         // Simple properties are things like strings and booleans
         let simplePropertyNames = Object.getOwnPropertyNames(this.New);
         let allProperties = complexPropertyNames.concat(simplePropertyNames);
-        //console.group("Merging ");
+        //console.group();
         //console.log("Prototype", prototype);
         //console.log("Object", this.New);
         //console.table(allProperties);
@@ -102,10 +102,9 @@ export class ClassMapper {
         //console.groupEnd();
         // Iterate through each property/function we have found
         allProperties.map((propertyName) => {
-            //console.group(propertyName);
             this.MergeProperty(propertyName);
-            //console.groupEnd();
         });
+        //console.groupEnd();
         return this.Original;
     }
 }

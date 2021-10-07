@@ -13,7 +13,20 @@ var returnFile = function (err, data) {
 var broadcast = function (data) {
     ws.send(data);
 };
-fs.watch('resource/css', (eventType, filename) => {
+fs.watch('resource', { recursive: true }, (eventType, filePath) => {
+    let fileArray = filePath.split('\\');
+    let fileName = fileArray[fileArray.length - 1];
+    fileArray.pop();
+    let path = fileArray.join('/');
+    /**
+     * this returns all the parts after the first dot (.) incase we have a multi . extenion. We then strip the dots out.
+     */
+    let ext = fileName.substr(fileName.indexOf('.') + 1, 100).replace('.', '');
+    /**
+     * don't return server changes to the client!!
+     */
+    if (path === 'server')
+        return;
     // eventType could be either 'rename' or 'change'. new file event and delete
     // also generally emit 'rename'
     // check if anyone has connected first, otherwise there's no point in push stuff
@@ -25,35 +38,42 @@ fs.watch('resource/css', (eventType, filename) => {
             case 'change':
                 // old way to send file contents out
                 //filePush('resource/css/' + filename);
+                console.log('File changed: ' + filePath);
                 // instead we just send the file name and let the client deal with it
-                broadcast(buildJSON('resource/css/' + filename, 'cssFile'));
+                broadcast(buildJSON('resource/' + path + '/' + fileName, ext + 'File'));
         }
     })();
 });
-fs.watch('resource/script/client', (eventType, filename) => {
-    // eventType could be either 'rename' or 'change'. new file event and delete
-    // also generally emit 'rename'
-    // check if anyone has connected first, otherwise there's no point in push stuff
-    if (wss.clients.size === 0)
-        return;
-    const debounced = debounce(() => {
-        // is the file new? has it been deleted? Or has it changed?
-        switch (eventType) {
-            case 'change':
-                // old way to send file contents out
-                //filePush('resource/css/' + filename);
-                console.log('File changed: ' + filename);
-                // instead we just send the file name and let the client deal with it
-                //broadcast( 
-                //  buildJSON('resource/script/client/' + filename, 'jsFile')
-                //);
-                //fs.readFile('resource/script/client/' + filename, 'utf8', function(e, result) {
-                //  ws.send([{'data':result}], 'js')
-                //});
-                ws.send(buildJSON('resource/script/client/' + filename, 'jsFile'));
-        }
+/*
+fs.watch('resource/script/client', (eventType: string, filename: string) => {
+
+  // eventType could be either 'rename' or 'change'. new file event and delete
+  // also generally emit 'rename'
+
+  // check if anyone has connected first, otherwise there's no point in push stuff
+  if (wss.clients.size === 0) return;
+
+  const debounced = debounce(
+    () => {
+
+      // is the file new? has it been deleted? Or has it changed?
+      switch (eventType) {
+        case 'change' :
+          // old way to send file contents out
+          //filePush('resource/css/' + filename);
+console.log('File changed: ' + filename);
+          // instead we just send the file name and let the client deal with it
+          //broadcast(
+          //  buildJSON('resource/script/client/' + filename, 'jsFile')
+          //);
+          //fs.readFile('resource/script/client/' + filename, 'utf8', function(e, result) {
+          //  ws.send([{'data':result}], 'js')
+          //});
+          ws.send(buildJSON('resource/script/client/' + filename, 'jsFile'));
+      }
     })();
-});
+})
+*/
 const filePush = (file) => {
     fs.readFile(file, 'utf8', (err, data) => {
         let result = buildJSON(data, 'css');

@@ -24,6 +24,8 @@ npm run dev
 
 npx tsc -w
 
+docker-compose up -d --force-recreate
+
 
 
 // test stuff for cassandra

@@ -1,6 +1,7 @@
 'use strict';
 var config = {
-    poll: 2000
+    poll: 2000,
+    dev: true
 };
 var dom = {};
 //@ts-ignore
@@ -14,18 +15,24 @@ import router from './router.js';
 var routerInstance = new router();
 //@ts-ignore
 import DOMManipulation from './dommanipulation.js';
+//@ts-ignore 
+import svg from './svg.js';
+new svg();
 var ivyDOM;
 var devHandlerInstance;
 var dommanipulationinstance;
-function ivyui() {
-    ivyDOM = new initDOM();
-    dommanipulationinstance = DOMManipulation.getInstance();
-    devHandlerInstance = new devHandler();
-    devHandlerInstance.createStatusElement();
-    connectSocket();
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    const params = Object.fromEntries(urlSearchParams.entries());
-}
+var ivyui = {
+    s: function () {
+        ivyDOM = new initDOM();
+        dommanipulationinstance = DOMManipulation.getInstance();
+        devHandlerInstance = new devHandler();
+        devHandlerInstance.createStatusElement();
+        connectSocket();
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const params = Object.fromEntries(urlSearchParams.entries());
+        return;
+    }
+};
 var socket = null;
 function connectSocket() {
     'use strict';
@@ -90,7 +97,7 @@ class initDOM {
         this.consoleWrapper = document.createElement("section");
         this.consoleWrapper.setAttribute('class', 'console');
         this.consoleWrapper.appendChild(this.console);
-        document.body.appendChild(this.consoleWrapper);
+        //document.body.appendChild(this.consoleWrapper);
     }
 }
 /*
@@ -239,4 +246,4 @@ class devHandler extends DOMManipulation {
     }
 }
 export { socket, routerInstance as router };
-document.addEventListener("DOMContentLoaded", ivyui);
+document.addEventListener("DOMContentLoaded", ivyui.s);
