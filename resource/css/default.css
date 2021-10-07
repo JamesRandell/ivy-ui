@@ -1,5 +1,8 @@
-body { background-color: white;}
-body.connected { background-color: #312E3F;}
+body { background-color: white;
+font-size:12px;
+font-family: 'Roboto', sans-serif;
+font-weight:300}
+body.connected { background-color: var(--background);}
 
 .content {
     /*

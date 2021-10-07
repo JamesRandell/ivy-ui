@@ -20,6 +20,11 @@ export default class DOMManipulation extends hotModuleReload {
         this.head = document.head || document.getElementsByTagName('head')[0];
         this.body = document.body || document.getElementsByTagName('body')[0];
         this.content = document.getElementsByClassName('content')[0];
+        this.cssClasses = {
+            active: 'active',
+            current: 'current'
+        };
+        this._navigateInit();
     }
     static getInstance() {
         if (instance === null) {
@@ -219,13 +224,42 @@ export default class DOMManipulation extends hotModuleReload {
             this._navigate(json.file);
         }
     }
+    /**
+     * Right now this is run when the page loads, and simply adds a few css classes to the current link
+     */
+    _navigateInit() {
+        let currentFile = window.location.pathname.replace(/^\/|\/$/g, '');
+        let allTheLinkWithURL = this.body.querySelectorAll('a[href=\'' + currentFile + '\']');
+        let allTheLinkWithURLCount = allTheLinkWithURL.length;
+        for (let i = 0; i < allTheLinkWithURLCount; i++) {
+            allTheLinkWithURL[i].classList.add(this.cssClasses.current);
+        }
+    }
     _navigate(file) {
         /**
          * just assume the page load worked for now and return true;
          */
         let currentFile = window.location.pathname.replace(/^\/|\/$/g, '');
-        if (currentFile != file) {
-            window.history.pushState({ pageID: file }, file, '/' + file);
+        /**
+         * No change, user clicked the same link or something
+         *
+         */
+        if (currentFile == file) {
+            return;
+        }
+        window.history.pushState({ pageID: file }, file, '/' + file);
+        /**
+         * we do some clean up on the DOM to fiddle about with classes, and add certain classes based on css rules
+         */
+        let linkWithOldURL = this.body.querySelectorAll('a[class=' + this.cssClasses.current + ']');
+        let linkWithOldURLCount = linkWithOldURL.length;
+        for (let i = 0; i < linkWithOldURLCount; i++) {
+            linkWithOldURL[i].classList.remove(this.cssClasses.current);
+        }
+        let linkWithNewURL = this.body.querySelectorAll('a[href=\'' + file + '\']');
+        let linkWithNewURLCount = linkWithNewURL.length;
+        for (let i = 0; i < linkWithNewURLCount; i++) {
+            linkWithNewURL[i].classList.add(this.cssClasses.current);
         }
     }
     _htmlFile(path, parentNode = null) {

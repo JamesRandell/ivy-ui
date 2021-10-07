@@ -1,50 +1,145 @@
 
-.icon { fill:#aaa; width:28px; height: 28px; transform: scale(0.9);
+.icon { fill:#aaa; width:28px; height: 28px; transform: scale(0.8);
+}
 
-border: 1px solid blue}
-
-#user { }
-
+nav * {
+    color: #777;
+}
 nav.primary {
-    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-weight: 600;
     border-radius: 15px;
-    width: 200px;
+    width: 250px;
     margin: 20px;
-    padding: 10px 0;
     background: #fff;
 }
 
+nav.primary > ul {
+    padding: 10px;
+    border-bottom:1px solid #eee
+}
+
+
+nav.primary h4 {
+    padding:10px 30px
+}
+
+
 nav li {
-    vertical-align: middle;
+    display: flex;
+    flex-flow: column;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    margin:0;
 }
+
 nav a {
-    color: #666;
+    display:inline-flex;
     text-decoration: none;
-    display: block;
-    width: calc(100%-20px);
-    padding:10px;
-    transition: linear 100ms;
-    border:1px solid black;
-    height: 100%;
-    
-}
-
-nav a:hover {
-    filter: brightness(80%);
-    background-color: red;
-    backdrop-filter: blur(70%);
-
-
-    
+    align-items: center;
+    padding:5px 15px;
 }
 
 
-nav > * {
+nav.primary li {
+ 
+    margin-bottom:2px
+}
+
+/*****************************
+ base effects
+******************************/
+
+
+/*****************************
+ hover effects
+******************************/
+/* top level */
+nav li:hover a:not(:only-child) {
+    background-color: var(--active-bg);
+    border-radius: 7px 7px 0 0
+    /*
+    color: var(--hover);
+    fill: var(--hover);
+    */
+}
+
+nav li:hover a:only-child {
+    border-radius: 7px;
+    background-color: var(--current-bg)
+}
+
+/* sub levels */
+nav li ul {
+    max-height: 0;
+    overflow: hidden;
+    background-color: var(--current-bg)
+}
+nav li:hover ul,
+nav li a.current:not(:only-child) ul {
+    max-height: 5500px;
+}
+nav li:hover ul a:hover {
+    color: var(--active-bg)
+}
+
+
+/*****************************
+ transitions
+******************************/
+nav li a {
+    transition: background-color 100ms linear;
+}
+nav li:hover a {
+    transition: background-color 100ms linear;
+}
+nav li ul {
+    transition: max-height 500ms 0ms ease-out;
+}
+nav li:hover ul  {
+    transition: max-height 500ms 0ms ease-in;
+}
+
+/* 
+  sub-menus
+*/
+/* dynamically collapse submenus when not targeted */
+/*
+nav ul > li:not(:target):not(:hover) > ul {
+    visibility: collapse;
+    height:0;
+
+    transition: max-height 5s ease-in;
+    max-height: 0;
+}
+*/
+
+
+
+/*
+nav a:not(:only-child),
+nav a:not(:only-child) .icon {
+    transition: background-color linear 100ms 500ms; 
+}
+
+nav li:hover a:not(:only-child),
+nav li:hover a:not(:only-child) .icon {
+    transition: background-color linear 100ms 0ms; 
+}
+*/
+
+/* lets fix up some of the border radius for sub-menus */
+nav.primary li ul li:last-child a {
     margin: 0
 }
-
-nav li {
-    margin:0
-
+nav.primary li ul {
+    margin-bottom: 2px;
 }
+
+/*
+nav li ul li:hover:not(:last-child) a {
+    border-radius: 0px
+}
+nav li ul li:hover:last-child a {
+    border-radius: 0 0 7px 7px
+}
+*/

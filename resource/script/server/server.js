@@ -148,6 +148,11 @@ var library = {
          * not like a fucking config or password file)
          */
         fs.readFile(file, 'utf8', function (e, result) {
+            if (e) {
+                console.log('File not found');
+                return;
+            }
+            console.log('Returning file: ' + file);
             ws.send(buildJSON({ html: { data: result, file: file } }));
         });
     }

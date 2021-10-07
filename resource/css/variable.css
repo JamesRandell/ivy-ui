@@ -1,0 +1,9 @@
+:root {
+    --background: hsl(251, 16%, 21%);
+    --current-bg: hsl(251, 80%, 93%);
+    --active-bg: hsl(251, 80%, 55%);
+    --hover-bg: hsl(251, 35%, 69%);
+    --current: hsl(251, 80%, 55%);
+    --hover: hsl(251, 35%, 95%);
+    --active: hsl(251, 35%, 95%);
+}
