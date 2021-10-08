@@ -13,16 +13,33 @@ nav.primary {
     background: #fff;
 }
 
-nav.primary > ul {
+nav.primary > ul:not(:last-child) {
     padding: 10px;
     border-bottom:1px solid #eee
 }
 
-
 nav.primary h4 {
-    padding:10px 30px
+    padding:20px 10px 5px 30px;
+    line-height: 28px;
+    display: flex;
 }
 
+nav.primary h4:first-child::after {
+    content: "<<";
+    margin-left: auto;
+    background-color: #eee;
+    text-align: center;
+    border-radius: 14px;
+    line-height: 28px;
+    height:28px;
+    width: 28px
+}
+
+
+nav.primary h4:first-child:hover::after {
+    background-color: #ccc;
+    cursor: pointer;
+}
 
 nav li {
     display: flex;
@@ -40,46 +57,128 @@ nav a {
 }
 
 
-nav.primary li {
- 
+nav li {
     margin-bottom:2px
 }
 
 /*****************************
+ minimise effect
+******************************/
+nav h4:first-child
+
+/*****************************
  base effects
 ******************************/
+/* top level */
+nav li a {
+    border-radius: 7px 7px 0 0;
+    color: var(--normal);
+    line-height: 28px;
+}
+
+nav li a:only-child {
+    border-radius: 7px;
+}
+
+/* special effects for those with a sub-menu */
+nav li a:not(:only-child)::after {
+    content: "+";
+    margin-left: auto
+}
+nav li a:not(:only-child) {
+    align-items: center;
+ 
+    flex:auto;
+    justify-content: space-between;
+}
+/* sub levels */
+nav li ul li a:only-child {
+    border-radius: 0;
+}
+
+nav li ul {
+    border-radius: 0 0 7px 7px
+}
+
+nav li ul li {
+    margin: 0
+}
+
+nav li ul li a {
+    border-radius: 0;
+}
 
 
 /*****************************
  hover effects
 ******************************/
 /* top level */
-nav li:hover a:not(:only-child) {
+/* HOVER */
+nav li:hover a:not(:only-child)  {
+    color: var(--active);
     background-color: var(--active-bg);
-    border-radius: 7px 7px 0 0
-    /*
-    color: var(--hover);
-    fill: var(--hover);
-    */
 }
 
-nav li:hover a:only-child {
-    border-radius: 7px;
-    background-color: var(--current-bg)
+nav li:hover a:not(:only-child) svg {
+    fill: var(--active);
+    
+}
+
+/* part 1 of 3 rules, part 2 & 3 hits the sub menu below
+   this hits single menu items that don't have a sub-menu */
+nav li:hover a:only-child:not(.current) {
+    color: var(--hover);
+    background-color: var(--hover-bg);
+}
+nav li:hover a:only-child:not(.current) svg {
+    fill: var(--hover)
 }
 
 /* sub levels */
 nav li ul {
     max-height: 0;
     overflow: hidden;
-    background-color: var(--current-bg)
+    background-color: var(--hover-bg)
 }
 nav li:hover ul,
 nav li a.current:not(:only-child) ul {
     max-height: 5500px;
 }
+/*
 nav li:hover ul a:hover {
     color: var(--active-bg)
+}
+*/
+
+/* part 2 of 3 rules, part 1 hits the top menu below
+   This hits the hover effect of a sub-menu link */
+nav li:hover ul li:hover a:only-child:not(.current) {
+    color: var(--hover);
+    background-color: var(--current-bg);
+}
+
+/*****************************
+ current effects
+******************************/
+/* top level */
+nav li.current a {
+    color: var(--current);
+    background-color: var(--current-bg);
+}
+
+nav li.current a svg {
+    fill: var(--hover)
+}
+
+ 
+/* sub levels */
+
+/* part 3 of 3 rules, part 1 hits the top menu below
+   This hits sub-menu links that aren't in hover state
+   This is under current because this styles sub-links that appear under a current top link */
+nav li:hover ul li a:only-child:not(.current) {
+    color: var(--normal);
+    background-color: var(--hover-bg)
 }
 
 
@@ -89,11 +188,14 @@ nav li:hover ul a:hover {
 nav li a {
     transition: background-color 100ms linear;
 }
+nav li a:not(:only-child) {
+    transition-delay: 200ms;
+}
 nav li:hover a {
     transition: background-color 100ms linear;
 }
 nav li ul {
-    transition: max-height 500ms 0ms ease-out;
+    transition: max-height 300ms 200ms ease-out;
 }
 nav li:hover ul  {
     transition: max-height 500ms 0ms ease-in;
@@ -128,10 +230,10 @@ nav li:hover a:not(:only-child) .icon {
 */
 
 /* lets fix up some of the border radius for sub-menus */
-nav.primary li ul li:last-child a {
+nav li ul li:last-child a {
     margin: 0
 }
-nav.primary li ul {
+nav li ul {
     margin-bottom: 2px;
 }
 
