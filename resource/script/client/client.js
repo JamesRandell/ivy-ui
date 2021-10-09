@@ -163,7 +163,7 @@ class devHandler extends DOMManipulation {
                 "btn": "Click me"
             }
         };
-        super.m(json);
+        //super.m(json);
     }
     createStatusElement() {
         var json = {

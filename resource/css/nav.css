@@ -7,10 +7,12 @@ nav * {
 }
 nav.primary {
     font-weight: 600;
-    border-radius: 15px;
-    width: 250px;
-    margin: 20px;
-    background: #fff;
+    border-radius: var(--radius-big);
+    background: hsl(32,40%,92%);
+}
+nav.left {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 nav.primary > ul:not(:last-child) {
@@ -23,7 +25,7 @@ nav.primary h4 {
     line-height: 28px;
     display: flex;
 }
-
+/*
 nav.primary h4:first-child::after {
     content: "<<";
     margin-left: auto;
@@ -34,7 +36,7 @@ nav.primary h4:first-child::after {
     height:28px;
     width: 28px
 }
-
+*/
 
 nav.primary h4:first-child:hover::after {
     background-color: #ccc;
@@ -62,9 +64,32 @@ nav li {
 }
 
 /*****************************
- minimise effect
+ menu size effects
+
+ Full size
+ Small size
+ Mini size
 ******************************/
-nav h4:first-child
+nav.small {
+    width: 70px;
+}
+
+nav.small h4 { 
+    padding: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 36px;
+}
+
+nav.small h4:not(::first-word) {
+
+}
+
+nav.small a {
+    font-size: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+}
 
 /*****************************
  base effects
@@ -87,7 +112,7 @@ nav li a:not(:only-child)::after {
 }
 nav li a:not(:only-child) {
     align-items: center;
- 
+    border-radius: 7px 7px 0 0;
     flex:auto;
     justify-content: space-between;
 }
@@ -156,6 +181,8 @@ nav li:hover ul li:hover a:only-child:not(.current) {
     color: var(--hover);
     background-color: var(--current-bg);
 }
+
+
 
 /*****************************
  current effects

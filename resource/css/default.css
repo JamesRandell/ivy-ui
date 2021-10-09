@@ -1,8 +1,36 @@
-body { background-color: white;
-font-size:12px;
-font-family: 'Roboto', sans-serif;
-font-weight:300}
-body.connected { background-color: var(--background);}
+body {
+    background-color: white;
+    font-size:12px;
+    font-family: 'Roboto', sans-serif;
+    font-weight:300;
+
+    display: flex;
+    flex-wrap: wrap;
+
+    padding:20px
+}
+body.connected {
+    background-color: var(--background)
+}
+
+body > header {
+  flex: 0 0 100%
+}
+
+body > nav {
+    flex: 0 0 25%;
+    
+}
+
+
+body > section {
+    flex: 0 0 75%;
+    background-color: #fff;
+    border-top-right-radius: var(--radius-big);;
+    border-bottom-right-radius: var(--radius-big);;
+
+    
+}
 
 h4 { 
   text-transform: uppercase;

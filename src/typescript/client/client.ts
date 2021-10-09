@@ -221,7 +221,7 @@ class devHandler extends DOMManipulation {
             }
         };
     
-        super.m(json);
+        //super.m(json);
     }
 
     public createStatusElement () {

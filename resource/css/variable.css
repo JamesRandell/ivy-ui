@@ -13,4 +13,6 @@
     --hover: hsl(254, 82%, 57%);
     --current: hsl(254, 82%, 57%);
     --active: hsl(251, 81%, 96%);
+    --radius-big: 15px;
+    --radius-small: 7px;
 }
