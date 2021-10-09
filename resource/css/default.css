@@ -4,6 +4,10 @@ font-family: 'Roboto', sans-serif;
 font-weight:300}
 body.connected { background-color: var(--background);}
 
+h4 { 
+  text-transform: uppercase;
+  color: #aaa;
+}
 .content {
     /*
     transition: transform ease-in 1000ms,

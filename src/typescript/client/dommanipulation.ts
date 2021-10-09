@@ -290,54 +290,80 @@ export default class DOMManipulation extends hotModuleReload {
 
     /**
      * Right now this is run when the page loads, and simply adds a few css classes to the current link
+     * 
+     * There is also a bit of a hack in which we add/remove the same class to the parent element if it's a LI
      */
     private _navigateInit () {
-        let currentFile = window.location.pathname.replace(/^\/|\/$/g, '');
-        let allTheLinkWithURL = this.body.querySelectorAll('a[href=\''+currentFile+'\']');
-        let allTheLinkWithURLCount = allTheLinkWithURL.length;
-
-        for (let i=0; i<allTheLinkWithURLCount; i++) {
-            
-            allTheLinkWithURL[i].classList.add(this.cssClasses.current);
-        }
+        
+        this._navigateCleanUpLinks();
     }
 
+    /**
+     * We loops through any a tags with the current class assigned and remove them UNLESS it's HREF matches the current URL
+     * 
+     * @param CurrentFile the URL that the user is currently on... RIGHT NOW!
+     */
+    private _navigateCleanUpLinks (currentURL: string = null) {
+
+        if (!currentURL) {
+            var currentURL = window.location.pathname.replace(/^\/|\/$/g, '');
+        }
+
+        let elementWithOldURLArr = this.body.querySelectorAll('a[class='+this.cssClasses.current+']');
+        let oldCount = elementWithOldURLArr.length;
+        let elementWithCurrentURLArr = this.body.querySelectorAll('a[href=\''+currentURL+'\']');
+        let currentCount = elementWithCurrentURLArr.length;
+        
+        console.log(elementWithCurrentURLArr);
+        for (let i=0; i<oldCount; i++) {
+            elementWithOldURLArr[i].classList.remove(this.cssClasses.current);
+
+            /**
+              * Time for a HACK :(
+              * Lets check to see if this link is the direct child of a LI element, so we can apply the class to that as well
+              */
+            if (elementWithOldURLArr[i].parentElement.nodeName.toLowerCase() === 'li') {
+                elementWithOldURLArr[i].parentElement.classList.remove(this.cssClasses.current);
+            }
+        }
+
+        /**
+         * Now we add the class to the current file
+         */
+         for (let i=0; i<currentCount; i++) {
+             
+            elementWithCurrentURLArr[i].classList.add(this.cssClasses.current);
+ 
+             /**
+              * Time for a HACK :(
+              * Lets check to see if this link is the direct child of a LI element, so we can apply the class to that as well
+              */
+              if (elementWithCurrentURLArr[i].parentElement.nodeName.toLowerCase() === 'li') {
+                elementWithCurrentURLArr[i].parentElement.classList.add(this.cssClasses.current);
+              }
+         }
+    }
 
     private _navigate (file: string) {
 
         /**
          * just assume the page load worked for now and return true;
          */
-        let currentFile = window.location.pathname.replace(/^\/|\/$/g, '');
+        let currentURL = window.location.pathname.replace(/^\/|\/$/g, '');
 
         /**
          * No change, user clicked the same link or something
          * 
          */
-        if (currentFile == file) {
+        if (currentURL == file) {
             return;
         }
 
+        
+
         window.history.pushState({pageID: file}, file, '/' + file);
 
-        /**
-         * we do some clean up on the DOM to fiddle about with classes, and add certain classes based on css rules
-         */
-        let linkWithOldURL = this.body.querySelectorAll('a[class='+this.cssClasses.current+']');
-        let linkWithOldURLCount = linkWithOldURL.length;
-
-        for (let i=0; i<linkWithOldURLCount; i++) {
-            linkWithOldURL[i].classList.remove(this.cssClasses.current);
-        }
-
-        let linkWithNewURL = this.body.querySelectorAll('a[href=\''+file+'\']');
-        let linkWithNewURLCount = linkWithNewURL.length;
-
-        for (let i=0; i<linkWithNewURLCount; i++) {
-            
-            linkWithNewURL[i].classList.add(this.cssClasses.current);
-        }
-
+        this._navigateCleanUpLinks(file);
     }
 
     private _htmlFile (path: string, parentNode: string = null) {
