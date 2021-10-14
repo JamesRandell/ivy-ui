@@ -15,4 +15,6 @@
     --active: hsl(251, 81%, 96%);
     --radius-big: 15px;
     --radius-small: 7px;
+
+    --blur-color: #ccc;
 }

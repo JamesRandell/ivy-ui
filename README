@@ -24,7 +24,7 @@ npm run dev
 
 npx tsc -w
 
-docker-compose up -d --force-recreate
+docker-compose up -d --force-recreate --build
 
 
 

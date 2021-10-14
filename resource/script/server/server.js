@@ -14,9 +14,16 @@ var broadcast = function (data) {
     ws.send(data);
 };
 fs.watch('resource', { recursive: true }, (eventType, filePath) => {
-    let fileArray = filePath.split('\\');
+    /**
+     * we need to figure out the path, filename and extension so we can pass it to
+     * another method that sends the result back to the client
+     */
+    let fileArray = filePath.split('/');
+    // forward slash here as it's a webserver path
     let fileName = fileArray[fileArray.length - 1];
+    // remove the filename.ext so we're just left with the path components
     fileArray.pop();
+    // join all the parts seperated by a slash (/) so we combine our full path
     let path = fileArray.join('/');
     /**
      * this returns all the parts after the first dot (.) incase we have a multi . extenion. We then strip the dots out.

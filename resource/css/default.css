@@ -13,22 +13,26 @@ body.connected {
     background-color: var(--background)
 }
 
+body > section {
+  /* grow the content to the remainder of the space (works with padding!) */
+  flex-grow: 1;
+}
 body > header {
-  flex: 0 0 100%
+    /*flex: 0 0 100%*/
 }
 
-body > nav {
+body > nav.primary {
     flex: 0 0 25%;
-    
+    border-radius: var(--radius-big) 0 0 var(--radius-big);
 }
 
 
 body > section {
-    flex: 0 0 75%;
-    background-color: #fff;
-    border-top-right-radius: var(--radius-big);;
-    border-bottom-right-radius: var(--radius-big);;
 
+    background-color: #fff;
+    border-top-right-radius: var(--radius-big);
+    border-bottom-right-radius: var(--radius-big);
+    padding:2em;
     
 }
 
@@ -47,6 +51,23 @@ h4 {
     display: block;
     animation: pageIn 100ms ease-in;
     animation-fill-mode: forwards;
+
+}
+
+/**
+ the flashy loading web socket connection indicator
+ **/
+.status {
+  position:fixed;
+  background-color: #fff;
+  width:40px;
+  height: 40px; 
+  bottom:0px;
+  right:0px;
+  padding: 18px 0 0 18px;
+  border-radius: 50% 50% 0 50%;
+  box-shadow: 0 0 5px var(--blur-color);
+
 
 }
 
@@ -110,12 +131,6 @@ h4 {
 
 .pulse {
     display: block;
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    position:absolute;
-    bottom:20px;
-    right:20px
   }
   
 .pulse:before, .pulse:after {
@@ -125,8 +140,6 @@ h4 {
     width: 20px;
     height: 20px;
     position: absolute;
-    margin-left: 5px;
-    margin-top: 5px
   }
   
 .pulse:before {
