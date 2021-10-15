@@ -30,6 +30,13 @@ export default class router {
                 break;
         }
         /**
+         * lets see if the user has landed on a page that isn't the defaul (like /test)
+         * we've got a private function just to call the content they want. Yes it is
+         * a double call because we're using re-write rules and a spa, but, the initial
+         * call should still be light weight
+         */
+        this._landingCall();
+        /**
          * we also need to keep an eye on URI changes at some point for proper routing
          */
         this._linkHandler();
@@ -38,10 +45,11 @@ export default class router {
      * This gets a file from the server and 'sends' the user to it by updating the page,
      * URI, and history etc
      *
-     * @param file name of thefile to retrieve from the server
+     * @param file name of the file to retrieve from the server
      */
     go(file) {
         let t = DOMManipulation.getInstance();
+        console.warn(file);
         this.server.go(file);
         return true;
     }
@@ -85,5 +93,90 @@ export default class router {
             that.go(e.state.pageID);
             //console.log(e.state);
         });
+    }
+    /**
+     * Deals with sending the user to another page if they have directly landed on something
+     * different than our index page (which is our default).
+     * For instance /test
+     *
+     * Because this is one of the first things that's run, there is a chance our websocket
+     * isn't set up yet
+     *
+     * @returns void
+     */
+    _landingCall() {
+        let path = window.location.pathname.replace(/^\/|\/$/g, '');
+        /**
+         * it's fine! the user hasn't landed on any specific page, so just exist here
+         */
+        if (path == '')
+            return;
+        let pathArr = path.split('/'), controller = 'index', action = 'index', id = null, args = {}, i = 0;
+        const pathArrLength = pathArr.length;
+        /**
+         * So, lets set up some rules that apply to our routing model. These follow the same rule set
+         * that I use in ivy-php. For *most circumstances, we start with the controller, then action, then an id.
+         * We also introduce a series of keywords that get seen as a key/value pair that are listed
+         * below in a switch statement
+         */
+        /**
+         * ONE parameter, so we assume this the name of an
+         * ACTION (function)
+         */
+        if (pathArrLength === 1) {
+            controller = pathArr[0];
+            this.go('/' + controller);
+            return;
+        }
+        /**
+         * TWO parameters, so we assume this the name of the
+         * CONTROLLER (page) and
+         * ACTION (function)
+         */
+        if (pathArrLength === 2) {
+            controller = pathArr[0];
+            action = pathArr[1];
+            this.go('/' + controller + '/' + action);
+            return;
+        }
+        /**
+         * THREE parameters, so we assume this the name of the
+         * CONTROLLER (page) and
+         * ACTION (function) and
+         * ID (record or row id)
+         */
+        if (pathArrLength === 3) {
+            controller = pathArr[0];
+            action = pathArr[1];
+            id = pathArr[2];
+        }
+        /**
+         * FOUR or more parameters, so we assume this includes
+         * CONTROLLER (page) and
+         * ACTION (function) and
+         * KEY/VALUE pairs
+         */
+        if (pathArrLength >= 4) {
+            controller = pathArr[0];
+            action = pathArr[1];
+            // start from the 3rd parameter - s owe only loop over the key/value pairs
+            for (i = 2; i < pathArrLength; i++) {
+                /**
+                 * the first parameter should be an ODD number,
+                 * so ODD will be the key, EVEN will be the value
+                 */
+                // is even
+                if (i % 2 === 0) {
+                    // check if the NEXT array key exists, otherwise we have no key pair.
+                    // if it doesn't exist, this 'key' is therefore an 'id'
+                    if (pathArr[i + 1]) {
+                        args[pathArr[i]] = pathArr[i + 1];
+                    }
+                    else {
+                        id = pathArr[i];
+                    }
+                }
+            }
+        }
     }
 }

@@ -14,11 +14,6 @@ var dom: object = {};
 import BaseModule from './BaseModule.js';
 var hmr = new BaseModule();
 
-
-//@ts-ignore
-//import socketRouter from '/resource/script/client/socketRouter.js';
-//var sRouter = new socketRouter();
-
 //@ts-ignore
 import router from './router.js';
 var routerInstance = new router();
@@ -32,9 +27,9 @@ import svg from './svg.js';
 
 new svg();
 
-var ivyDOM;
-var devHandlerInstance;
-var dommanipulationinstance;    
+var ivyDOM: any;
+var devHandlerInstance: any;
+var dommanipulationinstance: any;    
 
 
 var ivyui = {
@@ -46,7 +41,7 @@ var ivyui = {
     devHandlerInstance = new devHandler();
     devHandlerInstance.createStatusElement();
 
-    connectSocket();
+    //connectSocket();
 
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
@@ -54,25 +49,40 @@ var ivyui = {
     return;
   }
 }
+
 var socket = null;
+
+
+socket = connectSocket().then(function(server) {
+  return this;
+}).catch(function(err) {
+  // error here
+});
 
 
 function connectSocket() {
 
-    'use strict';
 
-    function start () {
-        socket = new WebSocket('ws://localhost:8082');
 
-        socket.onopen = function(){
+    return new Promise(function(resolve, reject) {
+    //function start () {
+        var server = new WebSocket('ws://localhost:8082');
+
+        server.onopen = function(){
+            resolve(server);
             devHandlerInstance.connected();
         };
+        
         /*socket.addEventListener('open', function (e) {
             socket.send('Hello Server!');
             console.log('Connection open');
         });*/
 
-        socket.onmessage = function(data){
+        server.send = function(content) {
+            console.log(content);
+        }
+
+        server.onmessage = function(data){
             //try {
                 const result = JSON.parse(data.data);
 
@@ -91,7 +101,7 @@ function connectSocket() {
             
         });*/
 
-        socket.onclose = function(code, reason){
+        server.onclose = function(reason){
             devHandlerInstance.disconnected();
             
             // need to see if reason exists. If it does, check for the code.
@@ -100,13 +110,16 @@ function connectSocket() {
             if (reason && reason.code == 1006) {
                 check();
             }
+            
         };
   
-        socket.onerror = function(evt) {
+        server.onerror = function(err) {
+            reject(err);
             devHandlerInstance.disconnected();
-        }
-    }
+        };
+    //}
   
+    /*
     function check() {
         if(socket === null || socket.readyState === WebSocket.CLOSED) {
             start();
@@ -115,8 +128,10 @@ function connectSocket() {
     
     start();
     setInterval(check, config.poll);
+    */
+  });
 }
-
+function check () {}
 
 //document.addEventListener('click', e => {
     //const button = e.target as Element;
@@ -311,6 +326,6 @@ class devHandler extends DOMManipulation {
     }
 }
 
-export { socket, routerInstance as router};
+export { socket, routerInstance as router}; 
 
 document.addEventListener("DOMContentLoaded", ivyui.s);

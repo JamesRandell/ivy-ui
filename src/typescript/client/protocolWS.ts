@@ -29,25 +29,11 @@ export default {
             'payload': json,
             'key'   : ''
         };
+console.log(socket);
+console.log(999999);
 
         socket.send(JSON.stringify(payload));
         return null
     }
 
   };
-/*
-//@ts-ignore
-import iprotocol from "/resource/script/client/interface/iprotocol.js";
-
-export default class protocolWS implements iprotocol {
-
-
-    constructor () {
-        console.log(111);
-    }
-
-    public request (file: string, data: object = []) {
-        return file;
-        alert(9);
-    }
-}*/

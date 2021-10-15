@@ -21,13 +21,13 @@ class svg extends DOMManipulation {
          let svgArray = this.body.querySelectorAll('svg[data-url]');
 
          let c = svgArray.length;
-console.log(c);
+//console.log(c);
          for (let i=0; i<c; i++) {
 
             let e = svgArray[i];
-            console.log(':::'+e.getAttribute('data-url'));
+            //console.log(':::'+e.getAttribute('data-url'));
             let v = this.fetchSVG(e.getAttribute('data-url')).then(result => {
-console.log(e.getAttribute('data-url'));
+//console.log(e.getAttribute('data-url'));
                 let temp = document.createElement('html');
                 temp.innerHTML = result;
                 e.innerHTML = temp.innerHTML; 

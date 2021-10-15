@@ -1,5 +1,13 @@
 import { WebSocketServer } from 'ws';
 import * as fs from 'fs';
+//import { Console } from 'console';
+import * as http from 'http';
+const config_http = {
+    hostname: 'localhost',
+    port: 8080,
+    method: 'GET',
+    path: '/'
+};
 var registry = {
     timeout: null,
     ws: {} // holds the websocket connection
@@ -18,21 +26,11 @@ fs.watch('resource', { recursive: true }, (eventType, filePath) => {
      * we need to figure out the path, filename and extension so we can pass it to
      * another method that sends the result back to the client
      */
-    let fileArray = filePath.split('/');
-    // forward slash here as it's a webserver path
-    let fileName = fileArray[fileArray.length - 1];
-    // remove the filename.ext so we're just left with the path components
-    fileArray.pop();
-    // join all the parts seperated by a slash (/) so we combine our full path
-    let path = fileArray.join('/');
-    /**
-     * this returns all the parts after the first dot (.) incase we have a multi . extenion. We then strip the dots out.
-     */
-    let ext = fileName.substr(fileName.indexOf('.') + 1, 100).replace('.', '');
+    const fileArr = library._fileArr(filePath);
     /**
      * don't return server changes to the client!!
      */
-    if (path === 'server')
+    if (fileArr.path === 'server')
         return;
     // eventType could be either 'rename' or 'change'. new file event and delete
     // also generally emit 'rename'
@@ -47,7 +45,7 @@ fs.watch('resource', { recursive: true }, (eventType, filePath) => {
                 //filePush('resource/css/' + filename);
                 console.log('File changed: ' + filePath);
                 // instead we just send the file name and let the client deal with it
-                broadcast(buildJSON('resource/' + path + '/' + fileName, ext + 'File'));
+                broadcast(buildJSON('/resource/' + fileArr.path + '/' + fileArr.fileName, fileArr.ext + 'File'));
         }
     })();
 });
@@ -129,9 +127,43 @@ wss.on('connection', function connection(t) {
             }
         }
     });
-    ws.send(buildJSON('resource/css/debug.css', 'cssFile'));
+    ws.send(buildJSON('/resource/css/debug.css', 'cssFile'));
 });
 var library = {
+    /**
+     * Our private (lol) function to split apart variase file components to return the path
+     * to the file, file name, and extension
+     *
+     * @param flePath accepts path to a file, including the file name.
+     */
+    _fileArr(filePath) {
+        let result = {
+            fileName: null,
+            fileNameShort: null,
+            path: null,
+            ext: null
+        };
+        /**
+         * we need to figure out the path, filename and extension so we can pass it to
+         * another method that sends the result back to the client
+         */
+        let fileArray = filePath.split('/');
+        // forward slash here as it's a webserver path
+        result.fileName = fileArray[fileArray.length - 1];
+        // remove the filename.ext so we're just left with the path components
+        fileArray.pop();
+        // join all the parts seperated by a slash (/) so we combine our full path
+        result.path = fileArray.join('/');
+        /**
+         * this returns all the parts after the first dot (.) incase we have a multi . extenion. We then strip the dots out.
+         */
+        result.ext = result.fileName.substr(result.fileName.indexOf('.') + 1, 100).replace('.', '');
+        /**
+         * returns just the filename with out extension for our re-write rules
+         */
+        result.fileNameShort = result.fileName.replace('.' + result.ext, '');
+        return result;
+    },
     test() {
     },
     newImproved() {
@@ -151,17 +183,47 @@ var library = {
             return;
         }
         /**
-         * add in more checks to see if the file does exist and is of type html (and
+         * TODO: add in more checks to see if the file does exist and is of type html (and
          * not like a fucking config or password file)
+         *
+         * Note this is the file system way to get files. The method below is the webserver way
+         * which is currenlty powered by NGINX and has re-write rules on it
          */
-        fs.readFile(file, 'utf8', function (e, result) {
-            if (e) {
-                console.log('File not found');
-                return;
-            }
-            console.log('Returning file: ' + file);
-            ws.send(buildJSON({ html: { data: result, file: file } }));
+        /*
+        fs.readFile(path.resolve(__dirname, file), 'utf8', function(e, result) {
+          if (e) {
+            console.log(e);
+            return
+          }
+    
+          console.log('Returning file: ' + file);
+          ws.send(
+            buildJSON({html:{data:result,file:file}})
+          )
+    
+          
+        });*/
+        /**
+         * We use the web server to handle file requests instead of pissing about with building our
+         * own (because you know, I really think nginx can de better than what I can come up with.)
+         *
+         * We make an HTTP call, but we also tinker with the file url returns to account for re-write
+         * rules we may have in place
+         */
+        config_http.path = file;
+        const req = http.request(config_http, res => {
+            res.setEncoding('utf8');
+            res.on('data', result => {
+                // return just the file name for our rewrite rules
+                file = this._fileArr(file).fileNameShort;
+                console.log('Returning file: ' + file);
+                ws.send(buildJSON({ html: { data: result, file: file } }));
+            });
         });
+        req.on('error', err => {
+            console.error(err);
+        });
+        req.end();
     }
 };
 /*

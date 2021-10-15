@@ -8,9 +8,6 @@ var dom = {};
 import BaseModule from './BaseModule.js';
 var hmr = new BaseModule();
 //@ts-ignore
-//import socketRouter from '/resource/script/client/socketRouter.js';
-//var sRouter = new socketRouter();
-//@ts-ignore
 import router from './router.js';
 var routerInstance = new router();
 //@ts-ignore
@@ -27,25 +24,34 @@ var ivyui = {
         dommanipulationinstance = DOMManipulation.getInstance();
         devHandlerInstance = new devHandler();
         devHandlerInstance.createStatusElement();
-        connectSocket();
+        //connectSocket();
         const urlSearchParams = new URLSearchParams(window.location.search);
         const params = Object.fromEntries(urlSearchParams.entries());
         return;
     }
 };
 var socket = null;
+socket = connectSocket().then(function (server) {
+    return this;
+}).catch(function (err) {
+    // error here
+});
 function connectSocket() {
-    'use strict';
-    function start() {
-        socket = new WebSocket('ws://localhost:8082');
-        socket.onopen = function () {
+    return new Promise(function (resolve, reject) {
+        //function start () {
+        var server = new WebSocket('ws://localhost:8082');
+        server.onopen = function () {
+            resolve(server);
             devHandlerInstance.connected();
         };
         /*socket.addEventListener('open', function (e) {
             socket.send('Hello Server!');
             console.log('Connection open');
         });*/
-        socket.onmessage = function (data) {
+        server.send = function (content) {
+            console.log(content);
+        };
+        server.onmessage = function (data) {
             //try {
             const result = JSON.parse(data.data);
             //const key = Object.keys(data.data)[0];
@@ -60,7 +66,7 @@ function connectSocket() {
             console.log('Message from server: ', e.data);
             
         });*/
-        socket.onclose = function (code, reason) {
+        server.onclose = function (reason) {
             devHandlerInstance.disconnected();
             // need to see if reason exists. If it does, check for the code.
             // I think this is to do if the connection exists, or it it just closed. 
@@ -69,18 +75,24 @@ function connectSocket() {
                 check();
             }
         };
-        socket.onerror = function (evt) {
+        server.onerror = function (err) {
+            reject(err);
             devHandlerInstance.disconnected();
         };
-    }
-    function check() {
-        if (socket === null || socket.readyState === WebSocket.CLOSED) {
-            start();
+        //}
+        /*
+        function check() {
+            if(socket === null || socket.readyState === WebSocket.CLOSED) {
+                start();
+            }
         }
-    }
-    start();
-    setInterval(check, config.poll);
+        
+        start();
+        setInterval(check, config.poll);
+        */
+    });
 }
+function check() { }
 //document.addEventListener('click', e => {
 //const button = e.target as Element;
 //button.closest('button');

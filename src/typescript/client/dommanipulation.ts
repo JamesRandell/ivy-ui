@@ -314,7 +314,7 @@ export default class DOMManipulation extends hotModuleReload {
         let elementWithCurrentURLArr = this.body.querySelectorAll('a[href=\''+currentURL+'\']');
         let currentCount = elementWithCurrentURLArr.length;
         
-        console.log(elementWithCurrentURLArr);
+
         for (let i=0; i<oldCount; i++) {
             elementWithOldURLArr[i].classList.remove(this.cssClasses.current);
 
@@ -345,11 +345,17 @@ export default class DOMManipulation extends hotModuleReload {
     }
 
     private _navigate (file: string) {
-
+        
         /**
          * just assume the page load worked for now and return true;
          */
         let currentURL = window.location.pathname.replace(/^\/|\/$/g, '');
+
+        /**
+         * remove the leading slash if there is one. This is because the webservier prolly uses
+         * root relative url (/path/to/file) instead of handling url re-writes
+         */
+        file = file.replace(/^\/+/g, '');
 
         /**
          * No change, user clicked the same link or something
@@ -358,8 +364,6 @@ export default class DOMManipulation extends hotModuleReload {
         if (currentURL == file) {
             return;
         }
-
-        
 
         window.history.pushState({pageID: file}, file, '/' + file);
 
@@ -375,13 +379,12 @@ export default class DOMManipulation extends hotModuleReload {
         //var i = new router();
         //i.request('test.html')
         var e;
-        if (parentNode=== null) {console.log(1);
+        if (parentNode=== null) {
              e = this.body;
-        } else {console.log(parentNode);
+        } else {
              e = document.getElementById(parentNode);
         }
         
-        console.log(e);
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'test.html');
         xhr.send(null);
