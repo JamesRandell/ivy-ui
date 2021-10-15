@@ -1,4 +1,13 @@
 'use strict';
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var config = {
     poll: 2000,
     dev: true
@@ -24,34 +33,117 @@ var ivyui = {
         dommanipulationinstance = DOMManipulation.getInstance();
         devHandlerInstance = new devHandler();
         devHandlerInstance.createStatusElement();
-        //connectSocket();
+        socket();
+        //socket = connectSocket();
         const urlSearchParams = new URLSearchParams(window.location.search);
         const params = Object.fromEntries(urlSearchParams.entries());
         return;
     }
 };
-var socket = null;
-socket = connectSocket().then(function (server) {
-    return this;
-}).catch(function (err) {
-    // error here
+//connectSocket();
+//var socket = null;
+/*
+socket = connectSocket().then(function(server) {
+  return this;
+}).catch(function(err) {
+  // error here
 });
-function connectSocket() {
-    return new Promise(function (resolve, reject) {
-        //function start () {
-        var server = new WebSocket('ws://localhost:8082');
-        server.onopen = function () {
-            resolve(server);
+*/
+/*
+const server = async function connection () {
+
+  let promise = new Promise((resolve, reject) => {
+    console.log(8);
+    socket = new WebSocket('ws://localhost:8082');
+
+    socket.onopen = function(){
+        resolve(server);
+        //devHandlerInstance.connected();
+        console.log('open');
+    };
+    console.log('after open call');
+  });
+  
+  return promise;
+}
+*/
+//var socket = null;
+var so = null;
+//const g = async function connection () {
+function connect() {
+    if (so)
+        return so;
+    return new Promise((resolve, reject) => {
+        let ws = new WebSocket('ws://localhost:8082');
+        console.log('after socket');
+        ws.onopen = function () {
+            so = ws;
+            resolve(ws);
             devHandlerInstance.connected();
+        };
+        ws.onclose = function (reason) {
+            devHandlerInstance.disconnected();
+            reject(ws);
+        };
+        ws.onerror = function (err) {
+            devHandlerInstance.disconnected();
+            reject(ws);
+        };
+        ws.onmessage = function (data) {
+            const result = JSON.parse(data.data);
+            dommanipulationinstance.message(result);
+        };
+    });
+}
+//  return promise;
+//};
+var t = function o(content) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log('Running async function o');
+        console.log(content);
+        try {
+            console.log('Running connect & send');
+            console.log(content);
+            let server = yield connects.then(() => {
+                server.send(content);
+            });
+            // ... use server
+        }
+        catch (error) {
+            console.log("ooops ", error);
+        }
+    });
+};
+var socket = function i(content = null) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield t(content);
+    });
+};
+//socket.send('stuff');
+//this works!
+/*
+async function l() {
+  const v = await server();
+}
+l();
+*/
+function connectSocketBUP() {
+    //return new Promise(function(resolve, reject) {
+    function start() {
+        let ws = new WebSocket('ws://localhost:8082');
+        ws.onopen = function () {
+            //resolve(server);
+            devHandlerInstance.connected();
+            console.log(9);
         };
         /*socket.addEventListener('open', function (e) {
             socket.send('Hello Server!');
             console.log('Connection open');
         });*/
-        server.send = function (content) {
+        ws.send = function (content) {
             console.log(content);
         };
-        server.onmessage = function (data) {
+        ws.onmessage = function (data) {
             //try {
             const result = JSON.parse(data.data);
             //const key = Object.keys(data.data)[0];
@@ -66,7 +158,7 @@ function connectSocket() {
             console.log('Message from server: ', e.data);
             
         });*/
-        server.onclose = function (reason) {
+        ws.onclose = function (reason) {
             devHandlerInstance.disconnected();
             // need to see if reason exists. If it does, check for the code.
             // I think this is to do if the connection exists, or it it just closed. 
@@ -75,22 +167,19 @@ function connectSocket() {
                 check();
             }
         };
-        server.onerror = function (err) {
-            reject(err);
+        ws.onerror = function (err) {
+            //reject(err);
             devHandlerInstance.disconnected();
         };
+    }
+    function check() {
+        //if(ws === null){ // || socket.readyState === WebSocket.CLOSED) {
+        //    start();
         //}
-        /*
-        function check() {
-            if(socket === null || socket.readyState === WebSocket.CLOSED) {
-                start();
-            }
-        }
-        
-        start();
-        setInterval(check, config.poll);
-        */
-    });
+    }
+    start();
+    setInterval(check, config.poll);
+    //});
 }
 function check() { }
 //document.addEventListener('click', e => {
@@ -257,5 +346,5 @@ class devHandler extends DOMManipulation {
         super.m(json);
     }
 }
-export { socket, routerInstance as router };
+export { connect, socket, routerInstance as router };
 document.addEventListener("DOMContentLoaded", ivyui.s);

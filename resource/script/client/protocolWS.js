@@ -25,9 +25,16 @@ export default {
             'payload': json,
             'key': ''
         };
-        console.log(socket);
-        console.log(999999);
-        socket.send(JSON.stringify(payload));
-        return null;
+        console.log('Running build...');
+        console.log(payload);
+        try {
+            socket(payload);
+            // ... use server
+        }
+        catch (error) {
+            console.log("ooops ");
+            //this.build(payload.payload);
+        }
     }
+    //socket(JSON.stringify(payload));
 };

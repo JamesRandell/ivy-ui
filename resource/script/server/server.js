@@ -106,7 +106,15 @@ wss.on('connection', function connection(t) {
     console.log('Client connected');
     ws.on('message', (message) => {
         //console.log('received: %s', message);
-        message = JSON.parse(message);
+        try {
+            message = JSON.parse(message);
+        }
+        catch (_a) {
+            console.log('Received string. Stopping processing: %s', message);
+            return;
+        }
+        if (!message)
+            return;
         /**
          * we use the key 'payload' to transmit and receive instructions. Along side the payload key
          * will be other keys we can use to identify the validity of the sender
