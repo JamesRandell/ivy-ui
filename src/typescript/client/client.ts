@@ -2,7 +2,8 @@
 
 var config = {
     poll: 2000,
-    dev: true  
+    dev: true,
+    basePath: '/ui'
 };
 
 var dom: object = {};
@@ -41,7 +42,7 @@ var ivyui = {
     devHandlerInstance = new devHandler();
     devHandlerInstance.createStatusElement();
 
-    socket();
+    socket(0);
     //socket = connectSocket();
 
     const urlSearchParams = new URLSearchParams(window.location.search);
@@ -81,20 +82,17 @@ const server = async function connection () {
 //var socket = null;
 var so = null;
 //const g = async function connection () {
-function connect () {
+function socketInit () {
 
   if (so) return so;
 
   return new Promise((resolve, reject) => {
     let ws = new WebSocket('ws://localhost:8082');
-
-    console.log('after socket');
     
     ws.onopen = function(){
       so = ws;
       resolve(ws);
       devHandlerInstance.connected();
-
     };
 
     ws.onclose = function(reason){
@@ -112,30 +110,23 @@ function connect () {
       dommanipulationinstance.message(result);
     };
 
-
   });
 }
 //  return promise;
 //};
-var t = async function o (content: any) {
-  console.log('Running async function o');
-  console.log(content);
+
+
+
+async function socket(arg) {
   try {
-      console.log('Running connect & send');
-      console.log(content);
-      let server = await connects.then(() => {
-        server.send(content);
-      });
-      
-      // ... use server
-  } catch (error) {
-      console.log("ooops ", error)
+    var quote = await socketInit();
+    quote.send(JSON.stringify(arg));
+    console.log('Sending to server: ', JSON.stringify(arg));
+  } catch(error) {
+    console.error('Error in socket2: ', error);
   }
 }
 
-var socket = async function i (content: any = null) {
-    await t(content);
-}
 
 //socket.send('stuff');
 //this works!
@@ -412,6 +403,8 @@ class devHandler extends DOMManipulation {
     }
 }
 
-export { connect, socket, routerInstance as router}; 
+
+
+export { socket, routerInstance as router, config}; 
 
 document.addEventListener("DOMContentLoaded", ivyui.s);

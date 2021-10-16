@@ -15,6 +15,9 @@ import iprotocol from "./interface/iprotocol";
 //@ts-ignore
 import DOMManipulation from "./dommanipulation.js";
 
+//@ts-ignore
+import client, { config } from "./client.js";
+
 
 export default class router implements iprotocol {
 
@@ -63,7 +66,15 @@ export default class router implements iprotocol {
     public go (file: string) {
 
         let t = DOMManipulation.getInstance();
- console.warn(file);
+
+        /**
+         * look at the config found in client.js for base Path, which tells us where 
+         * all the html files are
+         */
+        if (file.indexOf(config.basePath) === -1) {
+            file = config.basePath + file;
+        }
+
         this.server.go(file);
 
         return true;

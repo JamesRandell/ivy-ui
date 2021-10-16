@@ -8,7 +8,7 @@
 // lts try object literal approach so we don't create new instances of this class every time we 
 // want to call a page
 //@ts-ignore
-import { connect, socket } from './client.js';
+import { socket } from './client.js';
 
 export default {
     //url: Constants.API_URL,
@@ -31,14 +31,19 @@ export default {
         };
 
 
-         console.log('Running build...');
-         console.log(payload);
+        /*
+        socket2.then(function () {
+            this.send(payload);
+            console.log(payload);
+          }).catch((msg) => {
+            console.log(msg)
+          })
+*/
+
         try {
              socket(payload);
-            // ... use server
         } catch (error) {
-            console.log("ooops ")
-            //this.build(payload.payload);
+            console.error("ooops ", error);
         }
     }
 

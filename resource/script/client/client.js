@@ -10,7 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var config = {
     poll: 2000,
-    dev: true
+    dev: true,
+    basePath: '/ui'
 };
 var dom = {};
 //@ts-ignore
@@ -33,7 +34,7 @@ var ivyui = {
         dommanipulationinstance = DOMManipulation.getInstance();
         devHandlerInstance = new devHandler();
         devHandlerInstance.createStatusElement();
-        socket();
+        socket(0);
         //socket = connectSocket();
         const urlSearchParams = new URLSearchParams(window.location.search);
         const params = Object.fromEntries(urlSearchParams.entries());
@@ -70,12 +71,11 @@ const server = async function connection () {
 //var socket = null;
 var so = null;
 //const g = async function connection () {
-function connect() {
+function socketInit() {
     if (so)
         return so;
     return new Promise((resolve, reject) => {
         let ws = new WebSocket('ws://localhost:8082');
-        console.log('after socket');
         ws.onopen = function () {
             so = ws;
             resolve(ws);
@@ -97,28 +97,18 @@ function connect() {
 }
 //  return promise;
 //};
-var t = function o(content) {
+function socket(arg) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('Running async function o');
-        console.log(content);
         try {
-            console.log('Running connect & send');
-            console.log(content);
-            let server = yield connects.then(() => {
-                server.send(content);
-            });
-            // ... use server
+            var quote = yield socketInit();
+            quote.send(JSON.stringify(arg));
+            console.log('Sending to server: ', JSON.stringify(arg));
         }
         catch (error) {
-            console.log("ooops ", error);
+            console.error('Error in socket2: ', error);
         }
     });
-};
-var socket = function i(content = null) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield t(content);
-    });
-};
+}
 //socket.send('stuff');
 //this works!
 /*
@@ -346,5 +336,5 @@ class devHandler extends DOMManipulation {
         super.m(json);
     }
 }
-export { connect, socket, routerInstance as router };
+export { socket, routerInstance as router, config };
 document.addEventListener("DOMContentLoaded", ivyui.s);

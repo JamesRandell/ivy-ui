@@ -9,6 +9,8 @@ import protocolWS from "./protocolWS.js";
 import protocolHTTP from "./protocolHTTP.js";
 //@ts-ignore
 import DOMManipulation from "./dommanipulation.js";
+//@ts-ignore
+import { config } from "./client.js";
 export default class router {
     constructor() {
         /**
@@ -49,7 +51,13 @@ export default class router {
      */
     go(file) {
         let t = DOMManipulation.getInstance();
-        console.warn(file);
+        /**
+         * look at the config found in client.js for base Path, which tells us where
+         * all the html files are
+         */
+        if (file.indexOf(config.basePath) === -1) {
+            file = config.basePath + file;
+        }
         this.server.go(file);
         return true;
     }
