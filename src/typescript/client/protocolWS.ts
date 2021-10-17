@@ -8,7 +8,7 @@
 // lts try object literal approach so we don't create new instances of this class every time we 
 // want to call a page
 //@ts-ignore
-import { socket } from './client.js';
+import { so, socket } from './client.js';
 
 export default {
     //url: Constants.API_URL,
@@ -39,7 +39,7 @@ export default {
             console.log(msg)
           })
 */
-
+console.log('load the routed page');
         try {
              socket(payload);
         } catch (error) {

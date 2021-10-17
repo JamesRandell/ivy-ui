@@ -33,6 +33,7 @@ export default {
             console.log(msg)
           })
 */
+        console.log('load the routed page');
         try {
             socket(payload);
         }

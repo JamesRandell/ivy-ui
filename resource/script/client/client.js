@@ -14,6 +14,7 @@ var config = {
     basePath: '/ui'
 };
 var dom = {};
+socketInit();
 //@ts-ignore
 import BaseModule from './BaseModule.js';
 var hmr = new BaseModule();
@@ -34,51 +35,25 @@ var ivyui = {
         dommanipulationinstance = DOMManipulation.getInstance();
         devHandlerInstance = new devHandler();
         devHandlerInstance.createStatusElement();
-        socket(0);
         //socket = connectSocket();
         const urlSearchParams = new URLSearchParams(window.location.search);
         const params = Object.fromEntries(urlSearchParams.entries());
         return;
     }
 };
-//connectSocket();
-//var socket = null;
-/*
-socket = connectSocket().then(function(server) {
-  return this;
-}).catch(function(err) {
-  // error here
-});
-*/
-/*
-const server = async function connection () {
-
-  let promise = new Promise((resolve, reject) => {
-    console.log(8);
-    socket = new WebSocket('ws://localhost:8082');
-
-    socket.onopen = function(){
-        resolve(server);
-        //devHandlerInstance.connected();
-        console.log('open');
-    };
-    console.log('after open call');
-  });
-  
-  return promise;
-}
-*/
-//var socket = null;
-var so = null;
-//const g = async function connection () {
+//var async so = null;
+var so = (arg) => __awaiter(void 0, void 0, void 0, function* () { return null; });
 function socketInit() {
+    console.log('pre so');
     if (so)
         return so;
-    return new Promise((resolve, reject) => {
+    console.log('post so');
+    return so = new Promise((resolve, reject) => {
         let ws = new WebSocket('ws://localhost:8082');
+        console.log('in return');
         ws.onopen = function () {
-            so = ws;
             resolve(ws);
+            console.log(so);
             devHandlerInstance.connected();
         };
         ws.onclose = function (reason) {
@@ -95,28 +70,19 @@ function socketInit() {
         };
     });
 }
-//  return promise;
-//};
-function socket(arg) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            var quote = yield socketInit();
-            quote.send(JSON.stringify(arg));
-            console.log('Sending to server: ', JSON.stringify(arg));
-        }
-        catch (error) {
-            console.error('Error in socket2: ', error);
-        }
-    });
-}
-//socket.send('stuff');
-//this works!
-/*
-async function l() {
-  const v = await server();
-}
-l();
-*/
+//async function socket(arg) {
+const socket = (arg) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log(so);
+        console.log(123);
+        var quote = yield socketInit();
+        quote.send(JSON.stringify(arg));
+        console.log('Sending to server: ', JSON.stringify(arg));
+    }
+    catch (error) {
+        console.error('Error in socket: ', error);
+    }
+});
 function connectSocketBUP() {
     //return new Promise(function(resolve, reject) {
     function start() {
@@ -336,5 +302,5 @@ class devHandler extends DOMManipulation {
         super.m(json);
     }
 }
-export { socket, routerInstance as router, config };
 document.addEventListener("DOMContentLoaded", ivyui.s);
+export { so, socket, routerInstance as router, config };
