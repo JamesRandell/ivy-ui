@@ -4,10 +4,7 @@
  * server via which ever protocol I want, in a way I can switch between by default, or per
  * request
  */
-// lts try object literal approach so we don't create new instances of this class every time we 
-// want to call a page
-//@ts-ignore
-import { socket } from './client.js';
+import { socketInit } from './client.js';
 export default {
     //url: Constants.API_URL,
     request(cmd, data = []) {
@@ -34,6 +31,21 @@ export default {
           })
 */
         console.log('load the routed page');
+        /*
+           socketInit().then(function(server) {
+             console.log(4);
+             server.send(JSON.stringify(payload));
+         }).catch(function(err) {
+             console.log(err);
+         });
+       */
+        function socket(arg) {
+            socketInit().then(function (server) {
+                server.send(JSON.stringify(arg));
+            }).catch(function (err) {
+                console.log(err);
+            });
+        }
         try {
             socket(payload);
         }

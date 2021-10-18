@@ -14,13 +14,12 @@ var config = {
     basePath: '/ui'
 };
 var dom = {};
-socketInit();
+//socketInit();
 //@ts-ignore
 import BaseModule from './BaseModule.js';
 var hmr = new BaseModule();
 //@ts-ignore
 import router from './router.js';
-var routerInstance = new router();
 //@ts-ignore
 import DOMManipulation from './dommanipulation.js';
 //@ts-ignore 
@@ -35,47 +34,56 @@ var ivyui = {
         dommanipulationinstance = DOMManipulation.getInstance();
         devHandlerInstance = new devHandler();
         devHandlerInstance.createStatusElement();
-        //socket = connectSocket();
+        socketInit(); //socket = connectSocket();
         const urlSearchParams = new URLSearchParams(window.location.search);
         const params = Object.fromEntries(urlSearchParams.entries());
         return;
     }
 };
 //var async so = null;
-var so = (arg) => __awaiter(void 0, void 0, void 0, function* () { return null; });
+var so = null;
 function socketInit() {
     console.log('pre so');
-    if (so)
-        return so;
+    //if (!so) return  Promise.resolve(socketInit);
+    if (socketInit.server && socketInit.server.readyState < 2) {
+        console.log("reusing the socket connection [state = " + socketInit.server.readyState + "]");
+        return Promise.resolve(socketInit.server);
+    }
     console.log('post so');
-    return so = new Promise((resolve, reject) => {
-        let ws = new WebSocket('ws://localhost:8082');
-        console.log('in return');
-        ws.onopen = function () {
-            resolve(ws);
-            console.log(so);
+    return new Promise(function (resolve, reject) {
+        socketInit.server = new WebSocket('ws://localhost:8082');
+        //
+        socketInit.server.onopen = function () {
+            resolve(socketInit.server);
             devHandlerInstance.connected();
         };
-        ws.onclose = function (reason) {
+        socketInit.server.onclose = function (reason) {
             devHandlerInstance.disconnected();
-            reject(ws);
+            reject(socketInit.server);
         };
-        ws.onerror = function (err) {
+        socketInit.server.onerror = function (err) {
             devHandlerInstance.disconnected();
-            reject(ws);
+            reject(socketInit.server);
         };
-        ws.onmessage = function (data) {
+        socketInit.server.onmessage = function (data) {
             const result = JSON.parse(data.data);
             dommanipulationinstance.message(result);
         };
     });
 }
-//async function socket(arg) {
-const socket = (arg) => __awaiter(void 0, void 0, void 0, function* () {
+function socket(arg) {
+    socketInit().then(function (server) {
+        console.log(4);
+        server.send(JSON.stringify(arg));
+    }).catch(function (err) {
+        console.log(err);
+    });
+}
+const socket77 = (arg) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log(so);
         console.log(123);
         var quote = yield socketInit();
+        console.log(quote);
         quote.send(JSON.stringify(arg));
         console.log('Sending to server: ', JSON.stringify(arg));
     }
@@ -303,4 +311,5 @@ class devHandler extends DOMManipulation {
     }
 }
 document.addEventListener("DOMContentLoaded", ivyui.s);
-export { so, socket, routerInstance as router, config };
+var routerInstance = new router();
+export { socketInit, socket, routerInstance as router, config };
