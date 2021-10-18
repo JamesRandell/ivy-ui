@@ -264,7 +264,8 @@ export default class DOMManipulation extends hotModuleReload {
             this.content.innerHTML = amIALocalTemplate.innerHTML;
 
         //} else if (doIHaveBody !== null) {
-          //  console.log('I have body');
+            console.log(temp.innerHTML);
+            console.log(json);
             //this.body.innerHTML = doIHaveBody.innerHTML;
 
         } else {
