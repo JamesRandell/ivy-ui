@@ -3,7 +3,7 @@
 var config = {
     poll: 2000,
     dev: true,
-    basePath: '/ui'
+    basePath: ''
 };
 
 var dom: object = {};
@@ -54,6 +54,10 @@ var ivyui = {
 //var async so = null;
 var so = null;
 
+
+interface socketI {
+    server: object;
+}
 function socketInit () {
   console.log('pre so');
 

@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var config = {
     poll: 2000,
     dev: true,
-    basePath: '/ui'
+    basePath: ''
 };
 var dom = {};
 //socketInit();

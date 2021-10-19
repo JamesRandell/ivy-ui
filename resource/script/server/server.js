@@ -223,7 +223,7 @@ var library = {
             res.setEncoding('utf8');
             res.on('data', result => {
                 // return just the file name for our rewrite rules
-                file = this._fileArr(file).fileNameShort;
+                //file = this._fileArr(file).fileNameShort;
                 console.log('Returning file: ' + file);
                 ws.send(buildJSON({ html: { data: result, file: file } }));
             });

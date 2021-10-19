@@ -172,6 +172,7 @@ export default class DOMManipulation extends hotModuleReload {
         }
     }
     _html(json) {
+        console.log(999);
         /**
          * we expect:
          * json.html

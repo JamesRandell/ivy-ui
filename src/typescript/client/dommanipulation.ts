@@ -213,7 +213,7 @@ export default class DOMManipulation extends hotModuleReload {
     }
 
     private _html (json: any) {
-
+console.log(999);
         /**
          * we expect: 
          * json.html
