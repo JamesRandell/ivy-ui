@@ -20,9 +20,15 @@ import hotModuleReload from './socketRouter.js';
 
 interface IAttributes {
     class?: string;
-    addclass?: string;
-    removeclass?: string;
+    addClass?: string;
+    removeClass?: string;
     id?: string
+}
+
+interface Ihtml {
+    data?: string; // the HTML of the page returned
+    file?: string; // file name including path that the server returned (URL)
+    statusCode?: number; // HTTP status code
 }
 
 let instance: any = null;
@@ -42,14 +48,30 @@ export default class DOMManipulation extends hotModuleReload {
 
     constructor() {
         super();
-        this._navigateInit();        
+        const wrapper = document.createElement('section');
+        wrapper.classList.add('content');
+        //div.appendChild(this.content);
+
+
+         
+        this.content.parentNode.appendChild(wrapper);
+        wrapper.appendChild(this.content);
+        
+
+
+        //this.content.replaceWith(div);
+        console.log('DOM Class started... only one please');
+
+        this._navigateInit();
+
     }
 
-    static getInstance() {
+    public static getInstance() {
         if (instance === null) {
           instance = new DOMManipulation();
         }
 
+        
         return instance;
     }
 
@@ -160,11 +182,11 @@ export default class DOMManipulation extends hotModuleReload {
             e.setAttribute('class', attributes.class);
         }
 
-        if(attributes.hasOwnProperty('addclass')) {
+        if(attributes.hasOwnProperty('addClass')) {
             e.classList.add(attributes.class);
         }
 
-        if(attributes.hasOwnProperty('removeclass')) {
+        if(attributes.hasOwnProperty('removeClass')) {
             e.classList.remove(attributes.class);
         }
 
@@ -189,7 +211,7 @@ export default class DOMManipulation extends hotModuleReload {
                                         e.setAttribute('class', t);
                                     }
                                     //break;
-                case 'addclass' :   t = attributes.addclass;
+                case 'addClass' :   t = attributes.addClass;
                                     if (typeof t === 'object') {
                                         for (const cssClass of t) {
                                             e.classList.add(cssClass);
@@ -198,7 +220,7 @@ export default class DOMManipulation extends hotModuleReload {
                                         e.classList.add(t);
                                     }
                                     //break;
-                case 'removeclass': t = attributes.removeclass;
+                case 'removeClass': t = attributes.removeClass;
                                     if (typeof t === 'object') {
                                         
                                         for (const cssClass of t) {
@@ -212,8 +234,9 @@ export default class DOMManipulation extends hotModuleReload {
         }
     }
 
-    private _html (json: any) {
-console.log(999);
+    private _html (json: Ihtml) {
+
+
         /**
          * we expect: 
          * json.html
@@ -264,8 +287,7 @@ console.log(999);
             this.content.innerHTML = amIALocalTemplate.innerHTML;
 
         //} else if (doIHaveBody !== null) {
-            console.log(temp.innerHTML);
-            console.log(json);
+
             //this.body.innerHTML = doIHaveBody.innerHTML;
 
         } else {
@@ -285,7 +307,9 @@ console.log(999);
             this._navigate(json.file);
         }
         
-
+      
+        this.loading(false);
+       
     
     }
 
@@ -356,7 +380,7 @@ console.log(999);
          * remove the leading slash if there is one. This is because the webservier prolly uses
          * root relative url (/path/to/file) instead of handling url re-writes
          */
-        file = file.replace(/^\/+/g, '');
+        //file = file.replace(/^\/+/g, '');
 
         /**
          * No change, user clicked the same link or something
@@ -366,7 +390,25 @@ console.log(999);
             return;
         }
 
-        window.history.pushState({pageID: file}, file, '/' + file);
+        var ss = 1;
+
+        if (window.history && window.history.pushState) {
+
+            window.onpopstate = function(event) {
+                ss = 0;
+                console.log('Back button was pressed.');
+            };
+
+            if (ss === 1) {
+                console.log('s === true');
+                window.history.pushState({pageID: file}, file,  file);
+                ss = 0;
+            }
+
+
+        }
+
+        
 
         this._navigateCleanUpLinks(file);
     }
@@ -435,7 +477,14 @@ console.log(999);
         return temp.innerHTML;
     };
 
+    public loading (state: boolean = true) {
 
+        if (state === true) {
+            this._updateNode('body', {addClass: 'loading'});
+        } else {
+            this._updateNode('body', {removeClass: 'loading'});
+        }
+    }
     /**
      * 
      * @param object helper function to get the key from a JSON object
@@ -461,4 +510,3 @@ console.log(999);
     }
     
 }
-//export default new DOMManipulation();

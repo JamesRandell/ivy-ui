@@ -26,7 +26,7 @@ import DOMManipulation from './dommanipulation.js';
 //@ts-ignore 
 import svg from './svg.js';
 
-new svg();
+
 
 var ivyDOM: any;
 var devHandlerInstance: any;
@@ -38,6 +38,8 @@ var ivyui = {
   
     ivyDOM = new initDOM();
     dommanipulationinstance = DOMManipulation.getInstance();
+
+    new svg(dommanipulationinstance);
 
     devHandlerInstance = new devHandler();
     devHandlerInstance.createStatusElement();
@@ -55,40 +57,37 @@ var ivyui = {
 var so = null;
 
 
-interface socketI {
-    server: object;
-}
+
+// so we get rid of TS type casting errors in the below function
+var socketInitS = {server:null};
+
 function socketInit () {
-  console.log('pre so');
-
-  //if (!so) return  Promise.resolve(socketInit);
-
-  if (socketInit.server && socketInit.server.readyState < 2) {
-    console.log("reusing the socket connection [state = " + socketInit.server.readyState + "]");
-    return Promise.resolve(socketInit.server);
+  
+  
+  if (socketInitS.server && socketInitS.server.readyState < 2) {
+    //console.log("reusing the socket connection [state = " + socketInitS.server.readyState + "]");
+    return Promise.resolve(socketInitS.server);
   }
 
-
-  console.log('post so');
   return new Promise(function(resolve, reject) {
-    socketInit.server = new WebSocket('ws://localhost:8082');
-//
-    socketInit.server.onopen = function(){
-      resolve(socketInit.server);
+    socketInitS.server = new WebSocket('ws://localhost:8082');
+
+    socketInitS.server.onopen = function(){
+      resolve(socketInitS.server);
       devHandlerInstance.connected();
     };
 
-    socketInit.server.onclose = function(reason){
+    socketInitS.server.onclose = function(reason){
       devHandlerInstance.disconnected();
-      reject(socketInit.server);
+      reject(socketInitS.server);
     };
 
-    socketInit.server.onerror = function(err) {
+    socketInitS.server.onerror = function(err) {
       devHandlerInstance.disconnected();
-      reject(socketInit.server);
+      reject(socketInitS.server);
     };
 
-    socketInit.server.onmessage = function(data){
+    socketInitS.server.onmessage = function(data){
       const result = JSON.parse(data.data);
       dommanipulationinstance.message(result);
     };
@@ -97,25 +96,11 @@ function socketInit () {
 }
 function socket (arg) {
   socketInit().then(function(server) {
-    console.log(4);
     server.send(JSON.stringify(arg));
 }).catch(function(err) {
     console.log(err);
 });
 }
-const socket77 = async (arg) => {
-  try {
-
-    console.log(123);
-    var quote = await socketInit();
-    console.log(quote);
-    quote.send(JSON.stringify(arg));
-    console.log('Sending to server: ', JSON.stringify(arg));
-  } catch(error) {
-    console.error('Error in socket: ', error);
-  }
-}
-
 
 function connectSocketBUP() {
 
@@ -328,7 +313,7 @@ class devHandler extends DOMManipulation {
                 div:[
                   {
                     attr: {
-                      addclass: ["connected","pulse"],
+                      addClass: ["connected","pulse"],
                       id: "status"
                     },
                     verb:"update"
@@ -337,7 +322,7 @@ class devHandler extends DOMManipulation {
                 body:[
                     {
                       attr: {
-                        addclass: "connected",
+                        addClass: "connected",
                       },
                       verb:"update"
                     }
@@ -354,29 +339,29 @@ class devHandler extends DOMManipulation {
 
     public disconnected () {
         var json = {
-            "ui":{
-            "node":{
-                "div":[
+            ui:{
+            node:{
+                div:[
                 {
-                    "attr": {
-                    removeclass: ["connected","pulse"],
-                    "id": "status"
+                    attr: {
+                      removeClass: ["connected","pulse"],
+                      id: "status"
                     },
-                    "verb":"update"
+                    verb:"update"
                 }
                 ],
-                "body":[
+                body:[
                     {
-                      "attr": {
-                        "removeclass": "connected",
+                      attr: {
+                        removeClass: "connected",
                       },
-                      "verb":"update"
+                      verb:"update"
                     }
                   ]
                 }
             },
-            "data": {
-                "status": "Lost connection"
+            data: {
+                status: "Lost connection"
             }
         };
 

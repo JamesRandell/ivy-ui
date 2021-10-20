@@ -65,8 +65,9 @@ export default class router implements iprotocol {
      */
     public go (file: string) {
 
-        let t = DOMManipulation.getInstance();
-
+        const t = DOMManipulation.getInstance();
+        t.loading(true);
+        
         /**
          * look at the config found in client.js for base Path, which tells us where 
          * all the html files are
@@ -74,6 +75,7 @@ export default class router implements iprotocol {
         if (file.indexOf(config.basePath) === -1) {
             file = config.basePath + file;
         }
+
 
         this.server.go(file);
 
@@ -116,6 +118,7 @@ export default class router implements iprotocol {
                 
                 let href = e.getAttribute('href');
                 event.preventDefault();
+                
                 that.go(href);
             }, false);
         });

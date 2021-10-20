@@ -5,12 +5,13 @@ import test from './test.js';
 /**
  * For HMR to work, we need to export an instance of the class and not the class itself
  */
-class svg extends DOMManipulation {
+class svg {
 
     //i:number = 0;
+    dommanipulationinstance: any = {};
 
-    constructor () {
-        super();
+    constructor (dommanipulationinstance) {
+        this.dommanipulationinstance = dommanipulationinstance
         //console.log(this.i);
         //this.i++; 
         this.run();
@@ -18,7 +19,7 @@ class svg extends DOMManipulation {
     }
 
     public run () { 
-         let svgArray = this.body.querySelectorAll('svg[data-url]');
+         let svgArray = this.dommanipulationinstance.body.querySelectorAll('svg[data-url]');
 
          let c = svgArray.length;
 //console.log(c);
@@ -51,25 +52,6 @@ class svg extends DOMManipulation {
             throw new Error('Network response was not ok');
         }
         return await response.text();
-
-        /*.then(response => { 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            //return response.text();
-        })
-        .then(text => {
-
-           
-            
-            console.log(text);
-            return text;
-        })
-        .catch(() => {
-            console.error.bind(console)
-        });
-        */
 
     }
 }

@@ -221,11 +221,24 @@ var library = {
         config_http.path = file;
         const req = http.request(config_http, res => {
             res.setEncoding('utf8');
+            if (res.statusCode < 200 || res.statusCode >= 300) {
+                buildJSON({ html: {
+                        data: null,
+                        file: file,
+                        statuscode: res.statusCode
+                    }
+                });
+            }
             res.on('data', result => {
                 // return just the file name for our rewrite rules
                 //file = this._fileArr(file).fileNameShort;
                 console.log('Returning file: ' + file);
-                ws.send(buildJSON({ html: { data: result, file: file } }));
+                ws.send(buildJSON({ html: {
+                        data: result,
+                        file: file,
+                        statusCode: res.statusCode
+                    }
+                }));
             });
         });
         req.on('error', err => {

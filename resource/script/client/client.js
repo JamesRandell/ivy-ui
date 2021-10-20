@@ -1,13 +1,4 @@
 'use strict';
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var config = {
     poll: 2000,
     dev: true,
@@ -24,7 +15,6 @@ import router from './router.js';
 import DOMManipulation from './dommanipulation.js';
 //@ts-ignore 
 import svg from './svg.js';
-new svg();
 var ivyDOM;
 var devHandlerInstance;
 var dommanipulationinstance;
@@ -32,6 +22,7 @@ var ivyui = {
     s: function () {
         ivyDOM = new initDOM();
         dommanipulationinstance = DOMManipulation.getInstance();
+        new svg(dommanipulationinstance);
         devHandlerInstance = new devHandler();
         devHandlerInstance.createStatusElement();
         socketInit(); //socket = connectSocket();
@@ -42,30 +33,28 @@ var ivyui = {
 };
 //var async so = null;
 var so = null;
+// so we get rid of TS type casting errors in the below function
+var socketInitS = { server: null };
 function socketInit() {
-    console.log('pre so');
-    //if (!so) return  Promise.resolve(socketInit);
-    if (socketInit.server && socketInit.server.readyState < 2) {
-        console.log("reusing the socket connection [state = " + socketInit.server.readyState + "]");
-        return Promise.resolve(socketInit.server);
+    if (socketInitS.server && socketInitS.server.readyState < 2) {
+        //console.log("reusing the socket connection [state = " + socketInitS.server.readyState + "]");
+        return Promise.resolve(socketInitS.server);
     }
-    console.log('post so');
     return new Promise(function (resolve, reject) {
-        socketInit.server = new WebSocket('ws://localhost:8082');
-        //
-        socketInit.server.onopen = function () {
-            resolve(socketInit.server);
+        socketInitS.server = new WebSocket('ws://localhost:8082');
+        socketInitS.server.onopen = function () {
+            resolve(socketInitS.server);
             devHandlerInstance.connected();
         };
-        socketInit.server.onclose = function (reason) {
+        socketInitS.server.onclose = function (reason) {
             devHandlerInstance.disconnected();
-            reject(socketInit.server);
+            reject(socketInitS.server);
         };
-        socketInit.server.onerror = function (err) {
+        socketInitS.server.onerror = function (err) {
             devHandlerInstance.disconnected();
-            reject(socketInit.server);
+            reject(socketInitS.server);
         };
-        socketInit.server.onmessage = function (data) {
+        socketInitS.server.onmessage = function (data) {
             const result = JSON.parse(data.data);
             dommanipulationinstance.message(result);
         };
@@ -73,24 +62,11 @@ function socketInit() {
 }
 function socket(arg) {
     socketInit().then(function (server) {
-        console.log(4);
         server.send(JSON.stringify(arg));
     }).catch(function (err) {
         console.log(err);
     });
 }
-const socket77 = (arg) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        console.log(123);
-        var quote = yield socketInit();
-        console.log(quote);
-        quote.send(JSON.stringify(arg));
-        console.log('Sending to server: ', JSON.stringify(arg));
-    }
-    catch (error) {
-        console.error('Error in socket: ', error);
-    }
-});
 function connectSocketBUP() {
     //return new Promise(function(resolve, reject) {
     function start() {
@@ -200,9 +176,8 @@ window.console = {
  * It's intended use is to trial the JSON payload feature, and hopefully not cross-contaminate
  * my classes with functionality
  */
-class devHandler extends DOMManipulation {
+class devHandler {
     constructor() {
-        super();
         var json = {
             "ui": {
                 "node": {
@@ -228,7 +203,7 @@ class devHandler extends DOMManipulation {
                 "btn": "Click me"
             }
         };
-        //super.m(json);
+
     }
     createStatusElement() {
         var json = {
@@ -249,7 +224,7 @@ class devHandler extends DOMManipulation {
                 "status": "DOM Loaded"
             }
         };
-        super.m(json);
+        dommanipulationinstance.m(json);
     }
     connected() {
         var json = {
@@ -258,7 +233,7 @@ class devHandler extends DOMManipulation {
                     div: [
                         {
                             attr: {
-                                addclass: ["connected", "pulse"],
+                                addClass: ["connected", "pulse"],
                                 id: "status"
                             },
                             verb: "update"
@@ -267,7 +242,7 @@ class devHandler extends DOMManipulation {
                     body: [
                         {
                             attr: {
-                                addclass: "connected",
+                                addClass: "connected",
                             },
                             verb: "update"
                         }
@@ -278,36 +253,36 @@ class devHandler extends DOMManipulation {
                 status: ""
             }
         };
-        super.m(json);
+        dommanipulationinstance.m(json);
     }
     disconnected() {
         var json = {
-            "ui": {
-                "node": {
-                    "div": [
+            ui: {
+                node: {
+                    div: [
                         {
-                            "attr": {
-                                removeclass: ["connected", "pulse"],
-                                "id": "status"
+                            attr: {
+                                removeClass: ["connected", "pulse"],
+                                id: "status"
                             },
-                            "verb": "update"
+                            verb: "update"
                         }
                     ],
-                    "body": [
+                    body: [
                         {
-                            "attr": {
-                                "removeclass": "connected",
+                            attr: {
+                                removeClass: "connected",
                             },
-                            "verb": "update"
+                            verb: "update"
                         }
                     ]
                 }
             },
-            "data": {
-                "status": "Lost connection"
+            data: {
+                status: "Lost connection"
             }
         };
-        super.m(json);
+        dommanipulationinstance.m(json);
     }
 }
 document.addEventListener("DOMContentLoaded", ivyui.s);

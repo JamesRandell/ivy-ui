@@ -30,7 +30,6 @@ export default {
             console.log(msg)
           })
 */
-        console.log('load the routed page');
         /*
            socketInit().then(function(server) {
              console.log(4);

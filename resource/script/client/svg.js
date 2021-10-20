@@ -7,21 +7,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-//@ts-ignore
-import DOMManipulation from './dommanipulation.js';
 /**
  * For HMR to work, we need to export an instance of the class and not the class itself
  */
-class svg extends DOMManipulation {
-    //i:number = 0;
-    constructor() {
-        super();
+class svg {
+    constructor(dommanipulationinstance) {
+        //i:number = 0;
+        this.dommanipulationinstance = {};
+        this.dommanipulationinstance = dommanipulationinstance;
         //console.log(this.i);
         //this.i++; 
         this.run();
     }
     run() {
-        let svgArray = this.body.querySelectorAll('svg[data-url]');
+        let svgArray = this.dommanipulationinstance.body.querySelectorAll('svg[data-url]');
         let c = svgArray.length;
         //console.log(c);
         for (let i = 0; i < c; i++) {
@@ -47,24 +46,6 @@ class svg extends DOMManipulation {
                 throw new Error('Network response was not ok');
             }
             return yield response.text();
-            /*.then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-    
-                //return response.text();
-            })
-            .then(text => {
-    
-               
-                
-                console.log(text);
-                return text;
-            })
-            .catch(() => {
-                console.error.bind(console)
-            });
-            */
         });
     }
 }

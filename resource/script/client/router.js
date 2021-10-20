@@ -50,7 +50,8 @@ export default class router {
      * @param file name of the file to retrieve from the server
      */
     go(file) {
-        let t = DOMManipulation.getInstance();
+        const t = DOMManipulation.getInstance();
+        t.loading(true);
         /**
          * look at the config found in client.js for base Path, which tells us where
          * all the html files are

@@ -24,6 +24,13 @@ export default class DOMManipulation extends hotModuleReload {
             active: 'active',
             current: 'current'
         };
+        const wrapper = document.createElement('section');
+        wrapper.classList.add('content');
+        //div.appendChild(this.content);
+        this.content.parentNode.appendChild(wrapper);
+        wrapper.appendChild(this.content);
+        //this.content.replaceWith(div);
+        console.log('DOM Class started... only one please');
         this._navigateInit();
     }
     static getInstance() {
@@ -122,10 +129,10 @@ export default class DOMManipulation extends hotModuleReload {
         if (attributes.hasOwnProperty('class')) {
             e.setAttribute('class', attributes.class);
         }
-        if (attributes.hasOwnProperty('addclass')) {
+        if (attributes.hasOwnProperty('addClass')) {
             e.classList.add(attributes.class);
         }
-        if (attributes.hasOwnProperty('removeclass')) {
+        if (attributes.hasOwnProperty('removeClass')) {
             e.classList.remove(attributes.class);
         }
         this.body.appendChild(e);
@@ -146,8 +153,8 @@ export default class DOMManipulation extends hotModuleReload {
                         e.setAttribute('class', t);
                     }
                 //break;
-                case 'addclass':
-                    t = attributes.addclass;
+                case 'addClass':
+                    t = attributes.addClass;
                     if (typeof t === 'object') {
                         for (const cssClass of t) {
                             e.classList.add(cssClass);
@@ -157,8 +164,8 @@ export default class DOMManipulation extends hotModuleReload {
                         e.classList.add(t);
                     }
                 //break;
-                case 'removeclass':
-                    t = attributes.removeclass;
+                case 'removeClass':
+                    t = attributes.removeClass;
                     if (typeof t === 'object') {
                         for (const cssClass of t) {
                             e.classList.remove(cssClass);
@@ -172,7 +179,6 @@ export default class DOMManipulation extends hotModuleReload {
         }
     }
     _html(json) {
-        console.log(999);
         /**
          * we expect:
          * json.html
@@ -208,8 +214,6 @@ export default class DOMManipulation extends hotModuleReload {
         if (amIALocalTemplate !== null) {
             this.content.innerHTML = amIALocalTemplate.innerHTML;
             //} else if (doIHaveBody !== null) {
-            console.log(temp.innerHTML);
-            console.log(json);
             //this.body.innerHTML = doIHaveBody.innerHTML;
         }
         else {
@@ -225,6 +229,7 @@ export default class DOMManipulation extends hotModuleReload {
         if (json.hasOwnProperty('file')) {
             this._navigate(json.file);
         }
+        this.loading(false);
     }
     /**
      * Right now this is run when the page loads, and simply adds a few css classes to the current link
@@ -280,7 +285,7 @@ export default class DOMManipulation extends hotModuleReload {
          * remove the leading slash if there is one. This is because the webservier prolly uses
          * root relative url (/path/to/file) instead of handling url re-writes
          */
-        file = file.replace(/^\/+/g, '');
+        //file = file.replace(/^\/+/g, '');
         /**
          * No change, user clicked the same link or something
          *
@@ -288,7 +293,18 @@ export default class DOMManipulation extends hotModuleReload {
         if (currentURL == file) {
             return;
         }
-        window.history.pushState({ pageID: file }, file, '/' + file);
+        var ss = 1;
+        if (window.history && window.history.pushState) {
+            window.onpopstate = function (event) {
+                ss = 0;
+                console.log('Back button was pressed.');
+            };
+            if (ss === 1) {
+                console.log('s === true');
+                window.history.pushState({ pageID: file }, file, file);
+                ss = 0;
+            }
+        }
         this._navigateCleanUpLinks(file);
     }
     _htmlFile(path, parentNode = null) {
@@ -344,6 +360,14 @@ export default class DOMManipulation extends hotModuleReload {
         return temp.innerHTML;
     }
     ;
+    loading(state = true) {
+        if (state === true) {
+            this._updateNode('body', { addClass: 'loading' });
+        }
+        else {
+            this._updateNode('body', { removeClass: 'loading' });
+        }
+    }
     /**
      *
      * @param object helper function to get the key from a JSON object
@@ -366,4 +390,3 @@ export default class DOMManipulation extends hotModuleReload {
         return null;
     }
 }
-//export default new DOMManipulation();
