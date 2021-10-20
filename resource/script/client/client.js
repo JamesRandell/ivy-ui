@@ -176,8 +176,9 @@ window.console = {
  * It's intended use is to trial the JSON payload feature, and hopefully not cross-contaminate
  * my classes with functionality
  */
-class devHandler {
+class devHandler extends DOMManipulation {
     constructor() {
+        super();
         var json = {
             "ui": {
                 "node": {
@@ -203,7 +204,7 @@ class devHandler {
                 "btn": "Click me"
             }
         };
-
+        //super.m(json);
     }
     createStatusElement() {
         var json = {
@@ -224,7 +225,7 @@ class devHandler {
                 "status": "DOM Loaded"
             }
         };
-        dommanipulationinstance.m(json);
+        super.m(json);
     }
     connected() {
         var json = {
@@ -253,7 +254,7 @@ class devHandler {
                 status: ""
             }
         };
-        dommanipulationinstance.m(json);
+        super.m(json);
     }
     disconnected() {
         var json = {
@@ -282,7 +283,7 @@ class devHandler {
                 status: "Lost connection"
             }
         };
-        dommanipulationinstance.m(json);
+        super.m(json);
     }
 }
 document.addEventListener("DOMContentLoaded", ivyui.s);
