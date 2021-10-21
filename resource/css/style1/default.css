@@ -3,39 +3,38 @@ body {
     font-size:12px;
     font-family: 'Roboto', sans-serif;
     font-weight:300;
+
     display: flex;
     flex-wrap: wrap;
-    flex-direction: row;
-}
 
+    padding:20px
+}
 body.connected {
     background-color: var(--background)
-}
-
-body > * {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  flex-wrap: wrap;
-}
-
-body > header {
-  height:100px;
-  background-color: var(--medium-bg);
 }
 
 body > section {
   /* grow the content to the remainder of the space (works with padding!) */
   flex-grow: 1;
-  background-color: var(--active-bg);
-
-  padding:2em;
+}
+body > header {
+    /*flex: 0 0 100%*/
 }
 
 body > nav.primary {
-  order: -1;
+    flex: 0 0 25%;
+    border-radius: var(--radius-big) 0 0 var(--radius-big);
 }
 
+
+body > section {
+
+    background-color: #fff;
+    border-top-right-radius: var(--radius-big);
+    border-bottom-right-radius: var(--radius-big);
+    padding:2em;
+    
+}
 
 h4 { 
   text-transform: uppercase;

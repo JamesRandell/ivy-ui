@@ -1,57 +1,67 @@
+
+.icon { fill:#aaa; width:28px; height: 28px; transform: scale(0.8);
+}
+
 nav * {
     color: #777;
-    font-family: museo-sans, sans-serif;
-    font-weight: 600;
-    letter-spacing: .005em;
-    font-size:14px;
 }
 nav.primary {
     font-weight: 600;
-    background: #fff;
-    display: flex;
-    width: 100%;
-    flex-wrap: wrap;
+    border-radius: var(--radius-big);
+    background: hsl(32,40%,92%);
+}
+nav.left {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
-nav.primary ul {
-    display: flex;
-    align-items: stretch; /* Default */
-    justify-content: space-between;
-    flex-grow: 1;
-}
-nav.primary ul::before {
-    content: "";
-    flex: 0 1 auto;
-    flex-grow: 1;
-}
-/*
-leaving this here to illustrate how to hide things. h4 and ul in the nav, we need to hide all h4s not in first place, and all
-uls not in 2nd place
-*/
-/*
-nav.primary > ul:not(:nth-child(2)),
-nav.primary > h4:not(:nth-child(1)) {
-    display: none
-}
-*/
-nav.primary > ul:not(:nth-child(2)),
-nav.primary > h4 {
-    display: none
+nav.primary > ul:not(:last-child) {
+    padding: 10px;
+    border-bottom:1px solid #eee
 }
 
-nav.primary li {
-    display: block;
-    flex: 0 1 auto; /* Default */
+nav.primary h4 {
+    padding:20px 10px 5px 30px;
+    line-height: 28px;
+    display: flex;
+}
+/*
+nav.primary h4:first-child::after {
+    content: "<<";
+    margin-left: auto;
+    background-color: #eee;
+    text-align: center;
+    border-radius: 14px;
+    line-height: 28px;
+    height:28px;
+    width: 28px
+}
+*/
+
+nav.primary h4:first-child:hover::after {
+    background-color: #ccc;
+    cursor: pointer;
+}
+
+nav li {
+    display: flex;
+    flex-flow: column;
+    flex-direction: column;
+    flex-wrap: nowrap;
     margin:0;
 }
 
-nav.primary a {
+nav a {
     display:inline-flex;
     text-decoration: none;
     align-items: center;
-    padding:25px 15px;
+    padding:5px 15px;
 }
 
+
+nav li {
+    margin-bottom:2px
+}
 
 /*****************************
  menu size effects
@@ -86,16 +96,19 @@ nav.small a {
 ******************************/
 /* top level */
 nav li a {
+    border-radius: 7px 7px 0 0;
     color: var(--normal);
     line-height: 28px;
 }
 
+nav li a:only-child {
+    border-radius: 7px;
+}
+
 /* special effects for those with a sub-menu */
 nav li a:not(:only-child)::after {
-    content: "^";
-    transform: rotate(180deg);
-    margin-left: 7px;
-    font-size:14px
+    content: "+";
+    margin-left: auto
 }
 nav li a:not(:only-child) {
     align-items: center;
@@ -126,33 +139,32 @@ nav li ul li a {
 ******************************/
 /* top level */
 /* HOVER */
-nav.primary li:hover a:not(:only-child)  {
-    color: var(--hover);
-    background: var(--hover-bg);
+nav li:hover a:not(:only-child)  {
+    color: var(--active);
+    background-color: var(--active-bg);
+}
+
+nav li:hover a:not(:only-child) svg {
+    fill: var(--active);
+    
 }
 
 /* part 1 of 3 rules, part 2 & 3 hits the sub menu below
    this hits single menu items that don't have a sub-menu */
 nav li:hover a:only-child:not(.current) {
     color: var(--hover);
-    background: var(--hover-bg);
+    background-color: var(--hover-bg);
 }
 nav li:hover a:only-child:not(.current) svg {
     fill: var(--hover)
 }
 
 /* sub levels */
-nav.primary li ul {
-    /*
-     * temp display none just to get the menu looking right before sub-menus
-    */
-    display:none;
-
+nav li ul {
     max-height: 0;
     overflow: hidden;
     background-color: var(--hover-bg)
 }
-
 nav li:hover ul,
 nav li a.current:not(:only-child) ul {
     max-height: 5500px;
@@ -181,8 +193,8 @@ nav li.current a {
     background-color: var(--current-bg);
 }
 
-nav.primary svg {
-    display:none
+nav li.current a svg {
+    fill: var(--hover)
 }
 
  
@@ -219,6 +231,31 @@ nav li:hover ul  {
 /* 
   sub-menus
 */
+/* dynamically collapse submenus when not targeted */
+/*
+nav ul > li:not(:target):not(:hover) > ul {
+    visibility: collapse;
+    height:0;
+
+    transition: max-height 5s ease-in;
+    max-height: 0;
+}
+*/
+
+
+
+/*
+nav a:not(:only-child),
+nav a:not(:only-child) .icon {
+    transition: background-color linear 100ms 500ms; 
+}
+
+nav li:hover a:not(:only-child),
+nav li:hover a:not(:only-child) .icon {
+    transition: background-color linear 100ms 0ms; 
+}
+*/
+
 /* lets fix up some of the border radius for sub-menus */
 nav li ul li:last-child a {
     margin: 0
@@ -227,3 +264,11 @@ nav li ul {
     margin-bottom: 2px;
 }
 
+/*
+nav li ul li:hover:not(:last-child) a {
+    border-radius: 0px
+}
+nav li ul li:hover:last-child a {
+    border-radius: 0 0 7px 7px
+}
+*/

@@ -13,30 +13,25 @@ var hmr = new BaseModule();
 import router from './router.js';
 //@ts-ignore
 import DOMManipulation from './dommanipulation.js';
-console.log('start');
 //@ts-ignore 
 import svg from './svg.js';
 var ivyDOM;
-var devHandlerInstance;
 var dommanipulationinstance;
-console.log('start2');
 var ivyui = {
     s: function () {
         ivyDOM = new initDOM();
         dommanipulationinstance = DOMManipulation.getInstance();
-        console.log('start4');
         new svg(dommanipulationinstance);
-        devHandlerInstance = new devHandler();
-        devHandlerInstance.createStatusElement();
+        dommanipulationinstance.m(uiComponent.createStatusElement);
         socketInit(); //socket = connectSocket();
+        window.addEventListener("post-navigate", function (evt) {
+            console.log(evt);
+        });
         const urlSearchParams = new URLSearchParams(window.location.search);
         const params = Object.fromEntries(urlSearchParams.entries());
         return;
     }
 };
-console.log('start3');
-//var async so = null;
-var so = null;
 // so we get rid of TS type casting errors in the below function
 var socketInitS = { server: null };
 function socketInit() {
@@ -48,14 +43,14 @@ function socketInit() {
         socketInitS.server = new WebSocket('ws://localhost:8082');
         socketInitS.server.onopen = function () {
             resolve(socketInitS.server);
-            devHandlerInstance.connected();
+            dommanipulationinstance.m(uiComponent.connected);
         };
         socketInitS.server.onclose = function (reason) {
-            devHandlerInstance.disconnected();
+            dommanipulationinstance.m(uiComponent.disconnected);
             reject(socketInitS.server);
         };
         socketInitS.server.onerror = function (err) {
-            devHandlerInstance.disconnected();
+            dommanipulationinstance.m(uiComponent.disconnected);
             reject(socketInitS.server);
         };
         socketInitS.server.onmessage = function (data) {
@@ -77,7 +72,7 @@ function connectSocketBUP() {
         let ws = new WebSocket('ws://localhost:8082');
         ws.onopen = function () {
             //resolve(server);
-            devHandlerInstance.connected();
+            dommanipulationinstance.m(uiComponent.connected);
             console.log(9);
         };
         /*socket.addEventListener('open', function (e) {
@@ -103,7 +98,7 @@ function connectSocketBUP() {
             
         });*/
         ws.onclose = function (reason) {
-            devHandlerInstance.disconnected();
+            dommanipulationinstance.m(uiComponent.disconnected);
             // need to see if reason exists. If it does, check for the code.
             // I think this is to do if the connection exists, or it it just closed. 
             // I needed to do this because it would poll forever and crash the browser.
@@ -113,7 +108,7 @@ function connectSocketBUP() {
         };
         ws.onerror = function (err) {
             //reject(err);
-            devHandlerInstance.disconnected();
+            dommanipulationinstance.m(uiComponent.disconnected);
         };
     }
     function check() {
@@ -180,116 +175,107 @@ window.console = {
  * It's intended use is to trial the JSON payload feature, and hopefully not cross-contaminate
  * my classes with functionality
  */
-class devHandler extends DOMManipulation {
-    constructor() {
-        super();
-        var json = {
-            "ui": {
-                "node": {
-                    "button": [
-                        {
-                            "attr": {
-                                "id": "btn"
-                            },
-                            "verb": "add"
-                        }
-                    ],
-                    "div": [
-                        {
-                            "attr": {
-                                "class": ""
-                            },
-                            "verb": "add"
-                        }
-                    ]
+var uiComponent = {
+    btn: {},
+    createStatusElement: {},
+    connected: {},
+    disconnected: {}
+};
+uiComponent.btn = {
+    "ui": {
+        "node": {
+            "button": [
+                {
+                    "attr": {
+                        "id": "btn"
+                    },
+                    "verb": "add"
                 }
-            },
-            "data": {
-                "btn": "Click me"
-            }
-        };
-        //super.m(json);
-    }
-    createStatusElement() {
-        var json = {
-            "ui": {
-                "node": {
-                    "div": [
-                        {
-                            "attr": {
-                                "class": "status",
-                                "id": "status"
-                            },
-                            "verb": "add"
-                        }
-                    ]
+            ],
+            "div": [
+                {
+                    "attr": {
+                        "class": ""
+                    },
+                    "verb": "add"
                 }
-            },
-            "data": {
-                "status": "DOM Loaded"
-            }
-        };
-        super.m(json);
+            ]
+        }
+    },
+    "data": {
+        "btn": "Click me"
     }
-    connected() {
-        var json = {
-            ui: {
-                node: {
-                    div: [
-                        {
-                            attr: {
-                                addClass: ["connected", "pulse"],
-                                id: "status"
-                            },
-                            verb: "update"
-                        }
-                    ],
-                    body: [
-                        {
-                            attr: {
-                                addClass: "connected",
-                            },
-                            verb: "update"
-                        }
-                    ],
+};
+uiComponent.createStatusElement = {
+    "ui": {
+        "node": {
+            "div": [
+                {
+                    "attr": {
+                        "class": "status",
+                        "id": "status"
+                    },
+                    "verb": "add"
                 }
-            },
-            data: {
-                status: ""
-            }
-        };
-        super.m(json);
+            ]
+        }
+    },
+    "data": {
+        "status": "DOM Loaded"
     }
-    disconnected() {
-        var json = {
-            ui: {
-                node: {
-                    div: [
-                        {
-                            attr: {
-                                removeClass: ["connected", "pulse"],
-                                id: "status"
-                            },
-                            verb: "update"
-                        }
-                    ],
-                    body: [
-                        {
-                            attr: {
-                                removeClass: "connected",
-                            },
-                            verb: "update"
-                        }
-                    ]
+};
+uiComponent.connected = {
+    ui: {
+        node: {
+            div: [
+                {
+                    attr: {
+                        addClass: ["connected", "pulse"],
+                        id: "status"
+                    },
+                    verb: "update"
                 }
-            },
-            data: {
-                status: "Lost connection"
-            }
-        };
-        super.m(json);
+            ],
+            body: [
+                {
+                    attr: {
+                        addClass: "connected",
+                    },
+                    verb: "update"
+                }
+            ],
+        }
+    },
+    data: {
+        status: ""
     }
-}
+};
+uiComponent.disconnected = {
+    ui: {
+        node: {
+            div: [
+                {
+                    attr: {
+                        removeClass: ["connected", "pulse"],
+                        id: "status"
+                    },
+                    verb: "update"
+                }
+            ],
+            body: [
+                {
+                    attr: {
+                        removeClass: "connected",
+                    },
+                    verb: "update"
+                }
+            ]
+        }
+    },
+    data: {
+        status: "Lost connection"
+    }
+};
 document.addEventListener("DOMContentLoaded", ivyui.s);
 var routerInstance = new router();
 export { socketInit, socket, routerInstance as router, config };

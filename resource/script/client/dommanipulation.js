@@ -31,29 +31,17 @@ export default class DOMManipulation extends hotModuleReload {
         wrapper.appendChild(this.content);
         //this.content.replaceWith(div);
         console.log('DOM Class started... only one please');
-        window.onpopstate = function (event) {
-            alert("pop");
-        };
-        var h = true;
+        var s = false;
+        var that = this;
         (function (history) {
             var rpushState = history.pushState.bind(history);
-            //var pushState = history.pushState;
             history.pushState = function (file) {
-                console.log('a');
-                var s = false;
                 window.onpopstate = function (event) {
-                    console.log('b');
                     s = true;
                 };
-                if (s === false) {
-                    console.log('c');
+                if (s === false && that.curentURL != file.pageID) {
                     rpushState({ pageID: file.pageID }, file.pageID, file.pageID);
-                    console.log(file.pageID);
-                    h = false;
                 }
-                // ... whatever else you want to do
-                // maybe call onhashchange e.handler
-                //return pushState.apply(history, arguments);
             };
         })(window.history);
         this._navigateInit();
@@ -78,7 +66,7 @@ export default class DOMManipulation extends hotModuleReload {
     }
     /**
      * I think this is what you can define as 'code smell' (as in, I know this is bad).
-     * It looks like its function chainging - because it is! I just changed the JSON
+     * It looks like its function chaining - because it is! I just changed the JSON
      * structure to start with 'payload' as that's what I prefer.
      *
      * @param json The entire json object from the server, usually with
@@ -318,10 +306,8 @@ export default class DOMManipulation extends hotModuleReload {
         if (currentURL == file) {
             return;
         }
+        window.dispatchEvent(new CustomEvent('post-navigate', { detail: file }));
         this._navigateCleanUpLinks(file);
-        //window.num = 0;
-        var ss = 0;
-        console.log('1:' + ss);
         history.pushState({ pageID: file }, file, file);
         /*
                 if (history && history.pushState) {
@@ -425,5 +411,12 @@ export default class DOMManipulation extends hotModuleReload {
             return document.getElementsByTagName(selector)[0];
         }
         return null;
+    }
+    /**
+     * The relative path to the current page the browser is on
+     * @returns string of the relative path
+     */
+    get curentURL() {
+        return window.location.pathname.replace(/^|\/$/g, '');
     }
 }

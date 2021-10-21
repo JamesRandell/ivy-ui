@@ -21,30 +21,38 @@ import router from './router.js';
 
 //@ts-ignore
 import DOMManipulation from './dommanipulation.js';
-console.log('start');
+
 
 //@ts-ignore 
 import svg from './svg.js';
 
+//@ts-ignore 
+import polyfill from './polyfill.js';
+
 
 
 var ivyDOM: any;
-var devHandlerInstance: any;
 var dommanipulationinstance: any;    
-console.log('start2');
+
 
 var ivyui = {
   s: function(){ 
   
     ivyDOM = new initDOM();
     dommanipulationinstance = DOMManipulation.getInstance();
-    console.log('start4');
+
     new svg(dommanipulationinstance);
 
-    devHandlerInstance = new devHandler();
-    devHandlerInstance.createStatusElement();
+    dommanipulationinstance.m(uiComponent.createStatusElement);
+
 
     socketInit();//socket = connectSocket();
+
+
+    window.addEventListener("post-navigate", function(evt){
+      console.log(evt);
+    });
+
 
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
@@ -52,9 +60,6 @@ var ivyui = {
     return;
   }
 }
-console.log('start3');
-//var async so = null;
-var so = null;
 
 
 
@@ -74,16 +79,16 @@ function socketInit () {
 
     socketInitS.server.onopen = function(){
       resolve(socketInitS.server);
-      devHandlerInstance.connected();
+      dommanipulationinstance.m(uiComponent.connected);
     };
 
     socketInitS.server.onclose = function(reason){
-      devHandlerInstance.disconnected();
+      dommanipulationinstance.m(uiComponent.disconnected);
       reject(socketInitS.server);
     };
 
     socketInitS.server.onerror = function(err) {
-      devHandlerInstance.disconnected();
+      dommanipulationinstance.m(uiComponent.disconnected);
       reject(socketInitS.server);
     };
 
@@ -112,7 +117,7 @@ function connectSocketBUP() {
 
         ws.onopen = function(){
             //resolve(server);
-            devHandlerInstance.connected();
+            dommanipulationinstance.m(uiComponent.connected);
             console.log(9);
         };
         
@@ -145,7 +150,7 @@ function connectSocketBUP() {
         });*/
 
         ws.onclose = function(reason){
-            devHandlerInstance.disconnected();
+          dommanipulationinstance.m(uiComponent.disconnected);
             
             // need to see if reason exists. If it does, check for the code.
             // I think this is to do if the connection exists, or it it just closed. 
@@ -158,7 +163,7 @@ function connectSocketBUP() {
   
         ws.onerror = function(err) {
             //reject(err);
-            devHandlerInstance.disconnected();
+            dommanipulationinstance.m(uiComponent.disconnected);
         };
     }
   
@@ -249,11 +254,13 @@ window.console = {
  * It's intended use is to trial the JSON payload feature, and hopefully not cross-contaminate
  * my classes with functionality
  */
-class devHandler extends DOMManipulation {
-
-    public constructor () {
-        super();
-        var json = {
+var uiComponent = {
+  btn:{},
+  createStatusElement:{},
+  connected:{},
+  disconnected:{}
+};
+uiComponent.btn = {
             "ui":{
               "node":{
                 "button":[
@@ -278,13 +285,8 @@ class devHandler extends DOMManipulation {
                 "btn": "Click me"
             }
         };
-    
-        //super.m(json);
-    }
 
-    public createStatusElement () {
-
-        var json = {
+uiComponent.createStatusElement = {
                 "ui":{
                   "node":{
                     "div":[
@@ -302,12 +304,8 @@ class devHandler extends DOMManipulation {
                     "status": "DOM Loaded"
                 }
             };
-        
-        super.m(json);
-    }
 
-    public connected () {
-        var json = {
+uiComponent.connected = {
             ui:{
               node:{
                 div:[
@@ -334,11 +332,7 @@ class devHandler extends DOMManipulation {
             }
         };
     
-        super.m(json);
-    }
-
-    public disconnected () {
-        var json = {
+uiComponent.disconnected = {
             ui:{
             node:{
                 div:[
@@ -365,9 +359,7 @@ class devHandler extends DOMManipulation {
             }
         };
 
-        super.m(json);
-    }
-}
+
 
 document.addEventListener("DOMContentLoaded", ivyui.s);
 
