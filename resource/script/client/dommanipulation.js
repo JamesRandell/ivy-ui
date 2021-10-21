@@ -31,6 +31,31 @@ export default class DOMManipulation extends hotModuleReload {
         wrapper.appendChild(this.content);
         //this.content.replaceWith(div);
         console.log('DOM Class started... only one please');
+        window.onpopstate = function (event) {
+            alert("pop");
+        };
+        var h = true;
+        (function (history) {
+            var rpushState = history.pushState.bind(history);
+            //var pushState = history.pushState;
+            history.pushState = function (file) {
+                console.log('a');
+                var s = false;
+                window.onpopstate = function (event) {
+                    console.log('b');
+                    s = true;
+                };
+                if (s === false) {
+                    console.log('c');
+                    rpushState({ pageID: file.pageID }, file.pageID, file.pageID);
+                    console.log(file.pageID);
+                    h = false;
+                }
+                // ... whatever else you want to do
+                // maybe call onhashchange e.handler
+                //return pushState.apply(history, arguments);
+            };
+        })(window.history);
         this._navigateInit();
     }
     static getInstance() {
@@ -293,19 +318,31 @@ export default class DOMManipulation extends hotModuleReload {
         if (currentURL == file) {
             return;
         }
-        var ss = 1;
-        if (window.history && window.history.pushState) {
-            window.onpopstate = function (event) {
-                ss = 0;
-                console.log('Back button was pressed.');
-            };
-            if (ss === 1) {
-                console.log('s === true');
-                window.history.pushState({ pageID: file }, file, file);
-                ss = 0;
-            }
-        }
         this._navigateCleanUpLinks(file);
+        //window.num = 0;
+        var ss = 0;
+        console.log('1:' + ss);
+        history.pushState({ pageID: file }, file, file);
+        /*
+                if (history && history.pushState) {
+                    console.log('2:' + ss);
+                    window.onpopstate = function(event) {
+                        ss = 0;
+                        console.log('3:' + ss);
+                        console.log('Back button was pressed.');
+                    };
+                    console.log('4:' + ss);
+                    if (ss === 1) {
+                        console.log('5:' + ss);
+                        console.log('s === true');
+                        window.history.pushState({pageID: file}, file,  file);
+                        ss = 0;
+                    }
+                    console.log('6:' + ss);
+        
+                }
+        
+        */
     }
     _htmlFile(path, parentNode = null) {
         this._HTMLFile(path, parentNode);

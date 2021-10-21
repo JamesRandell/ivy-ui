@@ -13,15 +13,18 @@ var hmr = new BaseModule();
 import router from './router.js';
 //@ts-ignore
 import DOMManipulation from './dommanipulation.js';
+console.log('start');
 //@ts-ignore 
 import svg from './svg.js';
 var ivyDOM;
 var devHandlerInstance;
 var dommanipulationinstance;
+console.log('start2');
 var ivyui = {
     s: function () {
         ivyDOM = new initDOM();
         dommanipulationinstance = DOMManipulation.getInstance();
+        console.log('start4');
         new svg(dommanipulationinstance);
         devHandlerInstance = new devHandler();
         devHandlerInstance.createStatusElement();
@@ -31,6 +34,7 @@ var ivyui = {
         return;
     }
 };
+console.log('start3');
 //var async so = null;
 var so = null;
 // so we get rid of TS type casting errors in the below function

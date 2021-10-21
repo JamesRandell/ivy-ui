@@ -21,7 +21,7 @@ import router from './router.js';
 
 //@ts-ignore
 import DOMManipulation from './dommanipulation.js';
-
+console.log('start');
 
 //@ts-ignore 
 import svg from './svg.js';
@@ -31,14 +31,14 @@ import svg from './svg.js';
 var ivyDOM: any;
 var devHandlerInstance: any;
 var dommanipulationinstance: any;    
-
+console.log('start2');
 
 var ivyui = {
   s: function(){ 
   
     ivyDOM = new initDOM();
     dommanipulationinstance = DOMManipulation.getInstance();
-
+    console.log('start4');
     new svg(dommanipulationinstance);
 
     devHandlerInstance = new devHandler();
@@ -52,7 +52,7 @@ var ivyui = {
     return;
   }
 }
-
+console.log('start3');
 //var async so = null;
 var so = null;
 
