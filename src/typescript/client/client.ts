@@ -50,7 +50,9 @@ var ivyui = {
 
 
     window.addEventListener("post-navigate", function(evt){
-      console.log(evt);
+      console.log('i have navigated');
+      socket({file:"/ui/fragment"});
+
     });
 
 
@@ -101,6 +103,10 @@ function socketInit () {
 }
 function socket (arg) {
   socketInit().then(function(server) {
+
+    if (!arg.hasOwnProperty('payload')) {
+      arg = {payload: arg};
+    }
     server.send(JSON.stringify(arg));
 }).catch(function(err) {
     console.log(err);

@@ -76,7 +76,7 @@ export default class router implements iprotocol {
             file = config.basePath + file;
         }
 
-
+        window.dispatchEvent(new CustomEvent('pre-pageRequest', {detail: file}));
         this.server.go(file);
 
         return true;
@@ -112,11 +112,13 @@ export default class router implements iprotocol {
         document.querySelectorAll("a").forEach((e) => {
 
             e.addEventListener("click", function(event) {
-
+                let href = e.getAttribute('href');
+                
+                window.dispatchEvent(new CustomEvent('post-linkClick', {detail: href}));
                 event.stopPropagation();
                 //document.getElementById("output-box").innerHTML += "Sorry! <code>preventDefault()</code> won't let you check this!<br>";
                 
-                let href = e.getAttribute('href');
+                
                 event.preventDefault();
                 
                 that.go(href);

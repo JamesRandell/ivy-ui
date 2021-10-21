@@ -281,10 +281,11 @@ export default class DOMManipulation extends hotModuleReload {
         const body = temp.querySelector("body");
         let amIAWidgetTemplate = body.querySelector('*');
 
+        // this is a WIDGET
         if (amIAWidgetTemplate.id.length > 0) {
 
             let widgetID = amIAWidgetTemplate.id;
-
+            console.log('WIDGET'); 
             /**
              * now lets see if the widget id exists in the current content
              */
@@ -295,21 +296,42 @@ export default class DOMManipulation extends hotModuleReload {
                 currentPageWidget.innerHTML = amIAWidgetTemplate.innerHTML;
                 return;
 
+            } else {
+                // just append .content for now
+                let y = this.content;
+                y.appendChild(amIAWidgetTemplate);
             }
+        } else {
+            /**
+             * injected html has no id, so assume it's just some html and 
+             * it's LOCAL/Global
+             */
+            console.log('LOCAL or GLOBAL'); 
+            this.content.innerHTML = amIAWidgetTemplate.innerHTML;
+
+            
+            if (json.hasOwnProperty('file')) {
+                this._navigate(json.file);
+            }
+
+            return;
         }
 
         var amIALocalTemplate = temp.querySelector('.content');
         
         if (amIALocalTemplate !== null) {
-
+            console.log('not LOCAL or WIDGET'); 
             this.content.innerHTML = amIALocalTemplate.innerHTML;
 
+            if (json.hasOwnProperty('file')) {
+                this._navigate(json.file);
+            }
         //} else if (doIHaveBody !== null) {
 
             //this.body.innerHTML = doIHaveBody.innerHTML;
 
         } else {
-            
+           console.log('LOCAL or WIDGET'); 
             /**
              * the page we loaded is possibly a LOCAL or a WIDGET because it doesn't contain
              * <body> tags
@@ -317,13 +339,16 @@ export default class DOMManipulation extends hotModuleReload {
              * So we can just insert the whole thing. However we can look for an id on the first
              * parent element to see if we need to replace anything
              */
+            /*
             this.content.innerHTML = temp.innerHTML;
+            if (json.hasOwnProperty('file')) {
+                this._navigate(json.file);
+            }
+            */
 
         }
         
-        if (json.hasOwnProperty('file')) {
-            this._navigate(json.file);
-        }
+        
         
       
         this.loading(false);
@@ -415,27 +440,8 @@ export default class DOMManipulation extends hotModuleReload {
         
 
 
-history.pushState({pageID: file}, file,  file);
-/*
-        if (history && history.pushState) {
-            console.log('2:' + ss);
-            window.onpopstate = function(event) {
-                ss = 0;
-                console.log('3:' + ss);
-                console.log('Back button was pressed.');
-            };
-            console.log('4:' + ss);
-            if (ss === 1) {
-                console.log('5:' + ss);
-                console.log('s === true');
-                window.history.pushState({pageID: file}, file,  file);
-                ss = 0;
-            }
-            console.log('6:' + ss);
+        history.pushState({pageID: file}, file,  file);
 
-        }
-
-*/        
 
         
     }
