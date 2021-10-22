@@ -56,7 +56,7 @@ function socket (arg) {
     socketInit().then(function(server) {
       server.send(JSON.stringify(arg));
   }).catch(function(err) {
-      console.log(err);
+      console.log("Can't load page. Is the connection open?");
   });
   }
         try {

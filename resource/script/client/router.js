@@ -48,9 +48,16 @@ export default class router {
      * URI, and history etc
      *
      * @param file name of the file to retrieve from the server
+     * @param force specifies if we should force a load of the file. Ignores currentURL check
      */
-    go(file) {
+    go(file, force = false) {
         const t = DOMManipulation.getInstance();
+        let currentURL = window.location.pathname.replace(/^|\/$/g, '');
+        if (!force && currentURL === file) {
+            console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
+            return;
+        }
+        t._navigateCleanUpLinks();
         t.loading(true);
         /**
          * look at the config found in client.js for base Path, which tells us where
@@ -95,14 +102,15 @@ export default class router {
                 //document.getElementById("output-box").innerHTML += "Sorry! <code>preventDefault()</code> won't let you check this!<br>";
                 event.preventDefault();
                 that.go(href);
+                console.log('1st go hit');
             }, false);
         });
         window.addEventListener('popstate', (e) => {
             if (e.state == null) {
                 return;
             }
-            that.go(e.state.pageID);
-            //console.log(e.state);
+            that.go(e.state.pageID, true);
+            console.log('2nd go hit');
         });
     }
     /**

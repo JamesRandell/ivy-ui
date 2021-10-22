@@ -39,7 +39,9 @@ export default class DOMManipulation extends hotModuleReload {
     head = document.head || document.getElementsByTagName('head')[0];
     body = document.body || document.getElementsByTagName('body')[0];
     content = document.getElementsByClassName('content')[0];
-    
+    config = {
+        contentSelector:"section.content"
+    }; // passed from client and set here
 
     cssClasses = {
         active: 'active',
@@ -63,19 +65,20 @@ export default class DOMManipulation extends hotModuleReload {
         //this.content.replaceWith(div);
         console.log('DOM Class started... only one please');
 
-         var s = false;
+         var historyMove = false;
          var that = this;
         (function(history){
             
             var rpushState = history.pushState.bind(history);
 
             history.pushState = function(file) {
-                
+                historyMove = false;
                 window.onpopstate = function(event) {
-                    s = true;
+                    console.warn('popState:' + file.pageID);
+                    historyMove = true;
                 }
 
-                if (s === false && that.curentURL != file.pageID) {
+                if (historyMove === false && that.curentURL != file.pageID) {
                     rpushState({pageID: file.pageID}, file.pageID,  file.pageID);
                 }
             };
@@ -251,26 +254,52 @@ export default class DOMManipulation extends hotModuleReload {
             }
         }
     }
-
+    /**
+     * Handles inserting HTML into the DOM
+     * we expect: 
+     * json.html
+     * json.file (maybe)
+     * 
+     * @param json HTML payload. Can be a fragment, or a complete valid html document
+     * 
+     * @returns 
+     */
     private _html (json: Ihtml) {
 
+        var loadedContent = json.data;
+        var isWidget:boolean;
 
         /**
-         * we expect: 
-         * json.html
-         * json.file (maybe)
+         * we need a way to find out if what's in loadedContent is a complete HTML page, 
+         * or a bit of one. We handle these differently
+         * 
+         * A LOCAL template is one with complete html structure
+         * A WIDGET template is one with just HTML fragments (div etc)
+         * All loadedContent will either have HTML tags or it won't. Most will
+         * 
+         * LOCAL templates will replace everything in our primary content 
+         * block (by default section.content)
+         * WIDGET templates will loop and match elements that match the corresponding selector
          */
-        var loadedContent = json.data;
 
+        /**
+         * Check if the loadedContent starts with a DOCTYPE. If it does - this is a GLOBAL/LOCAL
+         * template
+         */
+        if (loadedContent.startsWith('<!DOCTYPE') === true) {
+            isWidget = false;
+        } else {
+            isWidget = true;
+        }
+        
         //html = this.sanitizeHTML(html);
         let temp = document.createElement('html');
         temp.innerHTML = loadedContent;
         
         var r = this;
-        //setTimeout(() => {r.postGo()},200);
 
 
-        // i'll always have a body because the creation ofthe html node creates
+        // i'll always have a body because the creation of the html node creates
         // head and body nodes
 
         /**
@@ -278,82 +307,61 @@ export default class DOMManipulation extends hotModuleReload {
          * matches an element with the same class in the calling page, then replace its 
          * content.
          */
-        const body = temp.querySelector("body");
-        let amIAWidgetTemplate = body.querySelector('*');
+        const loadedBody = temp.querySelector("body");
+        
+        /**
+         * We're dealing with a WIDGET, that is, an HTML fragment. 
+         * We now need to perform some tests to attempt to replace current 
+         * content with things from the WIDGET
+         */
+        if (isWidget === true) {
+            let g = loadedBody.querySelectorAll('body > *');
+            let gLength = g.length;
 
-        // this is a WIDGET
-        if (amIAWidgetTemplate.id.length > 0) {
+            for (let i=0; i<gLength; i++) {
+   
+                /**
+                 * does this element have an ID?
+                 */
+                let id = g[i].id;
 
-            let widgetID = amIAWidgetTemplate.id;
-            console.log('WIDGET'); 
-            /**
-             * now lets see if the widget id exists in the current content
-             */
-            let currentPageWidget = this.body.querySelector('[id='+widgetID+']');
+                if (id) {
+                    // we have an id, let try to find it in the existing document
+                    let pageWidget = this.body.querySelector('[id='+id+']');
 
-  
-            if (currentPageWidget !== null) {
-                currentPageWidget.innerHTML = amIAWidgetTemplate.innerHTML;
-                return;
-
-            } else {
-                // just append .content for now
+                    if (pageWidget) {
+                        // we found it! so lets update its contents
+                        pageWidget.innerHTML = g[i].innerHTML;
+                        continue;
+                    }
+                }
+                    
+                /**
+                 * either there is no id, or there was but it's not in the existing document
+                 * lets just replace the content with what we've loaded
+                 */
                 let y = this.content;
-                y.appendChild(amIAWidgetTemplate);
-            }
-        } else {
-            /**
-             * injected html has no id, so assume it's just some html and 
-             * it's LOCAL/Global
-             */
-            console.log('LOCAL or GLOBAL'); 
-            this.content.innerHTML = amIAWidgetTemplate.innerHTML;
-
-            
-            if (json.hasOwnProperty('file')) {
-                this._navigate(json.file);
+                //console.log('appending2');
+                this.content.appendChild(g[i]);
             }
 
+            this.loading(false);
             return;
         }
 
-        var amIALocalTemplate = temp.querySelector('.content');
-        
-        if (amIALocalTemplate !== null) {
-            console.log('not LOCAL or WIDGET'); 
-            this.content.innerHTML = amIALocalTemplate.innerHTML;
+        /**
+         * We're dealing with a LOCAL or GLOBAL template (the same thing as far as the UI is concerned)
+         * We can inject the whole thing into the default content area as is
+         */
+        let content = loadedBody.querySelector(this.config.contentSelector);
 
-            if (json.hasOwnProperty('file')) {
-                this._navigate(json.file);
-            }
-        //} else if (doIHaveBody !== null) {
+        this.content.innerHTML = content.innerHTML;
 
-            //this.body.innerHTML = doIHaveBody.innerHTML;
-
-        } else {
-           console.log('LOCAL or WIDGET'); 
-            /**
-             * the page we loaded is possibly a LOCAL or a WIDGET because it doesn't contain
-             * <body> tags
-             * 
-             * So we can just insert the whole thing. However we can look for an id on the first
-             * parent element to see if we need to replace anything
-             */
-            /*
-            this.content.innerHTML = temp.innerHTML;
-            if (json.hasOwnProperty('file')) {
-                this._navigate(json.file);
-            }
-            */
-
+        if (json.hasOwnProperty('file')) {
+            this._navigate(json.file);
         }
         
-        
-        
-      
         this.loading(false);
-       
-    
     }
 
     /**
@@ -371,10 +379,10 @@ export default class DOMManipulation extends hotModuleReload {
      * 
      * @param CurrentFile the URL that the user is currently on... RIGHT NOW!
      */
-    private _navigateCleanUpLinks (currentURL: string = null) {
+    public _navigateCleanUpLinks (currentURL: string = null) {
 
         if (!currentURL) {
-            var currentURL = window.location.pathname.replace(/^\/|\/$/g, '');
+            var currentURL = window.location.pathname.replace(/^|\/$/g, '');
         }
 
         let elementWithOldURLArr = this.body.querySelectorAll('a[class='+this.cssClasses.current+']');
@@ -412,12 +420,12 @@ export default class DOMManipulation extends hotModuleReload {
          }
     }
 
-    private _navigate (file: string) {
-        
+    public _navigate (file: string = null) {
+
         /**
          * just assume the page load worked for now and return true;
          */
-        let currentURL = window.location.pathname.replace(/^\/|\/$/g, '');
+        let currentURL = window.location.pathname.replace(/^|\/$/g, '');
 
         /**
          * remove the leading slash if there is one. This is because the webservier prolly uses
@@ -429,21 +437,15 @@ export default class DOMManipulation extends hotModuleReload {
          * No change, user clicked the same link or something
          * 
          */
-        if (currentURL == file) {
+        if (file && currentURL == file) {
             return;
         }
 
         window.dispatchEvent(new CustomEvent('post-navigate', {detail: file}));
         
         this._navigateCleanUpLinks(file);
-
-        
-
-
+console.warn('pushState: ' + file);
         history.pushState({pageID: file}, file,  file);
-
-
-        
     }
 
     private _htmlFile (path: string, parentNode: string = null) {
@@ -546,8 +548,7 @@ export default class DOMManipulation extends hotModuleReload {
      * The relative path to the current page the browser is on
      * @returns string of the relative path 
      */
-    private get curentURL () {
+    public get curentURL () {
         return window.location.pathname.replace(/^|\/$/g, '');
     }
-    
 }

@@ -3,6 +3,8 @@
  * pre-requisite for me creating hooks in my code to trigger 
  * an event when I call functions etc.
  */
+
+/*
 (function () {
 
     if ( typeof window.CustomEvent === "function" ) return false;
@@ -18,3 +20,15 @@
   
     window.CustomEvent = CustomEvent;
   })();
+  */
+/**
+ * adds the startsWith, a substring comparison tool
+ */
+  if (!String.prototype.startsWith) {
+    Object.defineProperty(String.prototype, 'startsWith', {
+        value: function(search, rawPos) {
+            var pos = rawPos > 0 ? rawPos|0 : 0;
+            return this.substring(pos, pos + search.length) === search;
+        }
+    });
+}

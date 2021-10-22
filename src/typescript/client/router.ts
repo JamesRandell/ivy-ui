@@ -62,12 +62,23 @@ export default class router implements iprotocol {
      * URI, and history etc
      * 
      * @param file name of the file to retrieve from the server
+     * @param force specifies if we should force a load of the file. Ignores currentURL check
      */
-    public go (file: string) {
+    public go (file: string, force: boolean = false) {
 
         const t = DOMManipulation.getInstance();
+
+        let currentURL = window.location.pathname.replace(/^|\/$/g, '');
+        if (!force && currentURL === file) {
+            console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
+            return;
+        }
+
+
+        t._navigateCleanUpLinks();
         t.loading(true);
         
+
         /**
          * look at the config found in client.js for base Path, which tells us where 
          * all the html files are
@@ -122,6 +133,7 @@ export default class router implements iprotocol {
                 event.preventDefault();
                 
                 that.go(href);
+                console.log('1st go hit');
             }, false);
         });
 
@@ -130,8 +142,8 @@ export default class router implements iprotocol {
             if (e.state == null) {
                 return;
             }
-            that.go(e.state.pageID);
-            //console.log(e.state);
+            that.go(e.state.pageID, true);
+            console.log('2nd go hit');
         });
 
     }

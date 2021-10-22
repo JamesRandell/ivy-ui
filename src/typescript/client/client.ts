@@ -6,6 +6,7 @@ var config = {
     basePath: ''
 };
 
+
 var dom: object = {};
 //socketInit();
 
@@ -46,9 +47,10 @@ var ivyui = {
     dommanipulationinstance.m(uiComponent.createStatusElement);
 
 
-    socketInit();//socket = connectSocket();
-
-
+    socketInit().then(function(server){
+      server.send(JSON.stringify({payload:{file:"/ui/fragment"}}));
+    });
+    
     window.addEventListener("post-navigate", function(evt){
       console.log('i have navigated');
       socket({file:"/ui/fragment"});
@@ -66,11 +68,16 @@ var ivyui = {
 
 
 // so we get rid of TS type casting errors in the below function
-var socketInitS = {server:null};
+var socketInitS = {server:null,failedCount:0};
 
 function socketInit () {
   
-  
+  /**
+   * 0	CONNECTING	Socket has been created. The connection is not yet open.
+   * 1	OPEN	The connection is open and ready to communicate.
+   * 2	CLOSING	The connection is in the process of closing.
+   * 3	CLOSED	The connection is closed or couldn't be opened.
+   */
   if (socketInitS.server && socketInitS.server.readyState < 2) {
     //console.log("reusing the socket connection [state = " + socketInitS.server.readyState + "]");
     return Promise.resolve(socketInitS.server);
@@ -79,14 +86,20 @@ function socketInit () {
   return new Promise(function(resolve, reject) {
     socketInitS.server = new WebSocket('ws://localhost:8082');
 
+    
     socketInitS.server.onopen = function(){
+      socketInitS.failedCount = 0; // reset the connction counter
+
       resolve(socketInitS.server);
       dommanipulationinstance.m(uiComponent.connected);
     };
 
     socketInitS.server.onclose = function(reason){
+      socketInitS.failedCount++;
       dommanipulationinstance.m(uiComponent.disconnected);
       reject(socketInitS.server);
+      //setTimeout(check, config.poll*socketInitS.failedCount);
+      setTimeout(check, config.poll);
     };
 
     socketInitS.server.onerror = function(err) {
@@ -99,11 +112,27 @@ function socketInit () {
       dommanipulationinstance.message(result);
     };
 
+
+    function check() {
+      if(socketInitS.server && socketInitS.server.readyState === 3) {
+        socketInit();
+      }
+    }
+  
+    socketInit();
+    //setInterval(check, config.poll*socketInitS.failedCount);
+
+  }).catch((e)=>{
+    //console.error("Could not connect to socket server");
   });
 }
 function socket (arg) {
   socketInit().then(function(server) {
 
+    /**
+     * wrap the standard 'payload' key around the data if it doesn't exist.
+     * All socket comms in the framework is wrapped in a payload key
+     */
     if (!arg.hasOwnProperty('payload')) {
       arg = {payload: arg};
     }
@@ -114,8 +143,6 @@ function socket (arg) {
 }
 
 function connectSocketBUP() {
-
-
 
     //return new Promise(function(resolve, reject) {
     function start () {
@@ -317,7 +344,7 @@ uiComponent.connected = {
                 div:[
                   {
                     attr: {
-                      addClass: ["connected","pulse"],
+                      class: "connected pulse status",
                       id: "status"
                     },
                     verb:"update"
@@ -344,7 +371,7 @@ uiComponent.disconnected = {
                 div:[
                 {
                     attr: {
-                      removeClass: ["connected","pulse"],
+                      class: "disconnected pulse status",
                       id: "status"
                     },
                     verb:"update"
@@ -361,11 +388,9 @@ uiComponent.disconnected = {
                 }
             },
             data: {
-                status: "Lost connection"
+                status: ""
             }
         };
-
-
 
 document.addEventListener("DOMContentLoaded", ivyui.s);
 

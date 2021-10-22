@@ -141,31 +141,53 @@ body.loading section.content > * {
   
 .pulse:before, .pulse:after {
     content: '';
-    border: 1px solid green;
     border-radius: 50%;
     width: 20px;
     height: 20px;
     position: absolute;
-  }
-  
+}
+
+.pulse.connected:before, .pulse.connected:after {
+    border: 1px solid green;
+}
+.pulse.disconnected:before, .pulse.disconnected:after {
+    border: 1px solid red;
+}
+
 .pulse:before {
-    -webkit-transform: scale(1, 1);
-        -ms-transform: scale(1, 1);
-            transform: scale(1, 1);
-    opacity: 1;
+  -webkit-transform: scale(1, 1);
+      -ms-transform: scale(1, 1);
+          transform: scale(1, 1);
+  opacity: 1;
+}
+
+.pulse:after {
+  -webkit-transform: scale(0, 0);
+      -ms-transform: scale(0, 0);
+          transform: scale(0, 0);
+  opacity: 0;
+}
+
+.pulse.connected:before {
     -webkit-animation: spWaveBe 1.5s infinite linear;
             animation: spWaveBe 1.5s infinite linear;
-  }
+}
   
-  .pulse:after {
-    -webkit-transform: scale(0, 0);
-        -ms-transform: scale(0, 0);
-            transform: scale(0, 0);
-    opacity: 0;
+.pulse.connected:after {
     -webkit-animation: spWaveAf 1.5s infinite linear;
             animation: spWaveAf 1.5s infinite linear;
-  }
-  
+}
+
+.pulse.disconnected:before {
+  -webkit-animation: spWaveBe 6s infinite reverse;
+          animation: spWaveBe 6s infinite reverse;
+}
+
+.pulse.disconnected:after {
+  -webkit-animation: spWaveAf 6s infinite reverse;
+          animation: spWaveAf 6s infinite reverse;
+}
+
   @-webkit-keyframes spWaveAf {
     from {
       -webkit-transform: scale(0.5, 0.5);
