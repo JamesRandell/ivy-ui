@@ -133,7 +133,6 @@ export default class router implements iprotocol {
                 event.preventDefault();
                 
                 that.go(href);
-                console.log('1st go hit');
             }, false);
         });
 
@@ -142,8 +141,8 @@ export default class router implements iprotocol {
             if (e.state == null) {
                 return;
             }
+            
             that.go(e.state.pageID, true);
-            console.log('2nd go hit');
         });
 
     }

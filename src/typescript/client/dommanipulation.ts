@@ -53,16 +53,10 @@ export default class DOMManipulation extends hotModuleReload {
         super();
         const wrapper = document.createElement('section');
         wrapper.classList.add('content');
-        //div.appendChild(this.content);
-
-
          
         this.content.parentNode.appendChild(wrapper);
         wrapper.appendChild(this.content);
-        
 
-
-        //this.content.replaceWith(div);
         console.log('DOM Class started... only one please');
 
          var historyMove = false;

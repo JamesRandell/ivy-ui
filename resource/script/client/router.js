@@ -102,7 +102,6 @@ export default class router {
                 //document.getElementById("output-box").innerHTML += "Sorry! <code>preventDefault()</code> won't let you check this!<br>";
                 event.preventDefault();
                 that.go(href);
-                console.log('1st go hit');
             }, false);
         });
         window.addEventListener('popstate', (e) => {
@@ -110,7 +109,6 @@ export default class router {
                 return;
             }
             that.go(e.state.pageID, true);
-            console.log('2nd go hit');
         });
     }
     /**

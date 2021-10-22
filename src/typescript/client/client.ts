@@ -30,6 +30,8 @@ import svg from './svg.js';
 //@ts-ignore 
 import polyfill from './polyfill.js';
 
+//@ts-ignore 
+import adhoc_default from './adhoc/default.js';
 
 
 var ivyDOM: any;
