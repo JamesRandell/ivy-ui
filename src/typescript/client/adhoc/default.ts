@@ -3,9 +3,6 @@ const q = {
 
 window.addEventListener("post-navigate", function(evt){
     console.warn(evt.detail);
-    console.warn(evt.detail);
-    console.warn(evt.detail);
-    console.warn(evt.detail);
 
 
   });
