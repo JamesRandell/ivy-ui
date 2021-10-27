@@ -41,17 +41,6 @@ h4 {
   text-transform: uppercase;
   color: #aaa;
 }
-.content {
-    /*
-    transition: transform ease-in 1000ms,
-                filter ease-in 1000ms;
-    */
-    /*
-    will-change: transform;
-    */ /* fixes cpu to gpu handoff */
-    
-
-}
 
 /**
  the flashy loading web socket connection indicator

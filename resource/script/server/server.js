@@ -228,6 +228,7 @@ var library = {
                         statuscode: res.statusCode
                     }
                 });
+                return;
             }
             res.on('data', result => {
                 // return just the file name for our rewrite rules

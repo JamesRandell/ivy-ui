@@ -302,7 +302,8 @@ var library = {
                             file:file,
                             statuscode: res.statusCode
                           }
-                  })
+                  });
+        return;
       }
 
       res.on('data', result => {

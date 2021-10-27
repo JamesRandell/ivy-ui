@@ -71,9 +71,6 @@ nav.small h4 {
     max-width: 36px;
 }
 
-nav.small h4:not(::first-word) {
-
-}
 
 nav.small a {
     font-size: 0;
