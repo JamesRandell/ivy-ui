@@ -4,6 +4,8 @@ Install Node for the NPM module
 Installed tsc (TypeScript compiler/transpiler thingy)
 
 npm install -g typescript
+npm install nodemon
+
 
 You can ommit the -g if you want, just install tsc in the ivy-ui directory.
 
@@ -35,3 +37,5 @@ docker exec -it cassandra bash
 
 CREATE KEYSPACE james
 WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};
+
+don't forget to copy git_ignore around to new projects

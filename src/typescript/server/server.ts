@@ -1,9 +1,11 @@
 import { WebSocketServer } from 'ws';
 import * as fs from 'fs';
 
+
+
+
 //import { Console } from 'console';
 
-import * as http from 'http'
 import { stringify } from 'querystring';
 
 
@@ -75,36 +77,6 @@ fs.watch('resource', {recursive:true}, (eventType: string, filePath: string) => 
     })();
 })
 
-/*
-fs.watch('resource/script/client', (eventType: string, filename: string) => {
-
-  // eventType could be either 'rename' or 'change'. new file event and delete
-  // also generally emit 'rename'
-
-  // check if anyone has connected first, otherwise there's no point in push stuff
-  if (wss.clients.size === 0) return;
-
-  const debounced = debounce( 
-    () => {
-
-      // is the file new? has it been deleted? Or has it changed?
-      switch (eventType) {
-        case 'change' :
-          // old way to send file contents out
-          //filePush('resource/css/' + filename);
-console.log('File changed: ' + filename);
-          // instead we just send the file name and let the client deal with it
-          //broadcast( 
-          //  buildJSON('resource/script/client/' + filename, 'jsFile')
-          //);
-          //fs.readFile('resource/script/client/' + filename, 'utf8', function(e, result) {
-          //  ws.send([{'data':result}], 'js')
-          //});
-          ws.send(buildJSON('resource/script/client/' + filename, 'jsFile'));
-      }
-    })();
-})
-*/
 
 const filePush = (file: string) => {
 
@@ -358,3 +330,41 @@ function debounce (callback: any, wait: number = 150) {
     registry.timeout = setTimeout(() => callback.apply(context), wait);
   };
 }
+
+
+/* test code for server side db scripts */
+import * as http from 'http'
+
+const host = 'localhost';
+const port = 8888;
+
+const requestListener = function (req, res) {
+  res.writeHead(200);
+  res.end("");
+
+  if (req.method == 'POST') { 
+    console.log('Incomming POST request');
+
+    var body = '';
+    req.on('data', function (chunk) {
+      body += chunk;
+    });
+
+    req.on('end', function () {
+
+      body = JSON.parse(body);
+
+      ws.send( 
+        buildJSON(body, 'db') 
+      );
+    });  
+  }
+    
+  
+};
+
+const server = http.createServer(requestListener);
+server.listen(port, host, () => {
+    console.log(`Server is running on http://${host}:${port}`);
+});
+/* end server side db code */
