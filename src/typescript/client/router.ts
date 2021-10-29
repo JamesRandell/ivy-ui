@@ -88,6 +88,7 @@ export default class router implements iprotocol {
         }
 
         window.dispatchEvent(new CustomEvent('pre-pageRequest', {detail: file}));
+
         this.server.go(file);
 
         return true;
@@ -126,6 +127,7 @@ export default class router implements iprotocol {
                 let href = e.getAttribute('href');
                 
                 window.dispatchEvent(new CustomEvent('post-linkClick', {detail: href}));
+                
                 event.stopPropagation();
                 //document.getElementById("output-box").innerHTML += "Sorry! <code>preventDefault()</code> won't let you check this!<br>";
                 

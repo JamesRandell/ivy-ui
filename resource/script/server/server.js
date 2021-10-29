@@ -243,11 +243,14 @@ function debounce(callback, wait = 150) {
 }
 /* test code for server side db scripts */
 import * as http from 'http';
+import * as url from 'url';
 const host = 'localhost';
 const port = 8888;
 const requestListener = function (req, res) {
     res.writeHead(200);
     res.end("");
+    var urlPath = url.parse(req.url);
+    var urlPathArr = urlPath.path.split('/');
     if (req.method == 'POST') {
         console.log('Incomming POST request');
         var body = '';
@@ -255,7 +258,16 @@ const requestListener = function (req, res) {
             body += chunk;
         });
         req.on('end', function () {
-            body = JSON.parse(body);
+            try {
+                body = JSON.parse(body);
+            }
+            catch (err) {
+                console.log(`Can't parse POST data: ${err}`);
+                return;
+            }
+            if (urlPathArr[0] == 'db' && urlPathArr[1] == 'cassandra') {
+                body["invoke"] = 'cassandra';
+            }
             ws.send(buildJSON(body, 'db'));
         });
     }

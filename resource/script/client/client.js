@@ -4,6 +4,12 @@ var config = {
     dev: true,
     basePath: ''
 };
+// contains a list of registered hooks
+var hook = {
+    "dom/pre-pageRequest": 'Triggered a navigation event (successfull page request)',
+    "router/pre-pageRequest": 'Fired just before we submit a go request to the server',
+    "router/post-linkClick": 'When a user clicks on a a link'
+};
 var dom = {};
 //socketInit();
 //@ts-ignore
@@ -15,10 +21,16 @@ import router from './router.js';
 import DOMManipulation from './dommanipulation.js';
 //@ts-ignore 
 import svg from './svg.js';
+//@ts-ignore
+import hotModuleReload from './socketRouter.js';
 var ivyDOM;
 var dommanipulationinstance;
-var ivyui = {
-    s: function () {
+class ivy extends hotModuleReload {
+    constructor() {
+        super();
+        this.s();
+    }
+    s() {
         ivyDOM = new initDOM();
         dommanipulationinstance = DOMManipulation.getInstance();
         new svg(dommanipulationinstance);
@@ -34,7 +46,7 @@ var ivyui = {
         const params = Object.fromEntries(urlSearchParams.entries());
         return;
     }
-};
+}
 // so we get rid of TS type casting errors in the below function
 var socketInitS = { server: null, failedCount: 0 };
 function socketInit() {
@@ -68,7 +80,7 @@ function socketInit() {
         };
         socketInitS.server.onmessage = function (data) {
             const result = JSON.parse(data.data);
-            dommanipulationinstance.message(result);
+            ivyui.message(result);
         };
         function check() {
             if (socketInitS.server && socketInitS.server.readyState === 3) {
@@ -95,61 +107,6 @@ function socket(arg) {
         console.log(err);
     });
 }
-function connectSocketBUP() {
-    //return new Promise(function(resolve, reject) {
-    function start() {
-        let ws = new WebSocket('ws://localhost:8082');
-        ws.onopen = function () {
-            //resolve(server);
-            dommanipulationinstance.m(uiComponent.connected);
-            console.log(9);
-        };
-        /*socket.addEventListener('open', function (e) {
-            socket.send('Hello Server!');
-            console.log('Connection open');
-        });*/
-        ws.send = function (content) {
-            console.log(content);
-        };
-        ws.onmessage = function (data) {
-            //try {
-            const result = JSON.parse(data.data);
-            //const key = Object.keys(data.data)[0];
-            dommanipulationinstance.message(result);
-            /*} catch (e) {
-               console.log(e);
-            
-            }*/
-        };
-        // Listen for messages
-        /*socket.addEventListener('message', function (e) {
-            console.log('Message from server: ', e.data);
-            
-        });*/
-        ws.onclose = function (reason) {
-            dommanipulationinstance.m(uiComponent.disconnected);
-            // need to see if reason exists. If it does, check for the code.
-            // I think this is to do if the connection exists, or it it just closed. 
-            // I needed to do this because it would poll forever and crash the browser.
-            if (reason && reason.code == 1006) {
-                check();
-            }
-        };
-        ws.onerror = function (err) {
-            //reject(err);
-            dommanipulationinstance.m(uiComponent.disconnected);
-        };
-    }
-    function check() {
-        //if(ws === null){ // || socket.readyState === WebSocket.CLOSED) {
-        //    start();
-        //}
-    }
-    start();
-    setInterval(check, config.poll);
-    //});
-}
-function check() { }
 //document.addEventListener('click', e => {
 //const button = e.target as Element;
 //button.closest('button');
@@ -305,6 +262,7 @@ uiComponent.disconnected = {
         status: ""
     }
 };
-document.addEventListener("DOMContentLoaded", ivyui.s);
+var ivyui = {};
+document.addEventListener("DOMContentLoaded", () => { ivyui = new ivy(); });
 var routerInstance = new router();
-export { socketInit, socket, routerInstance as router, config };
+export { socketInit, socket, routerInstance as router, config, hook };

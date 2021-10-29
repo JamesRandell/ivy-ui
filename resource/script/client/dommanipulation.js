@@ -1,22 +1,9 @@
 /**
  * payload gets caled a lot which then cals what everfunctions it needs to
  */
-/**
- * Import a server wrapper so we can request stuff fro mthe server if a payload
- * comes in asking the client to load a file
- */
-//@ts-ignore
-//import router from "/resource/script/client/router.js";
-/*
-could not get this working (the VSCode erroring not that actual class).
-It errors in tsc watch but works in browser
-*/
-//@ts-ignore
-import hotModuleReload from './socketRouter.js';
 let instance = null;
-export default class DOMManipulation extends hotModuleReload {
+export default class DOMManipulation {
     constructor() {
-        super();
         this.head = document.head || document.getElementsByTagName('head')[0];
         this.body = document.body || document.getElementsByTagName('body')[0];
         this.content = document.getElementsByClassName('content')[0];
@@ -27,6 +14,7 @@ export default class DOMManipulation extends hotModuleReload {
             active: 'active',
             current: 'current'
         };
+        //super();
         const wrapper = document.createElement('section');
         wrapper.classList.add('content');
         this.content.parentNode.appendChild(wrapper);
@@ -349,7 +337,6 @@ export default class DOMManipulation extends hotModuleReload {
         }
         window.dispatchEvent(new CustomEvent('post-navigate', { detail: file }));
         this._navigateCleanUpLinks(file);
-        console.warn('pushState: ' + file);
         history.pushState({ pageID: file }, file, file);
     }
     _htmlFile(path, parentNode = null) {

@@ -10,7 +10,6 @@
 //@ts-ignore
 //import router from "/resource/script/client/router.js";
 
-
 /* 
 could not get this working (the VSCode erroring not that actual class).
 It errors in tsc watch but works in browser
@@ -33,7 +32,7 @@ interface Ihtml {
 
 let instance: any = null;
 
-export default class DOMManipulation extends hotModuleReload {
+export default class DOMManipulation {
 
     dom: object;
     head = document.head || document.getElementsByTagName('head')[0];
@@ -50,7 +49,7 @@ export default class DOMManipulation extends hotModuleReload {
 
 
     constructor() {
-        super();
+        //super();
         const wrapper = document.createElement('section');
         wrapper.classList.add('content');
          
@@ -438,7 +437,7 @@ export default class DOMManipulation extends hotModuleReload {
         window.dispatchEvent(new CustomEvent('post-navigate', {detail: file}));
         
         this._navigateCleanUpLinks(file);
-console.warn('pushState: ' + file);
+
         history.pushState({pageID: file}, file,  file);
     }
 
