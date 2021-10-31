@@ -10,13 +10,9 @@ var config = {
 var hook = {
     "dom/pre-pageRequest" : 'Triggered a navigation event (successfull page request)',
     "router/pre-pageRequest" : 'Fired just before we submit a go request to the server',
-    "router/post-linkClick" : 'When a user clicks on a a link'
+    "router/post-linkClick" : 'When a user clicks on a a link',
+    "socketRouter/in-payload" : 'After a payload is received'
 };
-
-
-var dom: object = {};
-//socketInit();
-
 
 
 //@ts-ignore
@@ -37,26 +33,19 @@ import svg from './svg.js';
 //@ts-ignore 
 import polyfill from './polyfill.js';
 
-//@ts-ignore 
-import adhoc_default from './adhoc/default.js';
-
 //@ts-ignore
 import hotModuleReload from './socketRouter.js';
 
 
-var ivyDOM: any;
 var dommanipulationinstance: any;    
+var ivyui: any;
 
 class ivy extends hotModuleReload {
+
   constructor() {
+
     super();
-    this.s();
-  }
-
-
-  public s(){ 
-  
-    ivyDOM = new initDOM();
+    
     dommanipulationinstance = DOMManipulation.getInstance();
 
     new svg(dommanipulationinstance);
@@ -74,11 +63,9 @@ class ivy extends hotModuleReload {
 
     });
 
-
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
 
-    return;
   }
 }
 
@@ -168,59 +155,6 @@ function socket (arg) {
 //})
 
 
-class initDOM {
-
-    console:    any;
-    consoleWrapper: any;
-    status;
-    head = document.head || document.getElementsByTagName('head')[0];
-
-    constructor() {
-        this.createConsole();
-    }
-
-    createConsole () {
-        this.console = document.createElement("div");
-
-        this.consoleWrapper = document.createElement("section");
-        this.consoleWrapper.setAttribute('class', 'console');
-
-        this.consoleWrapper.appendChild(this.console);
-        //document.body.appendChild(this.consoleWrapper);
-    }
-
-
-   
-}
-
-/*
-(function(){
-    var oldLog = console.log;
-    console.log = function (message) {
-        const g = JSON.stringify(message);
-        ivyDOM.insert(g, 'console');
-        oldLog.apply(console, arguments);
-
-        ivyDOM.consoleWrapper.scrollTop = ivyDOM.consoleWrapper.scrollHeight;
-        
-    };
-})();
-*/
-
-/*
-window.console = {
-    log : function(msg) {
-        ivyDOM.insert(msg, 'console');
-    },
-    info : function(msg) {
-        ivyDOM.insert(msg, 'console');
-    },
-    warn : function(msg) {
-        ivyDOM.insert(msg, 'console');
-    },
-
-  }
-  */
 
 
 /**
@@ -336,8 +270,10 @@ uiComponent.disconnected = {
             }
         };
 
-        var ivyui = {};
-document.addEventListener("DOMContentLoaded", () => { ivyui = new ivy() });
+        
+document.addEventListener("DOMContentLoaded", () => {
+  ivyui = new ivy() 
+});
 
 var routerInstance = new router();
 

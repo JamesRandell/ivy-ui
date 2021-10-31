@@ -8,10 +8,9 @@ var config = {
 var hook = {
     "dom/pre-pageRequest": 'Triggered a navigation event (successfull page request)',
     "router/pre-pageRequest": 'Fired just before we submit a go request to the server',
-    "router/post-linkClick": 'When a user clicks on a a link'
+    "router/post-linkClick": 'When a user clicks on a a link',
+    "socketRouter/in-payload": 'After a payload is received'
 };
-var dom = {};
-//socketInit();
 //@ts-ignore
 import BaseModule from './BaseModule.js';
 var hmr = new BaseModule();
@@ -23,15 +22,11 @@ import DOMManipulation from './dommanipulation.js';
 import svg from './svg.js';
 //@ts-ignore
 import hotModuleReload from './socketRouter.js';
-var ivyDOM;
 var dommanipulationinstance;
+var ivyui;
 class ivy extends hotModuleReload {
     constructor() {
         super();
-        this.s();
-    }
-    s() {
-        ivyDOM = new initDOM();
         dommanipulationinstance = DOMManipulation.getInstance();
         new svg(dommanipulationinstance);
         dommanipulationinstance.m(uiComponent.createStatusElement);
@@ -44,7 +39,6 @@ class ivy extends hotModuleReload {
         });
         const urlSearchParams = new URLSearchParams(window.location.search);
         const params = Object.fromEntries(urlSearchParams.entries());
-        return;
     }
 }
 // so we get rid of TS type casting errors in the below function
@@ -113,46 +107,6 @@ function socket(arg) {
 //routerInstance.request('bringMeTheDOM');
 //routerInstance.go('index.html');
 //})
-class initDOM {
-    constructor() {
-        this.head = document.head || document.getElementsByTagName('head')[0];
-        this.createConsole();
-    }
-    createConsole() {
-        this.console = document.createElement("div");
-        this.consoleWrapper = document.createElement("section");
-        this.consoleWrapper.setAttribute('class', 'console');
-        this.consoleWrapper.appendChild(this.console);
-        //document.body.appendChild(this.consoleWrapper);
-    }
-}
-/*
-(function(){
-    var oldLog = console.log;
-    console.log = function (message) {
-        const g = JSON.stringify(message);
-        ivyDOM.insert(g, 'console');
-        oldLog.apply(console, arguments);
-
-        ivyDOM.consoleWrapper.scrollTop = ivyDOM.consoleWrapper.scrollHeight;
-        
-    };
-})();
-*/
-/*
-window.console = {
-    log : function(msg) {
-        ivyDOM.insert(msg, 'console');
-    },
-    info : function(msg) {
-        ivyDOM.insert(msg, 'console');
-    },
-    warn : function(msg) {
-        ivyDOM.insert(msg, 'console');
-    },
-
-  }
-  */
 /**
  * This is going to be a development handler for socket comms.
  * At the start it will build JSON payloads for my DOM class to build things like
@@ -262,7 +216,8 @@ uiComponent.disconnected = {
         status: ""
     }
 };
-var ivyui = {};
-document.addEventListener("DOMContentLoaded", () => { ivyui = new ivy(); });
+document.addEventListener("DOMContentLoaded", () => {
+    ivyui = new ivy();
+});
 var routerInstance = new router();
 export { socketInit, socket, routerInstance as router, config, hook };

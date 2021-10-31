@@ -95,7 +95,7 @@ export class ClassMapper<T> {
         }
 
         // Merge complex object
-        console.log("Merging complex object", propertyName);
+        //console.log("Merging complex object", propertyName);
         let mapper = new ClassMapper(this.Original[propertyName], newProperty);
         mapper.Merge();
     }

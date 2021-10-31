@@ -1,13 +1,15 @@
 //@ts-ignore
 import { hook } from "../client.js";
 console.log(hook);
-const q = {
+const db = {
     me: function () {
         window.addEventListener("post-navigate", function (evt) {
             console.warn(evt.detail);
         });
     }
 };
-console.log(4);
-q.me();
-export default q;
+window.addEventListener("in-payload", function (evt) {
+    console.log(4);
+});
+db.me();
+export default db;
