@@ -4,7 +4,7 @@
 
 
 /**
- * Import a server wrapper so we can request stuff fro mthe server if a payload
+ * Import a server wrapper so we can request stuff from the server if a payload
  * comes in asking the client to load a file
  */
 //@ts-ignore
@@ -19,6 +19,10 @@ import hotModuleReload from './socketRouter.js';
 
 //@ts-ignore
 import { ClassMapper } from "./ClassMapper.js";
+
+//@ts-ignore
+import { template } from './template.js';
+
 
 interface IAttributes {
     class?: string;
@@ -39,8 +43,17 @@ export default class DOMManipulation {
 
     dom: object;
     head = document.head || document.getElementsByTagName('head')[0];
-    body = document.body || document.getElementsByTagName('body')[0];
-    content = document.getElementsByClassName('content')[0];
+    get body() {
+        return document.body || document.getElementsByTagName('body')[0];
+    }
+
+    get content() {
+        return document.getElementsByClassName('content')[0];
+    }
+
+    DOMData: object = {}
+
+
     config = {
         contentSelector:"section.content"
     }; // passed from client and set here
@@ -91,11 +104,6 @@ export default class DOMManipulation {
         
         return instance;
     }
-
-    public js (data: string) {
-        //super.Reload(s);
-    }
-
 
     /**
      * 
@@ -173,21 +181,52 @@ export default class DOMManipulation {
             switch (obj['verb']) {
                 case 'add'   : this._createNode(element, obj['attr']); break;
                 case 'insert': this._createNode(element, obj['attr']); break;
-                case 'update'   : this._updateNode(element, obj['attr']); break;
+                case 'upsert': this._upsertNode(element, obj['attr']); break;
+                case 'update': this._updateNode(element, obj['attr']); break;
             }
         }
     }
 
+    private _upsertNode (node: string, attributes: IAttributes) {
 
+        if ("id" in attributes && attributes.id != "") {
+            // id exists, continue
+        } else {
+            console.warn('Cannot upsert without an ID!');
+            return false;
+        }
+        
+        if (this.body.querySelector('#'+attributes.id) != null) {
+            /**
+             * elemenet exists, so call the update function
+             */
+             return this._updateNode(node, attributes);
+        } else {
+            /**
+             * it doesn't exist so call the create function
+             */
+             return this._createNode(node, attributes);
+        };
+    }
+
+    /**
+     * Create a new DOM element and adds it to the document.
+     * 
+     * @param node 
+     * @param attributes 
+     */
     private _createNode (node: string, attributes: IAttributes) {
 
-        var e = this.body.querySelector(attributes.id);
+        var e = this.body.querySelector('#'+attributes.id);
 
         /**
          * This element doesn't exist on the current page, so create it instead of updating it
          */
         if (e === null) {
             e = document.createElement(node);
+        } else {
+            console.warn('Using _createNode when a node with the same ID already exists: #' + attributes.id);
+            return false;
         }
 
 
@@ -265,6 +304,9 @@ export default class DOMManipulation {
         var loadedContent = json.data;
         var isWidget:boolean;
 
+        template.compile(loadedContent, this.DOMData);
+
+        
         /**
          * we need a way to find out if what's in loadedContent is a complete HTML page, 
          * or a bit of one. We handle these differently
@@ -314,7 +356,7 @@ export default class DOMManipulation {
             let g = loadedBody.querySelectorAll('body > *');
             let gLength = g.length;
 
-            for (let i=0; i<gLength; i++) {
+            loopLoaded: for (let i=0; i<gLength; i++) {
    
                 /**
                  * does this element have an ID?
@@ -331,13 +373,48 @@ export default class DOMManipulation {
                         continue;
                     }
                 }
-                    
+
+                /**
+                 * next, lets see if both the TAG and the CLASS matches
+                 * 
+                 * does the loaded element have a CLASS?
+                 */
+                let classStr = g[i].classList[0];
+                let nodeStr = g[i].nodeName;
+
+                if (classStr) {
+                    // we'll use the first class found. Now we need to make sure the tag name
+                    // matches
+                    let pageWidgetArr= this.body.querySelectorAll('[class='+classStr+']');
+                    let pageWidgetLength = pageWidgetArr.length
+
+                    loopCurrent: for (let ii=0; ii<pageWidgetLength; ii++) {
+                        if (pageWidgetArr[ii] && "nodeName" in pageWidgetArr[ii] && pageWidgetArr[ii].nodeName == nodeStr) {
+                            // we found it! so lets update its contents
+                            // but first, run a check to see if it's our main content widget 
+                            // TODO this is a complete hack becasue we have TWO section.content nodes for  some reason
+                            let n = pageWidgetArr[ii].nodeName.toLowerCase();
+                            let c = classStr.toLowerCase();
+                            let nc = n + '.' + c;
+
+                            if (nc == this.config.contentSelector) {
+                                pageWidgetArr[pageWidgetLength-1].innerHTML = g[i].innerHTML;
+                                return
+                            } else {
+                                pageWidgetArr[ii].innerHTML = g[i].innerHTML;
+                            }
+
+                            continue;
+                        }
+                    }
+                }
+
                 /**
                  * either there is no id, or there was but it's not in the existing document
                  * lets just replace the content with what we've loaded
                  */
                 let y = this.content;
-                //console.log('appending2');
+                console.log(1);
                 this.content.appendChild(g[i]);
             }
 
@@ -349,7 +426,11 @@ export default class DOMManipulation {
          * We're dealing with a LOCAL or GLOBAL template (the same thing as far as the UI is concerned)
          * We can inject the whole thing into the default content area as is
          */
-        let content = loadedBody.querySelector(this.config.contentSelector);
+        //let content = loadedBody.querySelector(this.config.contentSelector);
+        let contentArr = loadedBody.querySelectorAll(this.config.contentSelector);
+        let contentLength = contentArr.length
+
+        let content = contentArr[contentLength-1];
 
         this.content.innerHTML = content.innerHTML;
 

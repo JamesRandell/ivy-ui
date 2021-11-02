@@ -5,10 +5,6 @@ import DOMManipulation from "./dommanipulation.js";
 //@ts-ignore 
 import * as adhoc from './adhoc/index.js';
 export default class socketRouter {
-    constructor() {
-        this.head = document.head || document.getElementsByTagName('head')[0];
-        this.body = document.body || document.getElementsByTagName('body')[0];
-    }
     message(json) {
         if (!json.hasOwnProperty('payload')) {
             // don't bother processing
@@ -30,7 +26,7 @@ export default class socketRouter {
             else {
                 //console.log('Running \''+cmd+'\' with an object returned');
             }
-            window.dispatchEvent(new CustomEvent('in-payload', json.payload));
+            window.dispatchEvent(new CustomEvent('in-payload', { detail: json.payload }));
             if (typeof 'db' == 'function') {
                 alert(9);
             }

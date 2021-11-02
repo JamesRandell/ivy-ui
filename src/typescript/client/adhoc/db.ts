@@ -1,7 +1,10 @@
 //@ts-ignore
-import { hook } from "../client.js";
+import { socket } from "../client.js";
+import DOMManipulation from "../dommanipulation.js";
 
-console.log(hook);
+const dommanipulationinstance = DOMManipulation.getInstance();
+
+
 const db = {
     me: function () {
 console.log('ggg');
@@ -17,9 +20,32 @@ window.removeEventListener("in-payload", test);
 window.addEventListener("in-payload", test);
 
 function test(evt) {
+  if ("db" in evt.detail) {} else {return;}
 
-  console.log(1)
-  //console.log(evt);
+  socket({file:"/resource/template/widget/cassandra.html"});
+  
+  
+  var html = {
+    "ui":{
+      "node":{
+        "div":[
+          {
+            "attr": {
+              "class": "cassandra",
+              "id": "cassandra"
+            },
+            "verb":"upsert"
+          }
+        ]
+      }
+    },
+    "data": {
+        "cassandra": JSON.stringify(evt.detail)
+    }
+  };
+  dommanipulationinstance.m(html);
+
+  
 };
 
 db.me();

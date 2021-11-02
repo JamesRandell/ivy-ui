@@ -89,9 +89,29 @@ const filePush = (file: string) => {
 
 };
 
+/**
+ * Takes an input and returns JSON as output. If the input is 
+ * already JSON it just returns it with no error
+ * 
+ * @param data The value to JSONify
+ * @param key Set the value once we've conveted to JSON to this key
+ * @returns JSON response
+ */
 function buildJSON (data: any, key: string = null) {
   var result: object = {};
   
+  /**
+   * check if 'data' is already JSON, if not then stringify
+   */
+  try {
+    data = JSON.parse(data);
+  } catch(e) {
+    
+  }
+
+  /**
+   * see if we have a key and attach the data to it
+   */
   if (!key) {
     
     result = {
@@ -109,6 +129,7 @@ function buildJSON (data: any, key: string = null) {
   }
 
   return JSON.stringify(result);
+  
 }
 
 
@@ -119,7 +140,6 @@ wss.on('connection', function connection(t) {
 
   ws.on('message', (message: any) => {
 
-    //console.log('received: %s', message);
     try {
       message = JSON.parse(message);
     } catch {
@@ -367,6 +387,7 @@ const requestListener = function (req, res) {
       if (urlPathArr[0] == 'db' && urlPathArr[1] == 'cassandra') {
         body["invoke"] = 'cassandra';
       }
+      
       ws.send( 
         buildJSON(body, 'db') 
       );

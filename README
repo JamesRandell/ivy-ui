@@ -30,7 +30,7 @@ docker-compose up -d --force-recreate --build
 
 
 
-// test stuff for cassandra
+// pull and run the latest cassandra image
 docker run --name cassandra -d cassandra:latest
 
 docker exec -it cassandra bash

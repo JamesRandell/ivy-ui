@@ -13,10 +13,6 @@ import db from "./adhoc/db.js";
 
 export default class socketRouter {
 
-
-    head = document.head || document.getElementsByTagName('head')[0];
-    body = document.body || document.getElementsByTagName('body')[0];
-
     public message(json: any) {
 
         if (!json.hasOwnProperty('payload')) {
@@ -46,7 +42,7 @@ export default class socketRouter {
                 //console.log('Running \''+cmd+'\' with an object returned');
             }
             
-            window.dispatchEvent(new CustomEvent('in-payload', json.payload));
+            window.dispatchEvent(new CustomEvent('in-payload', {detail:json.payload}));
 
             
             if (typeof 'db' == 'function') { 

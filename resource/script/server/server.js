@@ -53,8 +53,27 @@ const filePush = (file) => {
         returnFile(0, result);
     });
 };
+/**
+ * Takes an input and returns JSON as output. If the input is
+ * already JSON it just returns it with no error
+ *
+ * @param data The value to JSONify
+ * @param key Set the value once we've conveted to JSON to this key
+ * @returns JSON response
+ */
 function buildJSON(data, key = null) {
     var result = {};
+    /**
+     * check if 'data' is already JSON, if not then stringify
+     */
+    try {
+        data = JSON.parse(data);
+    }
+    catch (e) {
+    }
+    /**
+     * see if we have a key and attach the data to it
+     */
     if (!key) {
         result = {
             'payload': data
@@ -73,7 +92,6 @@ wss.on('connection', function connection(t) {
     ws = t;
     console.log('Client connected');
     ws.on('message', (message) => {
-        //console.log('received: %s', message);
         try {
             message = JSON.parse(message);
         }

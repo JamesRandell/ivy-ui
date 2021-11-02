@@ -131,7 +131,8 @@ function socketInit () {
     //console.error("Could not connect to socket server");
   });
 }
-function socket (arg) {
+function socket (arg: object) {
+
   socketInit().then(function(server) {
 
     /**
@@ -142,9 +143,9 @@ function socket (arg) {
       arg = {payload: arg};
     }
     server.send(JSON.stringify(arg));
-}).catch(function(err) {
-    console.log(err);
-});
+  }).catch(function(err) {
+      console.log(err);
+  });
 }
 
 //document.addEventListener('click', e => {
