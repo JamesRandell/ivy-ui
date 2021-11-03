@@ -45,7 +45,7 @@ function test(evt) {
   };
   dommanipulationinstance.m(html);
 console.log(evt.detail.db);
-  dommanipulationinstance.DOMData = evt.detail.db;
+  dommanipulationinstance.DOMData = evt.detail;
 }
 db.me();
 export default db
