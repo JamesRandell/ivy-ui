@@ -1,6 +1,11 @@
 <section class="content">
-    This is some CASSANDRA content
-    {{loop default}}
-    {{key}}:{{value}}
-    {{endloop}}
+    <p>This is some CASSANDRA content</p>
+    <p>Generation No: {{generation no}}</p>
+    <p>Load: {{load}}</p>
+    <p>Heap: {{heap memory (mb)}}</p>
+
+    {{#each default}}
+    {{name}}}
+    {{/endloop}}
+
 </section>

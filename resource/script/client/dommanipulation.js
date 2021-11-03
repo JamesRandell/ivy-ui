@@ -236,7 +236,8 @@ export default class DOMManipulation {
     _html(json) {
         var loadedContent = json.data;
         var isWidget;
-        template.compile(loadedContent, this.DOMData);
+        let parsedTemplate = template.parse(loadedContent, this.DOMData);
+        loadedContent = template.compile(parsedTemplate, this.DOMData);
         /**
          * we need a way to find out if what's in loadedContent is a complete HTML page,
          * or a bit of one. We handle these differently

@@ -51,8 +51,7 @@ export default class DOMManipulation {
         return document.getElementsByClassName('content')[0];
     }
 
-    DOMData: object = {}
-
+    DOMData: object = {};
 
     config = {
         contentSelector:"section.content"
@@ -304,7 +303,8 @@ export default class DOMManipulation {
         var loadedContent = json.data;
         var isWidget:boolean;
 
-        template.compile(loadedContent, this.DOMData);
+        let parsedTemplate = template.parse(loadedContent, this.DOMData);
+        loadedContent = template.compile(parsedTemplate, this.DOMData);
 
         
         /**

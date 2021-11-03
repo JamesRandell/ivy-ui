@@ -1,4 +1,4 @@
-const html = "<section class=\"content\">\n    This is some CASSANDRA content\n    {{firstname}}\n    after firstname\n    {{#each default}}\n    {{name}}:Something else\n    {{/each}}\n    Some other content\n</section>";
+const html = "<section class=\"content\">\n    This is some CASSANDRA content<br>\n    {{firstname}}\n    {{last name}}<br>\n    {{parent/child}}<br>\n    after firstname<br>\n    {{#each default}}\n    {{name}}:Something else<br>\n    {{/each}}\n    Some other content\n</section>";
 
 
 var template = {
@@ -60,17 +60,15 @@ var template = {
                      *  - add as many lines as there are rows in the array
                      */ 
                     if (t.indexOf("#each") > 0) {
-                        
+                        arrayNumber++;
+
                         // get the name of the array specified in this tag
                         // we need the last word in the tag
                         arrayName = t.split(" ").pop().replace("}}", "").trim();
-                        if (arrayName in data) {
-                            arrayLength = data[arrayName].length;
-                            arrayNumber++;
-                        }
+                        arrayLength = data[arrayName].length;
                     }
 
-                } else if (t.indexOf("/") > 0) { 
+                } else if (t.includes("{{/") === true) { 
                     /**
                      * this is the end of a command
                      * check the arrayString arrary for our... array (BAD naming James)
@@ -100,7 +98,7 @@ var template = {
                          * Then we can multiple it by how many rows we have in our array 
                          */
                         if (!arrayString[arrayName]) arrayString[arrayName] = "";
-                        arrayString[arrayName] += `\$\{data["${arrayName}[n].${t.split(/{{|}}/).filter(Boolean)[0].trim()}"]\}`;
+                        arrayString[arrayName] += `\$\{data.${arrayName}[n].${t.split(/{{|}}/).filter(Boolean)[0].trim()}\}`;
                     } else {
                         // append it to fnStr
                         fnStr += `\$\{data["${t.split(/{{|}}/).filter(Boolean)[0].trim()}"]\}`;
@@ -126,6 +124,7 @@ var template = {
     },
     compile: (template: string, data: object = {}) => {
         try {
+            console.log(template);
             return new Function(  "const data = this; return `"+template +"`;").apply(data);
         } catch (e) {
             console.error('Problem with template:');
@@ -134,4 +133,39 @@ var template = {
     }
 }
 
-export {template }
+export { template, data }
+var data = {
+    firstname: "James",
+    "last name": "Savoy",
+    parent: {
+        child: "HELLO!"
+    },
+    default: [
+        {
+            name: "Steve"
+        },
+        {
+            name: "David"
+        },
+        {
+            name: "Fred"
+        }
+    ]
+}
+
+const v = template.parse(html, data);
+
+
+
+const person = {
+    fullName: function() {
+      return this;
+    }
+  }
+
+//const handler = new Function(  "const data = this; console.warn(data); return `"+v +"`;").apply(data);
+
+
+
+const q = document.querySelector('.content');
+q.innerHTML = template.compile(v, data);

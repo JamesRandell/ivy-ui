@@ -4,7 +4,6 @@ import DOMManipulation from "../dommanipulation.js";
 const dommanipulationinstance = DOMManipulation.getInstance();
 const db = {
     me: function () {
-        console.log('ggg');
         //window.addEventListener("post-navigate", function(evt: object){
         //console.warn(evt.detail);
         //});
@@ -37,7 +36,8 @@ function test(evt) {
         }
     };
     dommanipulationinstance.m(html);
+    console.log(evt.detail.db);
+    dommanipulationinstance.DOMData = evt.detail.db;
 }
-;
 db.me();
 export default db;

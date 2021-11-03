@@ -31,11 +31,11 @@ class ivy extends hotModuleReload {
         new svg(dommanipulationinstance);
         dommanipulationinstance.m(uiComponent.createStatusElement);
         socketInit().then(function (server) {
-            server.send(JSON.stringify({ payload: { file: "/ui/fragment" } }));
+            //server.send(JSON.stringify({payload:{file:"/ui/fragment"}}));
         });
         window.addEventListener("post-navigate", function (evt) {
             console.log('i have navigated');
-            socket({ file: "/ui/fragment" });
+            //socket({file:"/ui/fragment"});
         });
         const urlSearchParams = new URLSearchParams(window.location.search);
         const params = Object.fromEntries(urlSearchParams.entries());
