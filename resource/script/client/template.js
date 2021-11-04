@@ -1,5 +1,6 @@
 var template = {
     parse: (templateString, data) => {
+        data = template._convertObjectToArray(data);
         let result = /{{(.*?)}}/g.exec(templateString);
         const arr = [];
         let firstPos;
@@ -50,12 +51,7 @@ var template = {
                         // we need the last word in the tag
                         arrayName = t.split(" ").pop().replace("}}", "").trim();
                         if (arrayName in data) {
-                            if (data[arrayName].constructor === Array) {
-                                arrayLength = data[arrayName].length;
-                            }
-                            else {
-                                arrayLength = Object.keys(data[arrayName]).length;
-                            }
+                            arrayLength = data[arrayName].length;
                         }
                         else {
                             arrayLength = 0;
@@ -70,28 +66,54 @@ var template = {
                     if (arrayString[arrayName]) {
                         // loop through our data array, and append to the main string a duplicate of 
                         // the arrayString, changing the array keys
-                        // urgh, but first, test if this is an aray or on object again
-                        if (data[arrayName].constructor === Array) {
-                            for (let i = 0; i < arrayLength; i++) {
-                                let q = arrayString[arrayName].replace(/\[n\]/g, "[" + i + "]");
-                                fnStr += q;
+                        for (let i = 0; i < arrayLength; i++) {
+                            let q = '';
+                            /**
+                             * checks if there is a sub-array as this value. If there is just return nothing
+                             */
+                            if (Object.keys(data[arrayName][i]).length > 1) {
+                                q = '';
+                                //let q = arrayString[arrayName].replace(/\[n\]/g, "["+i+"]");
+                            }
+                            else {
+                                q = arrayString[arrayName].replace(/\[n\]/g, "[" + i + "]");
+                            }
+                            fnStr += q;
+                        }
+                        arrayName = null;
+                        arrayLength = 0;
+                    }
+                    else {
+                        /**
+                         * are we in a command, like an array? we need to check the arrayName and arrayLength
+                         * parametes for truthies to see if we should treat this object key differently
+                         */
+                        if (arrayLength > 0) {
+                            /**
+                             * so this is an array. We need to keep going through our main loop and store
+                             * all our 'inner' rows in a seperate place to keep track of them.
+                             * Then we can multiple it by how many rows we have in our array
+                             */
+                            if (!arrayString[arrayName])
+                                arrayString[arrayName] = "";
+                            if (t == "{{key}}") {
+                                arrayString[arrayName] += `\$\{Object.keys(data["${arrayName}"][n])\}`;
+                            }
+                            else if (t == "{{value}}") {
+                                arrayString[arrayName] += `\$\{Object.values(data["${arrayName}"][n])\}`;
+                            }
+                            else {
+                                arrayString[arrayName] += `\$\{data["${arrayName}"][n].${t.split(/{{|}}/).filter(Boolean)[0].trim()}\}`;
                             }
                         }
                         else {
-                            for (let [key] of Object.entries(data[arrayName])) {
-                                let q = arrayString[arrayName].replace(/\[n\]/g, "[\"" + key + "\"]");
-                                fnStr += q;
-                            }
+                            // append it to fnStr
+                            fnStr += `\$\{data["${t.split(/{{|}}/).filter(Boolean)[0].trim()}"]\}`;
                         }
                     }
-                    arrayName = null;
-                    arrayLength = 0;
                 }
                 else {
-                    /**
-                     * are we in a command, like an array? we need to check the arrayName and arrayLength
-                     * parametes for truthies to see if we should treat this object key differently
-                     */
+                    // append the string to the fnStr
                     if (arrayLength > 0) {
                         /**
                          * so this is an array. We need to keep going through our main loop and store
@@ -99,54 +121,20 @@ var template = {
                          * Then we can multiple it by how many rows we have in our array
                          */
                         if (!arrayString[arrayName])
-                            arrayString[arrayName] = "";
-                        if (t == "{{key}}") {
-                            if (data[arrayName].constructor === Array) {
-                                arrayString[arrayName] += `\$\{Object.keys(data["${arrayName}"][n])\}`;
-                            }
-                            else {
-                                arrayString[arrayName] += `\$\{[n]\}`;
-                            }
-                        }
-                        else if (t == "{{value}}") {
-                            if (data[arrayName].constructor === Array) {
-                                arrayString[arrayName] += `\$\{Object.values(data["${arrayName}"][n])\}`;
-                            }
-                            else {
-                                arrayString[arrayName] += `\$\{data["${arrayName}"][n]\}`;
-                            }
-                        }
-                        else {
-                            arrayString[arrayName] += `\$\{data["${arrayName}"][n].${t.split(/{{|}}/).filter(Boolean)[0].trim()}\}`;
-                        }
+                            arrayString[arrayName] = [];
+                        arrayString[arrayName] += `${t}`;
                     }
                     else {
                         // append it to fnStr
-                        fnStr += `\$\{data["${t.split(/{{|}}/).filter(Boolean)[0].trim()}"]\}`;
+                        fnStr += `${t}`;
                     }
-                }
-            }
-            else {
-                // append the string to the fnStr
-                if (arrayLength > 0) {
-                    /**
-                     * so this is an array. We need to keep going through our main loop and store
-                     * all our 'inner' rows in a seperate place to keep track of them.
-                     * Then we can multiple it by how many rows we have in our array
-                     */
-                    if (!arrayString[arrayName])
-                        arrayString[arrayName] = [];
-                    arrayString[arrayName] += `${t}`;
-                }
-                else {
-                    // append it to fnStr
-                    fnStr += `${t}`;
                 }
             }
         });
         return fnStr;
     },
-    compile: (template, data = {}) => {
+    compile: (templateString, data = {}) => {
+        data = template._convertObjectToArray(data);
         // update all the keys, change spaces to a hypen -
         const loop = (data) => {
             var result = {};
@@ -160,14 +148,27 @@ var template = {
             }
             return result;
         };
+        console.log(data);
         try {
-            console.log(template);
-            return new Function("const data = this; return `" + template + "`;").apply(data);
+            return new Function("const data = this; return `" + templateString + "`;").apply(data);
         }
         catch (e) {
             console.error('Problem with template: ' + e);
-            console.error(template);
+            console.error(templateString);
         }
+    },
+    _convertObjectToArray: (data = {}) => {
+        let keys = Object.entries;
+        let array = [];
+        for (const [key, value] of Object.entries(data)) {
+            if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+                array[key] = template._convertObjectToArray(value);
+            }
+            else {
+                array[key] = value;
+            }
+        }
+        return array;
     }
 };
 export { template };

@@ -13,7 +13,7 @@ body.connected {
 }
 
 body > * {
-  display: flex;
+  /* display: flex; */
   flex-direction: row;
   width: 100%;
   flex-wrap: wrap;
@@ -28,7 +28,6 @@ body > section {
   /* grow the content to the remainder of the space (works with padding!) */
   flex-grow: 1;
   background-color: var(--active-bg);
-
   padding:2em;
 }
 

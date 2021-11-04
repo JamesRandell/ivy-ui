@@ -6,6 +6,12 @@
 
     {{#each db}}
     <p>{{key}}: {{value}}</p>
+    {{#each host}}
+    <p>---{{key}}</p>
+    {{/each}}
     {{/each}}
 
+    {{#each db.counter cache}}
+    <p>{{key}}:::{{value}}</p>
+    {{/each}}
 </section>

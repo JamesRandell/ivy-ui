@@ -65,16 +65,22 @@ export default class DOMManipulation {
 
     constructor() {
         //super();
-        const wrapper = document.createElement('section');
-        wrapper.classList.add('content');
+        /**
+         * old code that used to wrap the section.content in another section.content
+         * I never documented why exactly, but it may have something to do with wrapping
+         * it inside an element that we can animate during page loads
+         */
+        //const wrapper = document.createElement('section');
+        //wrapper.classList.add('content');
          
-        this.content.parentNode.appendChild(wrapper);
-        wrapper.appendChild(this.content);
+        //this.content.parentNode.appendChild(wrapper);
+        //wrapper.appendChild(this.content);
 
         console.log('DOM Class started... only one please');
 
          var historyMove = false;
          var that = this;
+
         (function(history){
             
             var rpushState = history.pushState.bind(history);
@@ -303,6 +309,9 @@ export default class DOMManipulation {
         var loadedContent = json.data;
         var isWidget:boolean;
 
+        /**
+         * template engine. PArses the string then compiles it with what ever is in this.DOMData
+         */
         let parsedTemplate = template.parse(loadedContent, this.DOMData);
         loadedContent = template.compile(parsedTemplate, this.DOMData);
 
@@ -333,8 +342,6 @@ export default class DOMManipulation {
         //html = this.sanitizeHTML(html);
         let temp = document.createElement('html');
         temp.innerHTML = loadedContent;
-        
-        var r = this;
 
 
         // i'll always have a body because the creation of the html node creates
@@ -357,7 +364,7 @@ export default class DOMManipulation {
             let gLength = g.length;
 
             loopLoaded: for (let i=0; i<gLength; i++) {
-   
+                  
                 /**
                  * does this element have an ID?
                  */
@@ -372,6 +379,8 @@ export default class DOMManipulation {
                         pageWidget.innerHTML = g[i].innerHTML;
                         continue;
                     }
+
+                    continue;
                 }
 
                 /**
@@ -385,36 +394,36 @@ export default class DOMManipulation {
                 if (classStr) {
                     // we'll use the first class found. Now we need to make sure the tag name
                     // matches
-                    let pageWidgetArr= this.body.querySelectorAll('[class='+classStr+']');
+                    let pageWidgetArr = this.body.querySelectorAll('[class='+classStr+']');
                     let pageWidgetLength = pageWidgetArr.length
 
-                    loopCurrent: for (let ii=0; ii<pageWidgetLength; ii++) {
+                    loopCurrent: for (let ii=0; ii<pageWidgetLength; ii++) { 
                         if (pageWidgetArr[ii] && "nodeName" in pageWidgetArr[ii] && pageWidgetArr[ii].nodeName == nodeStr) {
                             // we found it! so lets update its contents
                             // but first, run a check to see if it's our main content widget 
                             // TODO this is a complete hack becasue we have TWO section.content nodes for  some reason
-                            let n = pageWidgetArr[ii].nodeName.toLowerCase();
-                            let c = classStr.toLowerCase();
-                            let nc = n + '.' + c;
+                            //let n = pageWidgetArr[ii].nodeName.toLowerCase();
+                            //let c = classStr.toLowerCase();
+                            //let nc = n + '.' + c;
 
-                            if (nc == this.config.contentSelector) {
-                                pageWidgetArr[pageWidgetLength-1].innerHTML = g[i].innerHTML;
-                                return
-                            } else {
+                            //if (nc == this.config.contentSelector) {
+                            //    pageWidgetArr[pageWidgetLength-1].innerHTML = g[i].innerHTML;
+                            //    return
+                            //} else {
                                 pageWidgetArr[ii].innerHTML = g[i].innerHTML;
-                            }
+                            //}
 
                             continue;
                         }
                     }
+
+                    continue;
                 }
 
                 /**
                  * either there is no id, or there was but it's not in the existing document
                  * lets just replace the content with what we've loaded
                  */
-                let y = this.content;
-                console.log(1);
                 this.content.appendChild(g[i]);
             }
 
@@ -426,11 +435,11 @@ export default class DOMManipulation {
          * We're dealing with a LOCAL or GLOBAL template (the same thing as far as the UI is concerned)
          * We can inject the whole thing into the default content area as is
          */
-        //let content = loadedBody.querySelector(this.config.contentSelector);
-        let contentArr = loadedBody.querySelectorAll(this.config.contentSelector);
-        let contentLength = contentArr.length
+        let content = loadedBody.querySelector(this.config.contentSelector);
+        //let contentArr = loadedBody.querySelectorAll(this.config.contentSelector);
+        //let contentLength = contentArr.length
 
-        let content = contentArr[contentLength-1];
+        //let content = contentArr[contentLength-1];
 
         this.content.innerHTML = content.innerHTML;
 

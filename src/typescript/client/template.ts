@@ -3,6 +3,8 @@ var template = {
 
     parse: (templateString: string, data: object) => {
 
+        data = template._convertObjectToArray(data);
+
         let result = /{{(.*?)}}/g.exec(templateString);
         const arr = [];
         let firstPos;  
@@ -69,12 +71,7 @@ var template = {
                         arrayName = t.split(" ").pop().replace("}}", "").trim();
                         
                         if (arrayName in data) {
-                            if (data[arrayName].constructor === Array) {
-                                arrayLength = data[arrayName].length;
-                            } else {
-                                arrayLength = Object.keys(data[arrayName]).length;
-                            }
-
+                            arrayLength = data[arrayName].length;
                         } else {
                             arrayLength = 0;
                         }
@@ -90,21 +87,25 @@ var template = {
                         // loop through our data array, and append to the main string a duplicate of 
                         // the arrayString, changing the array keys
 
-                        // urgh, but first, test if this is an aray or on object again
-                        if (data[arrayName].constructor === Array) {
-                            for (let i=0; i<arrayLength; i++) {
-                                let q = arrayString[arrayName].replace(/\[n\]/g, "["+i+"]");
-                                fnStr += q;
-                            }
-                        } else {
-                            for (let [key] of Object.entries(data[arrayName])) {
-                                let q = arrayString[arrayName].replace(/\[n\]/g, "[\""+key+"\"]");
-                                fnStr += q;
-                            }
-                        }
-
                         
-                    }
+                            for (let i=0; i<arrayLength; i++) {
+
+                                let q = ''
+                                
+                                /** 
+                                 * checks if there is a sub-array as this value. If there is just return nothing
+                                 */
+                                if (Object.keys(data[arrayName][i]).length > 1) {
+             
+                                    q = '';
+                                    //let q = arrayString[arrayName].replace(/\[n\]/g, "["+i+"]");
+                                } else {
+                                    q = arrayString[arrayName].replace(/\[n\]/g, "["+i+"]");
+                                }
+                                
+                                fnStr += q;
+                            }
+                    
 
                     arrayName = null;
                     arrayLength = 0;
@@ -123,17 +124,10 @@ var template = {
                         if (!arrayString[arrayName]) arrayString[arrayName] = "";
 
                         if (t == "{{key}}") {
-                            if (data[arrayName].constructor === Array) {
-                                arrayString[arrayName] += `\$\{Object.keys(data["${arrayName}"][n])\}`;
-                            } else {
-                                arrayString[arrayName] += `\$\{[n]\}`;
-                            }
+                            arrayString[arrayName] += `\$\{Object.keys(data["${arrayName}"][n])\}`;
+                            
                         } else if (t == "{{value}}") {
-                            if (data[arrayName].constructor === Array) {
-                                arrayString[arrayName] += `\$\{Object.values(data["${arrayName}"][n])\}`;
-                            } else {
-                                arrayString[arrayName] += `\$\{data["${arrayName}"][n]\}`;
-                            }
+                            arrayString[arrayName] += `\$\{Object.values(data["${arrayName}"][n])\}`;
                         } else {
                             arrayString[arrayName] += `\$\{data["${arrayName}"][n].${t.split(/{{|}}/).filter(Boolean)[0].trim()}\}`;
                         }
@@ -161,7 +155,9 @@ var template = {
         });
         return fnStr;
     },
-    compile: (template: string, data: object = {}) => {
+    compile: (templateString: string, data: object = {}) => {
+
+        data = template._convertObjectToArray(data);
 
         // update all the keys, change spaces to a hypen -
         const loop = (data) => {
@@ -180,14 +176,28 @@ var template = {
 
             return result;
         }
-
+console.log(data);
         try {
-            console.log(template); 
-            return new Function("const data = this; return `"+ template +"`;").apply(data);
+            return new Function("const data = this; return `"+ templateString +"`;").apply(data);
         } catch (e) {
             console.error('Problem with template: ' + e);
-            console.error(template);
+            console.error(templateString);
         }
+    },
+
+    _convertObjectToArray: (data: object = {}) => {
+        let keys = Object.entries;
+        let array = [];
+
+        for (const [key, value] of Object.entries(data)) {
+            if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+                array[key] = template._convertObjectToArray(value);
+            } else {
+                array[key] = value;
+            }
+        }
+
+        return array;
     }
 }
 

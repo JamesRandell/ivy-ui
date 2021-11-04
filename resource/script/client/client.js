@@ -37,8 +37,6 @@ class ivy extends hotModuleReload {
             console.log('i have navigated');
             //socket({file:"/ui/fragment"});
         });
-        const urlSearchParams = new URLSearchParams(window.location.search);
-        const params = Object.fromEntries(urlSearchParams.entries());
     }
 }
 // so we get rid of TS type casting errors in the below function

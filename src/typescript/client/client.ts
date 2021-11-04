@@ -62,10 +62,6 @@ class ivy extends hotModuleReload {
       //socket({file:"/ui/fragment"});
 
     });
-
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    const params = Object.fromEntries(urlSearchParams.entries());
-
   }
 }
 

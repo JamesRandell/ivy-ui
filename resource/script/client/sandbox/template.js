@@ -1,21 +1,29 @@
 //@ts-ignore
-import { template } from '/ivy-ui/resource/script/client/template.js';
-const html = "<section class=\"content\">\n    This is some CASSANDRA content<br>\n    {{firstname}}\n    {{last name}}<br>\n    {{parent.child}}<br>\n    after firstname<br>\n    {{#each default}}\n    {{name}}-{{key}}-{{value}}:Something else<br>\n    {{/each}}\n    Some other content\n</section>";
+import { template } from '/resource/script/client/template.js';
+const html = `<section class="content">
+<p>This is some CASSANDRA content</p>
+
+{{#each db}}
+<p>Datacenter: {{datacenter}}</p>
+l
+{{#each host}}
+<p>---{{key}}:{{value}}</p>
+{{/host}}
+
+{{/each}}
+
+
+</section>`;
 var data = {
-    firstname: "James",
-    "last name": "Savoy",
-    parent: {
-        child: "HELLO!"
-    },
-    default: [
+    "datacenter": "datacenter1",
+    "host": [
         {
-            name: "Steve"
-        },
-        {
-            name: "David"
-        },
-        {
-            name: "Fred"
+            "status": "Unknown status",
+            "state": "Unknown state",
+            "load": "16",
+            "owns": "100.0%",
+            "hostID": "541a3a6c-c20d-4a5a-8c81-53a432e1069a",
+            "rack": "rack1"
         }
     ]
 };
