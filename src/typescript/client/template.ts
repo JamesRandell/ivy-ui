@@ -3,7 +3,7 @@ var template = {
 
     parse: (templateString: string, data: object) => {
 
-        data = template._convertObjectToArray(data);
+        //data = template._convertObjectToArray(data);
 
         let result = /{{(.*?)}}/g.exec(templateString);
         const arr = [];
@@ -38,19 +38,24 @@ var template = {
          * When we find these, we need to store the name of the array and use it to build up the inner 
          * values
          */
-        var arrayName: string = "";
+        var arrayName: string[] = [];
+
+        // the data array (not template)
         var arrayLength: number = 0;
 
-        // how many #EACH are there? This is so we can do arrays in arrays
-        var arrayNumber: number = 0;
-
         // building up the content of an array
-        var arrayString: any = [];
+        var arrayString: string[] = [];
+console.log(data);
+
+        //holds a buildable array reference to the data
+        var dataRef: string[] = [];
+        var dataRefLength = 0;
 
         templateArray.map(t => {
             // checking to see if it is an interpolation
             if (t.startsWith("{{") && t.endsWith("}}")) {
 
+                console.log(t);
                 t = t.split(/\./g).join(`"]["`);
 
 
@@ -63,75 +68,102 @@ var template = {
                      *  - add some array syntax to the string part (data.key for example)
                      *  - add as many lines as there are rows in the array
                      */ 
+                    
                     if (t.indexOf("#each") > 0) {
-                        arrayNumber++;
 
                         // get the name of the array specified in this tag
                         // we need the last word in the tag
-                        arrayName = t.split(" ").pop().replace("}}", "").trim();
+                        let tempArrayName = t.split(" ").pop().replace("}}", "").trim()
+                        arrayName.push( tempArrayName );
+
+                        let i = 0;
+
+                        for (const name of arrayName) {
+                            dataRef = (i === 0) ? data[name] : dataRef[name];
+                            i++
+                        }
+
+                        dataRefLength = i;
+                        tempArrayName = `data["${arrayName.join('"]["')}"]`;
+
                         
-                        if (arrayName in data) {
-                            arrayLength = data[arrayName].length;
+
+                        /*
+                        if (tempArrayName in data) {
+                            arrayLength = `data["${arrayName.join('"]["')}"]`.length;
                         } else {
                             arrayLength = 0;
                         }
+                        */
+
                     }
 
-                } else if (t.includes("{{/") === true) { 
+                } else if (t.includes("{{/") === true) {
+
                     /**
                      * this is the end of a command
                      * check the arrayString arrary for our... array (BAD naming James)
                      */
-                    if (arrayString[arrayName]) {
+                    
+
+                    let tempArrayName = arrayName.join('|');
+
+
+                    if (arrayString[tempArrayName]) {
                         
                         // loop through our data array, and append to the main string a duplicate of 
                         // the arrayString, changing the array keys
 
-                        
-                            for (let i=0; i<arrayLength; i++) {
+                        for (let i=0; i<dataRefLength; i++) {
 
-                                let q = ''
+                            let q = ''
                                 
-                                /** 
-                                 * checks if there is a sub-array as this value. If there is just return nothing
-                                 */
-                                if (Object.keys(data[arrayName][i]).length > 1) {
-             
-                                    q = '';
-                                    //let q = arrayString[arrayName].replace(/\[n\]/g, "["+i+"]");
-                                } else {
-                                    q = arrayString[arrayName].replace(/\[n\]/g, "["+i+"]");
-                                }
-                                
-                                fnStr += q;
-                            }
-                    
+                            /** 
+                             * checks if there is a sub-array as this value. If there is just return nothing
+                             */
+                            //if (Object.keys(data[tempArrayName][i]).length > 1) {
+                            //    q = '';
+                                //let q = arrayString[arrayName].replace(/\[n\]/g, "["+i+"]");
+                            //} else {
+                                q = arrayString[tempArrayName].replace(/\[n\]/g, "["+i+"]").replace(/\|/g, '"]["');
+                            //}
+                            
+                            fnStr += q;
+                        }
+                    }
 
-                    arrayName = null;
-                    arrayLength = 0;
+                    arrayName.pop();
+                    let o = 0;
+                    for (const name of arrayName) {
+                        dataRef = (o === 0) ? data[name][0] : dataRef[name][0];
+                        o++
+                    }
+                    dataRefLength = o;
+
                 } else {
                     
+console.error(dataRefLength);
                     /**
                      * are we in a command, like an array? we need to check the arrayName and arrayLength
                      * parametes for truthies to see if we should treat this object key differently
                      */
-                    if (arrayLength > 0) {
+                    if (dataRefLength > 0) {
+
                         /**
                          * so this is an array. We need to keep going through our main loop and store 
                          * all our 'inner' rows in a seperate place to keep track of them. 
                          * Then we can multiple it by how many rows we have in our array 
                          */
-                        if (!arrayString[arrayName]) arrayString[arrayName] = "";
+                        if (!arrayString[arrayName.join('|')]) arrayString[arrayName.join('|')] = "";
 
                         if (t == "{{key}}") {
-                            arrayString[arrayName] += `\$\{Object.keys(data["${arrayName}"][n])\}`;
-                            
+                            arrayString[arrayName.join('|')] += `\$\{Object.keys(data["${arrayName.join('|')}"][n])\}`;
                         } else if (t == "{{value}}") {
-                            arrayString[arrayName] += `\$\{Object.values(data["${arrayName}"][n])\}`;
+                            arrayString[arrayName.join('|')] += `\$\{Object.values(data["${arrayName.join('|')}"][n])\}`;
                         } else {
-                            arrayString[arrayName] += `\$\{data["${arrayName}"][n].${t.split(/{{|}}/).filter(Boolean)[0].trim()}\}`;
+                            arrayString[arrayName.join('|')] += `\$\{data["${arrayName.join('|')}"][n].${t.split(/{{|}}/).filter(Boolean)[0].trim()}\}`;
                         }
-                        
+                        console.warn(arrayString);
                     } else {
                         // append it to fnStr
                         fnStr += `\$\{data["${t.split(/{{|}}/).filter(Boolean)[0].trim()}"]\}`;
@@ -145,8 +177,9 @@ var template = {
                      * all our 'inner' rows in a seperate place to keep track of them. 
                      * Then we can multiple it by how many rows we have in our array 
                      */
-                    if (!arrayString[arrayName]) arrayString[arrayName] = [];
-                    arrayString[arrayName] += `${t}`;
+                    let temp = `["${arrayName.join('"]["')}"]"`;
+                    if (!arrayString[temp]) arrayString[temp] = [];
+                    arrayString[temp] += `${t}`;
                 } else {
                     // append it to fnStr
                     fnStr += `${t}`;
@@ -176,8 +209,9 @@ var template = {
 
             return result;
         }
-console.log(data);
+
         try {
+            console.log(templateString);
             return new Function("const data = this; return `"+ templateString +"`;").apply(data);
         } catch (e) {
             console.error('Problem with template: ' + e);

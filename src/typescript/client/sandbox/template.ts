@@ -9,8 +9,9 @@ const html = `<section class="content">
 <p>Datacenter: {{datacenter}}</p>
 l
 {{#each host}}
+{{hostID}}
 <p>---{{key}}:{{value}}</p>
-{{/host}}
+{{/each}}
 
 {{/each}}
 
@@ -19,7 +20,7 @@ l
 
 
 var data = {
-    
+    "db": {
         "datacenter": "datacenter1",
         "host": [
             {
@@ -31,7 +32,7 @@ var data = {
                 "rack": "rack1"
             }
         ]
-    
+    }
 }
 
 const v = template.parse(html, data);

@@ -7,25 +7,28 @@ const html = `<section class="content">
 <p>Datacenter: {{datacenter}}</p>
 l
 {{#each host}}
+{{hostID}}
 <p>---{{key}}:{{value}}</p>
-{{/host}}
+{{/each}}
 
 {{/each}}
 
 
 </section>`;
 var data = {
-    "datacenter": "datacenter1",
-    "host": [
-        {
-            "status": "Unknown status",
-            "state": "Unknown state",
-            "load": "16",
-            "owns": "100.0%",
-            "hostID": "541a3a6c-c20d-4a5a-8c81-53a432e1069a",
-            "rack": "rack1"
-        }
-    ]
+    "db": {
+        "datacenter": "datacenter1",
+        "host": [
+            {
+                "status": "Unknown status",
+                "state": "Unknown state",
+                "load": "16",
+                "owns": "100.0%",
+                "hostID": "541a3a6c-c20d-4a5a-8c81-53a432e1069a",
+                "rack": "rack1"
+            }
+        ]
+    }
 };
 const v = template.parse(html, data);
 const person = {
