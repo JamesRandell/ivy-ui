@@ -1,19 +1,23 @@
 
 //@ts-ignore
-import { template } from '/resource/script/client/template.js';
+import { template } from '/ivy-ui/resource/script/client/template.js';
 
 const html = `<section class="content">
 <p>This is some CASSANDRA content</p>
+{{db.datacenter}}
 
-{{#each db}}
 <p>Datacenter: {{datacenter}}</p>
 l
-{{#each host}}
-{{hostID}}
-<p>---{{key}}:{{value}}</p>
+{{#each db.host}}
+{{hostID}}<br>
+<ul>
+{{#each}}
+<li>{{key}}: {{value}}</li>
 {{/each}}
-
+</ul>
+this after third loop<br>
 {{/each}}
+ppp<br>
 
 
 </section>`;
@@ -35,6 +39,13 @@ var data = {
     }
 }
 
+Object.entries(data["db"]["host"][0]).map((item, iii) => {
+    if (data["db"]["host"].hasOwnProperty(iii)) {
+        console.log(Object.keys(data["db"]["host"][iii]));
+    }
+
+});
+
 const v = template.parse(html, data);
 
 
@@ -51,3 +62,7 @@ const person = {
 
 const q = document.querySelector('.content');
 q.innerHTML = template.compile(v, data);
+
+/*
+
+*/
