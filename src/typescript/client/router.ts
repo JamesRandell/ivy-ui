@@ -173,8 +173,6 @@ export default class router implements iprotocol {
         let pathArr = path.split('/'),
             i: number = 0;
         
-        registry.controller = 'index',
-        registry.action = 'index',
         registry.id = null,
         registry.args = {}; 
 

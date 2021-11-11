@@ -4,8 +4,8 @@ import iregistry from "./interface/iregistry";
 
 
 var registry: iregistry = {
-  controller: "",
-  action: "",
+  controller: "index",
+  action: "index",
   id: null,
   args: []
 };

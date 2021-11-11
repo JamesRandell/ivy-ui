@@ -1,7 +1,7 @@
 'use strict';
 var registry = {
-    controller: "",
-    action: "",
+    controller: "index",
+    action: "index",
     id: null,
     args: []
 };

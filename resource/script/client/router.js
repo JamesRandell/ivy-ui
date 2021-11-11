@@ -129,9 +129,7 @@ export default class router {
         if (path == '')
             return;
         let pathArr = path.split('/'), i = 0;
-        registry.controller = 'index',
-            registry.action = 'index',
-            registry.id = null,
+        registry.id = null,
             registry.args = {};
         const pathArrLength = pathArr.length;
         /**
