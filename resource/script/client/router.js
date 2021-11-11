@@ -10,7 +10,7 @@ import protocolHTTP from "./protocolHTTP.js";
 //@ts-ignore
 import DOMManipulation from "./dommanipulation.js";
 //@ts-ignore
-import { config } from "./client.js";
+import { config, registry } from "./client.js";
 export default class router {
     constructor() {
         /**
@@ -128,7 +128,11 @@ export default class router {
          */
         if (path == '')
             return;
-        let pathArr = path.split('/'), controller = 'index', action = 'index', id = null, args = {}, i = 0;
+        let pathArr = path.split('/'), i = 0;
+        registry.controller = 'index',
+            registry.action = 'index',
+            registry.id = null,
+            registry.args = {};
         const pathArrLength = pathArr.length;
         /**
          * So, lets set up some rules that apply to our routing model. These follow the same rule set
@@ -141,8 +145,8 @@ export default class router {
          * ACTION (function)
          */
         if (pathArrLength === 1) {
-            controller = pathArr[0];
-            this.go('/' + controller);
+            registry.controller = pathArr[0];
+            this.go('/' + registry.controller);
             return;
         }
         /**
@@ -151,9 +155,9 @@ export default class router {
          * ACTION (function)
          */
         if (pathArrLength === 2) {
-            controller = pathArr[0];
-            action = pathArr[1];
-            this.go('/' + controller + '/' + action);
+            registry.controller = pathArr[0];
+            registry.action = pathArr[1];
+            this.go('/' + registry.controller + '/' + registry.action);
             return;
         }
         /**
@@ -163,9 +167,9 @@ export default class router {
          * ID (record or row id)
          */
         if (pathArrLength === 3) {
-            controller = pathArr[0];
-            action = pathArr[1];
-            id = pathArr[2];
+            registry.controller = pathArr[0];
+            registry.action = pathArr[1];
+            registry.id = pathArr[2];
         }
         /**
          * FOUR or more parameters, so we assume this includes
@@ -174,8 +178,8 @@ export default class router {
          * KEY/VALUE pairs
          */
         if (pathArrLength >= 4) {
-            controller = pathArr[0];
-            action = pathArr[1];
+            registry.controller = pathArr[0];
+            registry.action = pathArr[1];
             // start from the 3rd parameter - s owe only loop over the key/value pairs
             for (i = 2; i < pathArrLength; i++) {
                 /**
@@ -187,10 +191,10 @@ export default class router {
                     // check if the NEXT array key exists, otherwise we have no key pair.
                     // if it doesn't exist, this 'key' is therefore an 'id'
                     if (pathArr[i + 1]) {
-                        args[pathArr[i]] = pathArr[i + 1];
+                        registry.args[pathArr[i]] = pathArr[i + 1];
                     }
                     else {
-                        id = pathArr[i];
+                        registry.id = pathArr[i];
                     }
                 }
             }

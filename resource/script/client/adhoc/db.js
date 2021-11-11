@@ -1,6 +1,7 @@
 //@ts-ignore
-import { socket } from "../client.js";
+import { registry, socket } from "../client.js";
 import DOMManipulation from "../dommanipulation.js";
+//var controller = router.registry.controller;
 const dommanipulationinstance = DOMManipulation.getInstance();
 const db = {
     me: function () {
@@ -16,6 +17,8 @@ function test(evt) {
     else {
         return;
     }
+    if (registry.controller != "interface")
+        return;
     socket({ file: "/resource/template/widget/cassandra.html" });
     var html = {
         "ui": {

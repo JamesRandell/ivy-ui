@@ -12,11 +12,12 @@ import protocolHTTP from "./protocolHTTP.js";
 
 import iprotocol from "./interface/iprotocol";
 
+
 //@ts-ignore
 import DOMManipulation from "./dommanipulation.js";
 
 //@ts-ignore
-import client, { config } from "./client.js";
+import client, { config, registry } from "./client.js";
 
 
 export default class router implements iprotocol {
@@ -40,7 +41,6 @@ export default class router implements iprotocol {
                             break;
             case 'http'   : this.server = new protocolHTTP();
                             break;
-
         }
 
         /**
@@ -171,11 +171,12 @@ export default class router implements iprotocol {
 
         
         let pathArr = path.split('/'),
-            controller: string = 'index',
-            action: string = 'index',
-            id: string = null,
-            args: any = {},
             i: number = 0;
+        
+        registry.controller = 'index',
+        registry.action = 'index',
+        registry.id = null,
+        registry.args = {}; 
 
         const pathArrLength = pathArr.length;
 
@@ -192,9 +193,9 @@ export default class router implements iprotocol {
          * ACTION (function)
          */
         if (pathArrLength === 1) {
-            controller = pathArr[0];
+            registry.controller = pathArr[0];
 
-            this.go('/' + controller);
+            this.go('/' + registry.controller);
             return;
         }
 
@@ -204,10 +205,10 @@ export default class router implements iprotocol {
          * ACTION (function)
          */
         if (pathArrLength === 2) {
-            controller = pathArr[0];
-            action = pathArr[1];
+            registry.controller = pathArr[0];
+            registry.action = pathArr[1];
 
-            this.go('/' + controller + '/' + action);
+            this.go('/' + registry.controller + '/' + registry.action);
             return;
         }
 
@@ -218,9 +219,9 @@ export default class router implements iprotocol {
          * ID (record or row id)
          */
         if (pathArrLength === 3) {
-            controller = pathArr[0];
-            action = pathArr[1];
-            id = pathArr[2];
+            registry.controller = pathArr[0];
+            registry.action = pathArr[1];
+            registry.id = pathArr[2];
         }
 
         /**
@@ -230,8 +231,8 @@ export default class router implements iprotocol {
          * KEY/VALUE pairs
          */
         if (pathArrLength >= 4) {
-            controller = pathArr[0];
-            action = pathArr[1];
+            registry.controller = pathArr[0];
+            registry.action = pathArr[1];
 
             // start from the 3rd parameter - s owe only loop over the key/value pairs
             for (i=2; i<pathArrLength; i++) {
@@ -247,9 +248,9 @@ export default class router implements iprotocol {
                     // check if the NEXT array key exists, otherwise we have no key pair.
                     // if it doesn't exist, this 'key' is therefore an 'id'
                     if (pathArr[i+1]) {
-                        args[ pathArr[i] ] = pathArr[i+1];
+                        registry.args[ pathArr[i] ] = pathArr[i+1];
                     } else {
-                        id = pathArr[i];
+                        registry.id = pathArr[i];
                     }
                 }
             } 

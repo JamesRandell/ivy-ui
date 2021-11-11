@@ -15,6 +15,7 @@ export default class socketRouter {
          * loop through the payload keys. We then test if the key is a string and try to run the function in our 'library'
          */
         var keys = Object.keys(json.payload), len = keys.length, i = 0, cmd;
+        const t = DOMManipulation.getInstance();
         while (i < len) {
             cmd = keys[i];
             if (typeof cmd != 'string') {
@@ -33,9 +34,8 @@ export default class socketRouter {
             if ('db' in adhoc) {
                 alert("yes, i have that property");
             }
-            const t = DOMManipulation.getInstance();
             if (typeof t['_' + cmd] !== 'function') {
-                console.log('Can\'t reload file: Function \'_' + cmd + '\' does not exist in socketRouter');
+                //console.log('Can\'t reload file: Function \'_'+cmd+'\' does not exist in socketRouter');
             }
             else {
                 t['_' + cmd](json.payload[cmd]);

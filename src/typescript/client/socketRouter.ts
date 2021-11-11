@@ -29,6 +29,8 @@ export default class socketRouter {
             i = 0,
             cmd: string;
 
+        const t = DOMManipulation.getInstance();
+
         while (i < len) {
             cmd = keys[i];
 
@@ -51,12 +53,12 @@ export default class socketRouter {
             if('db' in adhoc){
                 alert("yes, i have that property");
             }
-            const t = DOMManipulation.getInstance();
+            
 
 
             
             if (typeof t['_'+cmd] !== 'function') {
-                console.log('Can\'t reload file: Function \'_'+cmd+'\' does not exist in socketRouter');
+                //console.log('Can\'t reload file: Function \'_'+cmd+'\' does not exist in socketRouter');
             } else {
                 t['_'+cmd](json.payload[cmd]);
             }

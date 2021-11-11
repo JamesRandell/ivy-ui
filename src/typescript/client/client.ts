@@ -1,5 +1,15 @@
 'use strict';
 
+import iregistry from "./interface/iregistry";
+
+
+var registry: iregistry = {
+  controller: "",
+  action: "",
+  id: null,
+  args: []
+};
+
 var config = {
     poll: 2000,
     dev: true,
@@ -274,5 +284,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
 var routerInstance = new router();
 
-export { socketInit, socket, routerInstance as router, config, hook}; 
+export { registry, socketInit, socket, routerInstance as router, config, hook}; 
 

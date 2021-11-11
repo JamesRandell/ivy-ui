@@ -20,7 +20,6 @@ var template = {
     },
     _compileToString: (templateArray, data = {}) => {
         let fnStr = ``;
-        console.log(data);
         /**
          * As we loop through the template looking for {{...}}, some of these may be commands, such as
          * #EACH or #LOOP.
@@ -47,7 +46,6 @@ var template = {
         var outputCommand = "";
         var noData = false; // indicates to any #each loops if there is data. If there isn't then don't both building the loop
         templateArray.map(t => {
-            console.log(t);
             // checking to see if it is an interpolation
             if (t.startsWith("{{") && t.endsWith("}}")) {
                 //t = t.split(/\./g).join(`"]["`);
@@ -79,7 +77,6 @@ var template = {
                         }).length;
                         arrayNameLength = arrayName.length;
                         let i = 0;
-                        console.log(arrayName);
                         for (const name of arrayName) {
                             if (i === 0 && data[name]) {
                                 dataRef = data[name];
@@ -178,7 +175,6 @@ var template = {
                     if (t.indexOf("|") > 0) {
                         let temp = t.replace("{{", "").replace("}}", "").trim().split("|");
                         t = '{{' + temp[0] + '}}';
-                        console.log(temp[1]);
                         switch (temp[1]) {
                             case "uppercase":
                                 outputCommand = '.toUpperCase()';
@@ -267,7 +263,7 @@ var template = {
             return result;
         };
         try {
-            console.log(templateString);
+            //console.log(templateString);
             let h = new Function("const data = this; return `" + templateString + "`;").apply(data);
             /*
                         localStorage.setItem('testObject', JSON.stringify(testObject));

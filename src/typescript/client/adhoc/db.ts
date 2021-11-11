@@ -1,6 +1,12 @@
 //@ts-ignore
-import { socket } from "../client.js";
+import { registry, socket } from "../client.js";
 import DOMManipulation from "../dommanipulation.js";
+
+
+
+
+
+//var controller = router.registry.controller;
 
 const dommanipulationinstance = DOMManipulation.getInstance();
 
@@ -21,6 +27,7 @@ window.addEventListener("in-payload", test);
 
 function test(evt) {
   if ("db" in evt.detail) {} else {return;}
+  if (registry.controller != "interface") return;
 
   socket({file:"/resource/template/widget/cassandra.html"});
   

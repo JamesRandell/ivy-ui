@@ -241,7 +241,6 @@ export default class DOMManipulation {
     _html(json) {
         var loadedContent = json.data;
         var isWidget;
-        console.log(json.file);
         /**
          * template engine. Parses the string then compiles it with what ever is in this.DOMData
          */
