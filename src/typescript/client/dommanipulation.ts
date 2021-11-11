@@ -308,9 +308,9 @@ export default class DOMManipulation {
 
         var loadedContent = json.data;
         var isWidget:boolean;
-
+console.log(json.file);
         /**
-         * template engine. PArses the string then compiles it with what ever is in this.DOMData
+         * template engine. Parses the string then compiles it with what ever is in this.DOMData
          */
         let parsedTemplate = template.parse(loadedContent, this.DOMData);
         loadedContent = template.compile(parsedTemplate, this.DOMData);

@@ -4,15 +4,15 @@ import { template } from '/ivy-ui/resource/script/client/template.js';
 
 const html = `<section class="content">
 <p>This is some CASSANDRA content</p>
-{{db.datacenter}}
+<p>Datacenter: {{db.datacenter}}</p>
 
-<p>Datacenter: {{datacenter}}</p>
+
 l
 {{#each db.host}}
 {{hostID}}<br>
 <ul>
 {{#each}}
-<li>{{key}}: {{value}}</li>
+<li>{{key|uppercase}}: {{value}}</li>
 {{/each}}
 </ul>
 this after third loop<br>
@@ -21,6 +21,7 @@ ppp<br>
 
 
 </section>`;
+
 
 
 var data = {
@@ -39,14 +40,8 @@ var data = {
     }
 }
 
-Object.entries(data["db"]["host"][0]).map((item, iii) => {
-    if (data["db"]["host"].hasOwnProperty(iii)) {
-        console.log(Object.keys(data["db"]["host"][iii]));
-    }
-
-});
-
-const v = template.parse(html, data);
+const fileName = "resource/template/widget/cassandra.html";
+const v = template.parse(html, data, fileName);
 
 
 

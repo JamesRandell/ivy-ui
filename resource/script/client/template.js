@@ -1,6 +1,5 @@
 var template = {
     parse: (templateString, data) => {
-        //data = template._convertObjectToArray(data);
         let result = /{{(.*?)}}/g.exec(templateString);
         const arr = [];
         let firstPos;
@@ -21,6 +20,7 @@ var template = {
     },
     _compileToString: (templateArray, data = {}) => {
         let fnStr = ``;
+        console.log(data);
         /**
          * As we loop through the template looking for {{...}}, some of these may be commands, such as
          * #EACH or #LOOP.
@@ -44,10 +44,12 @@ var template = {
          */
         var tempLoopVar = '';
         var tempRefDataCounter = 1;
+        var outputCommand = "";
+        var noData = false; // indicates to any #each loops if there is data. If there isn't then don't both building the loop
         templateArray.map(t => {
+            console.log(t);
             // checking to see if it is an interpolation
             if (t.startsWith("{{") && t.endsWith("}}")) {
-                console.log(t);
                 //t = t.split(/\./g).join(`"]["`);
                 // lets see if it's a command (#)
                 if (t.indexOf("#") > 0) {
@@ -58,6 +60,8 @@ var template = {
                      *  - add as many lines as there are rows in the array
                      */
                     if (t.indexOf("#each") > 0) {
+                        //reset our noData var
+                        noData = false;
                         // get the name of the array specified in this tag
                         // we need the last word in the tag
                         //remove the brackets
@@ -75,32 +79,55 @@ var template = {
                         }).length;
                         arrayNameLength = arrayName.length;
                         let i = 0;
+                        console.log(arrayName);
                         for (const name of arrayName) {
-                            dataRef = (i === 0) ? data[name] : dataRef[name];
+                            if (i === 0 && data[name]) {
+                                dataRef = data[name];
+                            }
+                            else if (dataRef[name]) {
+                                dataRef = dataRef[name];
+                            }
+                            else {
+                                noData = true;
+                                return;
+                            }
                             i++;
                         }
+                        //try {
                         dataRefLength = (dataRef.length) ? dataRef.length : Object.keys(dataRef).length;
                         dataRefType = (dataRef.length) ? "array" : "object";
-                        if (dataRefType == "array") {
-                            tempArrayName = `data["${arrayName.join('"]["')}"]`;
-                            tempLoopVar = "i".repeat(arrayNameLength);
-                            fnStr += `\$\{${tempArrayName}.map((item, ${tempLoopVar}) => \``;
-                        }
-                        else {
-                            // we need to get the arrayName before this current loop
-                            tempArrayName = `data["${oldArrayName.join('"]["')}"]`;
-                            tempLoopVar = "i".repeat(arrayNameLength);
-                            let keys = '"' + oldArrayName.filter(element => isNaN(parseInt(element))).join('"]["');
-                            keys = keys + '"]';
-                            if (oldArrayNameLength > 0) {
-                                keys += '[' + "i".repeat(oldArrayNameLength) + ']';
-                            }
-                            fnStr += `\$\{Object.entries(data[${keys}).map((item, ${tempLoopVar}) => \``;
-                            //fnStr += `\$\{Object.entries(data[${keys}).forEach(([item, ${tempLoopVar}]) => \``;
+                        //} catch {
+                        //    dataRefLength = 0;
+                        //    dataRefType = "absent";
+                        //}
+                        switch (dataRefType) {
+                            case "array":
+                                tempArrayName = `data["${arrayName.join('"]["')}"]`;
+                                tempLoopVar = "i".repeat(arrayNameLength);
+                                fnStr += `\$\{${tempArrayName}.map((item, ${tempLoopVar}) => \``;
+                                break;
+                            case "object":
+                                // we need to get the arrayName before this current loop
+                                tempArrayName = `data["${oldArrayName.join('"]["')}"]`;
+                                tempLoopVar = "i".repeat(arrayNameLength);
+                                let keys = '"' + oldArrayName.filter(element => isNaN(parseInt(element))).join('"]["');
+                                keys = keys + '"]';
+                                if (oldArrayNameLength > 0) {
+                                    keys += '[' + "i".repeat(oldArrayNameLength) + ']';
+                                }
+                                fnStr += `\$\{Object.entries(data[${keys}).map((item, ${tempLoopVar}) => \``;
+                                //fnStr += `\$\{Object.entries(data[${keys}).forEach(([item, ${tempLoopVar}]) => \``;
+                                break;
+                            default:
+                                fnStr += `\$\{[].map((item, ${tempLoopVar}) => \``;
                         }
                     }
                 }
-                else if (t.includes("{{/") === true) {
+                else if (t.includes("{{/each") === true) {
+                    if (noData === true) {
+                        //noData = false;
+                        return;
+                    }
                     /**
                      * this is the end of a command
                      * check the arrayString arrary for our... array (BAD naming James)
@@ -122,18 +149,45 @@ var template = {
                     let o = 0;
                     dataRef = [];
                     for (const name of arrayName) {
-                        dataRef = (dataRef.length == 0) ? data[name] : dataRef[name];
+                        if (o === 0 && data[name]) {
+                            dataRef = data[name];
+                        }
+                        else if (dataRef[name]) {
+                            dataRef = dataRef[name];
+                        }
+                        else {
+                            noData = true;
+                            return;
+                        }
                         o++;
                     }
                     dataRefLength = (o === 0) ? 0 : (dataRef.length) ? dataRef.length : Object.keys(dataRef).length;
-                    fnStr += `\`.trim()).join('')\}`;
+                    if (noData === false) {
+                        fnStr += `\`.trim()).join('')\}`;
+                    }
+                    //noData = false;
                     //fnStr += `\`.trim())\}`;
                 }
                 else {
+                    if (noData === true)
+                        return;
                     /**
                      * are we in a command, like an array? we need to check the arrayName and arrayNameLength
                      * parametes for truthies to see if we should treat this object key differently
                      */
+                    if (t.indexOf("|") > 0) {
+                        let temp = t.replace("{{", "").replace("}}", "").trim().split("|");
+                        t = '{{' + temp[0] + '}}';
+                        console.log(temp[1]);
+                        switch (temp[1]) {
+                            case "uppercase":
+                                outputCommand = '.toUpperCase()';
+                                break;
+                            case "lowercase":
+                                outputCommand = '.toLowerCase()';
+                                break;
+                        }
+                    }
                     if (arrayName.length > 0) {
                         /**
                          * so this is an array. We need to keep going through our main loop and store
@@ -155,7 +209,7 @@ var template = {
                             keys += ''; //[' + "i".repeat(arrayNameLength) + '';
                             //let i = "i".repeat(arrayNameLength);
                             //fnStr += `\$\{Object.keys(data[${keys}])\}`;
-                            fnStr += `\$\{item[0]\}`;
+                            fnStr += `\$\{item[0]${outputCommand}\}`;
                         }
                         else if (t == "{{value}}") {
                             keys += '][' + "i".repeat(arrayNameLength) + '';
@@ -169,12 +223,14 @@ var template = {
                     }
                     else {
                         // append it to fnStr
-                        fnStr += `\$\{data["${t.split(/{{|}}/).filter(Boolean)[0].trim()}"]\}`;
+                        fnStr += `\$\{data["${t.replace(/\./g, '"]["').split(/{{|}}/).filter(Boolean)[0].trim()}"]\}`;
                     }
                 }
-                console.log('array:' + arrayName.length + ', data: ' + dataRefLength + ', type: ' + dataRefType);
+                //console.log('array:' + arrayName.length + ', data: ' + dataRefLength + ', type: ' + dataRefType);
             }
             else {
+                if (noData === true)
+                    return;
                 // append the string to the fnStr
                 if (arrayNameLength > 0) {
                     /**
@@ -193,7 +249,6 @@ var template = {
                 fnStr += `${t}`;
             }
         });
-        console.log(arrayString);
         return fnStr;
     },
     compile: (templateString, data = {}) => {
@@ -213,7 +268,16 @@ var template = {
         };
         try {
             console.log(templateString);
-            return new Function("const data = this; return `" + templateString + "`;").apply(data);
+            let h = new Function("const data = this; return `" + templateString + "`;").apply(data);
+            /*
+                        localStorage.setItem('testObject', JSON.stringify(testObject));
+            
+            // Retrieve the object from storage
+            var retrievedObject = localStorage.getItem('testObject');
+            
+            console.log('retrievedObject: ', JSON.parse(retrievedObject));
+            */
+            return h;
         }
         catch (e) {
             console.error('Problem with template: ' + e);
@@ -232,6 +296,9 @@ var template = {
             }
         }
         return array;
+    },
+    _hash: (s) => {
+        return s.split("").reduce(function (a, b) { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
     }
 };
 export { template };
