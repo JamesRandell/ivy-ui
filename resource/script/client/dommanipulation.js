@@ -1,5 +1,5 @@
 /**
- * payload gets caled a lot which then cals what everfunctions it needs to
+ * payload gets caled a lot which then cals what ever functions it needs to
  */
 //@ts-ignore
 import { ClassMapper } from "./ClassMapper.js";
@@ -8,14 +8,6 @@ import { template } from './template.js';
 let instance = null;
 export default class DOMManipulation {
     constructor() {
-        //super();
-        /**
-         * old code that used to wrap the section.content in another section.content
-         * I never documented why exactly, but it may have something to do with wrapping
-         * it inside an element that we can animate during page loads
-         */
-        //const wrapper = document.createElement('section');
-        //wrapper.classList.add('content');
         this.head = document.head || document.getElementsByTagName('head')[0];
         this.DOMData = {};
         this.config = {
@@ -25,24 +17,7 @@ export default class DOMManipulation {
             active: 'active',
             current: 'current'
         };
-        //this.content.parentNode.appendChild(wrapper);
-        //wrapper.appendChild(this.content);
         console.log('DOM Class started... only one please');
-        var historyMove = false;
-        var that = this;
-        (function (history) {
-            var rpushState = history.pushState.bind(history);
-            history.pushState = function (file) {
-                historyMove = false;
-                window.onpopstate = function (event) {
-                    console.warn('popState:' + file.pageID);
-                    historyMove = true;
-                };
-                if (historyMove === false && that.curentURL != file.pageID) {
-                    rpushState({ pageID: file.pageID }, file.pageID, file.pageID);
-                }
-            };
-        })(window.history);
         this._navigateInit();
     }
     get body() {
@@ -351,9 +326,6 @@ export default class DOMManipulation {
         //let contentLength = contentArr.length
         //let content = contentArr[contentLength-1];
         this.content.innerHTML = content.innerHTML;
-        if (json.hasOwnProperty('file')) {
-            this._navigate(json.file);
-        }
         this.loading(false);
     }
     /**
@@ -400,27 +372,6 @@ export default class DOMManipulation {
                 elementWithCurrentURLArr[i].parentElement.classList.add(this.cssClasses.current);
             }
         }
-    }
-    _navigate(file = null) {
-        /**
-         * just assume the page load worked for now and return true;
-         */
-        let currentURL = window.location.pathname.replace(/^|\/$/g, '');
-        /**
-         * remove the leading slash if there is one. This is because the webservier prolly uses
-         * root relative url (/path/to/file) instead of handling url re-writes
-         */
-        //file = file.replace(/^\/+/g, '');
-        /**
-         * No change, user clicked the same link or something
-         *
-         */
-        if (file && currentURL == file) {
-            return;
-        }
-        window.dispatchEvent(new CustomEvent('post-navigate', { detail: file }));
-        this._navigateCleanUpLinks(file);
-        history.pushState({ pageID: file }, file, file);
     }
     _htmlFile(path, parentNode = null) {
         this._HTMLFile(path, parentNode);

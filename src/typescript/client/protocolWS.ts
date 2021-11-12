@@ -8,9 +8,7 @@
 // lts try object literal approach so we don't create new instances of this class every time we 
 // want to call a page
 //@ts-ignore
-import { hrtime } from 'process';
 import { socketInit } from './client.js';
-import socketRouter from './socketRouter.js';
 
 export default {
     //url: Constants.API_URL,
@@ -20,54 +18,41 @@ export default {
         return null
     },
 
-    go (file: string) {
+    async go (file: string) {
         let json = {'file':file};
-        this.build(json);
-        return true
+        await this.build(json).then(resolved => {
+            console.log('ff');
+            return true;
+        });
+        //
+        //});
+        //console.log(response);
+            //return true
     },
 
-    build (json: object) {
+    async build (json: object) {
         const payload = {
             'payload': json,
             'key'   : ''
         };
 
-
-        /*
-        socket2.then(function () {
-            this.send(payload);
-            console.log(payload);
-          }).catch((msg) => {
-            console.log(msg)
-          })
-*/
-
-
- /*
-    socketInit().then(function(server) {
-      console.log(4);
-      server.send(JSON.stringify(payload));
-  }).catch(function(err) {
-      console.log(err);
-  });
-*/
-
-function socket (arg) {
-    socketInit().then(function(server) {
-      server.send(JSON.stringify(arg));
-  }).catch(function(err) {
-      console.log("Can't load page. Is the connection open?");
-  });
-  }
-        try {
-            
-                 socket(payload);
-             
-        } catch (error) {
-            console.error("ooops ", error);
+        function socket (arg) {
+            socketInit().then(function(server) {
+                server.send(JSON.stringify(arg));
+            }).catch(function(err) {
+                console.log("Can't load page. Is the connection open?");
+            });
         }
-    }
 
-//socket(JSON.stringify(payload));
+        //let y = new Promise((resolve,reject) => {
+
+        //});
+        //try {
+            return Promise.resolve(socket(payload));
+        //} catch (error) {
+        //    console.error("ooops ", error);
+        //    return false;
+        //}
+    }
     
 };

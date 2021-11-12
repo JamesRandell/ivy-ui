@@ -34,6 +34,10 @@ export default class router implements iprotocol {
      */
     server: any = {};
 
+
+    currentURL: string = "";
+
+
     constructor () {
         
         switch (this.serverType) {
@@ -43,6 +47,26 @@ export default class router implements iprotocol {
                             break;
         }
 
+        var historyMove = false;
+        var that = this;
+
+        (function(history){
+            console.log('history');
+            var rpushState = history.pushState.bind(history);
+
+            history.pushState = function(file) {
+                historyMove = false;
+                window.onpopstate = function(event) {
+                    console.warn('popState:' + file.pageID);
+                    historyMove = true;
+                }
+
+                if (historyMove === false && that.currentURL != file.pageID) {
+                    rpushState({pageID: file.pageID}, file.pageID,  file.pageID);
+                }
+            };
+        })(window.history);
+        
         /**
          * lets see if the user has landed on a page that isn't the defaul (like /test)
          * we've got a private function just to call the content they want. Yes it is 
@@ -67,13 +91,15 @@ export default class router implements iprotocol {
     public go (file: string, force: boolean = false) {
 
         const t = DOMManipulation.getInstance();
-
+        
         let currentURL = window.location.pathname.replace(/^|\/$/g, '');
+
         if (!force && currentURL === file) {
             console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
             return;
         }
 
+        window.dispatchEvent(new CustomEvent('post-navigate', {detail: file}));
 
         t._navigateCleanUpLinks();
         t.loading(true);
@@ -89,9 +115,16 @@ export default class router implements iprotocol {
 
         window.dispatchEvent(new CustomEvent('pre-pageRequest', {detail: file}));
 
-        this.server.go(file);
+        let y = this.server.go(file);
+        y.then(resolved => {
+            console.log('resolved');
+            history.pushState({pageID: file}, file,  file);
+            return true;
+        });
 
-        return true;
+        
+        
+        
     }
 
     /**
@@ -149,6 +182,96 @@ export default class router implements iprotocol {
 
     }
 
+
+    static updateRouter () {
+        let path = window.location.pathname.replace(/^\/|\/$/g, '');
+console.log(path);
+        /**
+         * it's fine! the user hasn't landed on any specific page, so just exist here
+         */
+        if (path == '') return;
+
+        
+        let pathArr = path.split('/'),
+            i: number = 0;
+        
+        registry.id = null,
+        registry.args = {}; 
+
+        const pathArrLength = pathArr.length;
+
+
+        /**
+         * So, lets set up some rules that apply to our routing model. These follow the same rule set 
+         * that I use in ivy-php. For *most circumstances, we start with the controller, then action, then an id. 
+         * We also introduce a series of keywords that get seen as a key/value pair that are listed 
+         * below in a switch statement
+         */
+
+        /**
+         * ONE parameter, so we assume this the name of an 
+         * ACTION (function)
+         */
+        if (pathArrLength === 1) {
+            registry.controller = pathArr[0];
+            return;
+        }
+
+        /**
+         * TWO parameters, so we assume this the name of the 
+         * CONTROLLER (page) and
+         * ACTION (function)
+         */
+        if (pathArrLength === 2) {
+            registry.controller = pathArr[0];
+            registry.action = pathArr[1];
+            return;
+        }
+
+        /**
+         * THREE parameters, so we assume this the name of the 
+         * CONTROLLER (page) and
+         * ACTION (function) and
+         * ID (record or row id)
+         */
+        if (pathArrLength === 3) {
+            registry.controller = pathArr[0];
+            registry.action = pathArr[1];
+            registry.id = pathArr[2];
+        }
+
+        /**
+         * FOUR or more parameters, so we assume this includes
+         * CONTROLLER (page) and
+         * ACTION (function) and
+         * KEY/VALUE pairs
+         */
+        if (pathArrLength >= 4) {
+            registry.controller = pathArr[0];
+            registry.action = pathArr[1];
+
+            // start from the 3rd parameter - s owe only loop over the key/value pairs
+            for (i=2; i<pathArrLength; i++) {
+
+                /**
+                 * the first parameter should be an ODD number, 
+                 * so ODD will be the key, EVEN will be the value
+                 */
+                
+                // is even
+                if (i%2 === 0) {
+
+                    // check if the NEXT array key exists, otherwise we have no key pair.
+                    // if it doesn't exist, this 'key' is therefore an 'id'
+                    if (pathArr[i+1]) {
+                        registry.args[ pathArr[i] ] = pathArr[i+1];
+                    } else {
+                        registry.id = pathArr[i];
+                    }
+                }
+            } 
+        }
+    }
     /**
      * Deals with sending the user to another page if they have directly landed on something
      * different than our index page (which is our default). 

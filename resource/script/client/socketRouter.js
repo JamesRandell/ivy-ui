@@ -4,6 +4,7 @@
 import DOMManipulation from "./dommanipulation.js";
 //@ts-ignore 
 import * as adhoc from './adhoc/index.js';
+import router from './router.js';
 export default class socketRouter {
     message(json) {
         if (!json.hasOwnProperty('payload')) {
@@ -33,6 +34,12 @@ export default class socketRouter {
             }
             if ('db' in adhoc) {
                 alert("yes, i have that property");
+            }
+            if (cmd == "html") {
+                if (json.payload["html"]["file"]) {
+                    console.log(5);
+                    router.updateRouter();
+                }
             }
             if (typeof t['_' + cmd] !== 'function') {
                 //console.log('Can\'t reload file: Function \'_'+cmd+'\' does not exist in socketRouter');
