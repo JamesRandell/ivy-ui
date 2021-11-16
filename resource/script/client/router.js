@@ -35,7 +35,6 @@ export default class router {
         var historyMove = false;
         var that = this;
         (function (history) {
-            console.log('history');
             var rpushState = history.pushState.bind(history);
             history.pushState = function (file) {
                 historyMove = false;
@@ -74,8 +73,6 @@ export default class router {
             console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
             return;
         }
-        window.dispatchEvent(new CustomEvent('post-navigate', { detail: file }));
-        t._navigateCleanUpLinks();
         t.loading(true);
         /**
          * look at the config found in client.js for base Path, which tells us where
@@ -87,10 +84,12 @@ export default class router {
         window.dispatchEvent(new CustomEvent('pre-pageRequest', { detail: file }));
         let y = this.server.go(file);
         y.then(resolved => {
-            console.log('resolved');
             history.pushState({ pageID: file }, file, file);
-            return true;
+            window.dispatchEvent(new CustomEvent('post-navigate', { detail: file }));
+            t._navigateCleanUpLinks();
+            t.loading(false);
         });
+        return true;
     }
     /**
      * This compliments the 'go' function in that it updates page elements instead of
@@ -135,7 +134,6 @@ export default class router {
     }
     static updateRouter() {
         let path = window.location.pathname.replace(/^\/|\/$/g, '');
-        console.log(path);
         /**
          * it's fine! the user hasn't landed on any specific page, so just exist here
          */
@@ -157,7 +155,7 @@ export default class router {
          */
         if (pathArrLength === 1) {
             registry.controller = pathArr[0];
-            return;
+            return registry;
         }
         /**
          * TWO parameters, so we assume this the name of the
@@ -167,7 +165,7 @@ export default class router {
         if (pathArrLength === 2) {
             registry.controller = pathArr[0];
             registry.action = pathArr[1];
-            return;
+            return registry;
         }
         /**
          * THREE parameters, so we assume this the name of the
@@ -208,6 +206,7 @@ export default class router {
                 }
             }
         }
+        return registry;
     }
     /**
      * Deals with sending the user to another page if they have directly landed on something

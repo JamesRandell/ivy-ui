@@ -27,9 +27,9 @@ window.addEventListener("in-payload", test);
 
 function test(evt) {
   if ("db" in evt.detail) {} else {return;}
+  if (registry.action != "interface") return;
 
-  //console.table(registry);
-  if (registry.controller != "interface") return;
+  console.table(registry);
 
   socket({file:"/resource/template/widget/cassandra.html"});
   

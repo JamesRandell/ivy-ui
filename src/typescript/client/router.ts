@@ -18,6 +18,7 @@ import DOMManipulation from "./dommanipulation.js";
 
 //@ts-ignore
 import client, { config, registry } from "./client.js";
+import { isVoidExpression } from "typescript";
 
 
 export default class router implements iprotocol {
@@ -51,7 +52,6 @@ export default class router implements iprotocol {
         var that = this;
 
         (function(history){
-            console.log('history');
             var rpushState = history.pushState.bind(history);
 
             history.pushState = function(file) {
@@ -98,12 +98,8 @@ export default class router implements iprotocol {
             console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
             return;
         }
-
-        window.dispatchEvent(new CustomEvent('post-navigate', {detail: file}));
-
-        t._navigateCleanUpLinks();
-        t.loading(true);
         
+        t.loading(true);
 
         /**
          * look at the config found in client.js for base Path, which tells us where 
@@ -117,14 +113,14 @@ export default class router implements iprotocol {
 
         let y = this.server.go(file);
         y.then(resolved => {
-            console.log('resolved');
             history.pushState({pageID: file}, file,  file);
-            return true;
+            window.dispatchEvent(new CustomEvent('post-navigate', {detail: file}));
+            t._navigateCleanUpLinks();
+            t.loading(false);
+            
         });
 
-        
-        
-        
+        return true
     }
 
     /**
@@ -185,7 +181,7 @@ export default class router implements iprotocol {
 
     static updateRouter () {
         let path = window.location.pathname.replace(/^\/|\/$/g, '');
-console.log(path);
+
         /**
          * it's fine! the user hasn't landed on any specific page, so just exist here
          */
@@ -214,7 +210,7 @@ console.log(path);
          */
         if (pathArrLength === 1) {
             registry.controller = pathArr[0];
-            return;
+            return registry;
         }
 
         /**
@@ -225,7 +221,7 @@ console.log(path);
         if (pathArrLength === 2) {
             registry.controller = pathArr[0];
             registry.action = pathArr[1];
-            return;
+            return registry;
         }
 
         /**
@@ -271,6 +267,8 @@ console.log(path);
                 }
             } 
         }
+
+        return registry;
     }
     /**
      * Deals with sending the user to another page if they have directly landed on something

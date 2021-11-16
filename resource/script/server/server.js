@@ -1,17 +1,23 @@
 import { WebSocketServer } from 'ws';
 import * as fs from 'fs';
+import { createServer } from 'https';
 const config_http = {
     hostname: 'localhost',
     port: 8080,
     method: 'GET',
     path: '/'
 };
+const cert = fs.readFileSync('../ivy-build/cert/server.crt');
+const key = fs.readFileSync('../ivy-build/cert/server.key');
+var server = createServer({ key, cert });
 var registry = {
     timeout: null,
     ws: {} // holds the websocket connection
 };
 var ws = null;
-const wss = new WebSocketServer({ port: 8082 });
+//const wss = new WebSocketServer({ port: 8082 });
+const wss = new WebSocketServer({ server });
+//server.listen(8082);
 var returnFile = function (err, data) {
     if (err)
         throw err;
@@ -88,8 +94,8 @@ function buildJSON(data, key = null) {
     }
     return JSON.stringify(result);
 }
-wss.on('connection', function connection(t) {
-    ws = t;
+wss.on('connection', ws => {
+    //ws = t;
     console.log('Client connected');
     ws.on('message', (message) => {
         try {
@@ -199,7 +205,7 @@ var library = {
         });*/
         /**
          * We use the web server to handle file requests instead of pissing about with building our
-         * own (because you know, I really think nginx can de better than what I can come up with.)
+         * own (because you know, I really think nginx can do better than what I can come up with.)
          *
          * We make an HTTP call, but we also tinker with the file url returns to account for re-write
          * rules we may have in place
@@ -286,12 +292,17 @@ const requestListener = function (req, res) {
             if (urlPathArr[0] == 'db' && urlPathArr[1] == 'cassandra') {
                 body["invoke"] = 'cassandra';
             }
-            ws.send(buildJSON(body, 'db'));
+            //ws.send( 
+            //  buildJSON(body, 'db') 
+            //);
+            wss.clients.forEach(function each(client) {
+                client.send(buildJSON(body, 'db'));
+            });
         });
     }
 };
-const server = http.createServer(requestListener);
-server.listen(port, host, () => {
+const server2 = http.createServer(requestListener);
+server2.listen(port, host, () => {
     console.log(`Server is running on http://${host}:${port}`);
 });
-/* end server side db code */ 
+/* end server side db code */

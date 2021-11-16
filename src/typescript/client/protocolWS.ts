@@ -21,13 +21,8 @@ export default {
     async go (file: string) {
         let json = {'file':file};
         await this.build(json).then(resolved => {
-            console.log('ff');
             return true;
         });
-        //
-        //});
-        //console.log(response);
-            //return true
     },
 
     async build (json: object) {
@@ -44,15 +39,7 @@ export default {
             });
         }
 
-        //let y = new Promise((resolve,reject) => {
-
-        //});
-        //try {
-            return Promise.resolve(socket(payload));
-        //} catch (error) {
-        //    console.error("ooops ", error);
-        //    return false;
-        //}
+        return Promise.resolve(socket(payload));
     }
     
 };

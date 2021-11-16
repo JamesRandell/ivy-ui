@@ -37,8 +37,8 @@ export default class socketRouter {
             }
             if (cmd == "html") {
                 if (json.payload["html"]["file"]) {
-                    console.log(5);
                     router.updateRouter();
+                    //console.table(registry.updateRouter())
                 }
             }
             if (typeof t['_' + cmd] !== 'function') {

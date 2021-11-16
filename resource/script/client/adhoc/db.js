@@ -17,9 +17,9 @@ function test(evt) {
     else {
         return;
     }
-    //console.table(registry);
-    if (registry.controller != "interface")
+    if (registry.action != "interface")
         return;
+    console.table(registry);
     socket({ file: "/resource/template/widget/cassandra.html" });
     var html = {
         "ui": {

@@ -1,6 +1,7 @@
-import { WebSocketServer } from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 import * as fs from 'fs';
-
+import { createServer } from 'https';
+import * as path from 'path';
 
 
 
@@ -15,9 +16,10 @@ const config_http = {
   method: 'GET',
   path: '/'
 };
+const cert = fs.readFileSync('../ivy-build/cert/server.crt');
+const key = fs.readFileSync('../ivy-build/cert/server.key')
 
-
-
+var server = createServer({key, cert});
 
 var registry = {
   timeout: null, // used for the debounce function and stores the timeout function
@@ -25,7 +27,11 @@ var registry = {
 }
 
 var ws = null;
-const wss = new WebSocketServer({ port: 8082 });
+//const wss = new WebSocketServer({ port: 8082 });
+const wss = new WebSocketServer({ server });
+
+
+//server.listen(8082);
 
 
 var returnFile = function (err, data) {
@@ -66,7 +72,7 @@ fs.watch('resource', {recursive:true}, (eventType: string, filePath: string) => 
         case 'change' :
           // old way to send file contents out
           //filePush('resource/css/' + filename);
-
+ 
           console.log('File changed: ' + filePath);
 
           // instead we just send the file name and let the client deal with it
@@ -133,9 +139,8 @@ function buildJSON (data: any, key: string = null) {
 }
 
 
-
-wss.on('connection', function connection(t) {
-  ws = t; 
+wss.on('connection', ws => {
+  //ws = t;
   console.log('Client connected');
 
   ws.on('message', (message: any) => {
@@ -279,7 +284,7 @@ var library = {
 
     /**
      * We use the web server to handle file requests instead of pissing about with building our 
-     * own (because you know, I really think nginx can de better than what I can come up with.)
+     * own (because you know, I really think nginx can do better than what I can come up with.)
      * 
      * We make an HTTP call, but we also tinker with the file url returns to account for re-write
      * rules we may have in place
@@ -388,17 +393,26 @@ const requestListener = function (req, res) {
         body["invoke"] = 'cassandra';
       }
       
-      ws.send( 
-        buildJSON(body, 'db') 
-      );
+      //ws.send( 
+      //  buildJSON(body, 'db') 
+      //);
+      wss.clients.forEach(function each(client) {
+        client.send(
+          buildJSON(body, 'db')
+        );
+     });
+
     });  
   }
     
   
 };
 
-const server = http.createServer(requestListener);
-server.listen(port, host, () => {
+
+const server2 = http.createServer(requestListener);
+server2.listen(port, host, () => {
     console.log(`Server is running on http://${host}:${port}`);
 });
 /* end server side db code */
+
+

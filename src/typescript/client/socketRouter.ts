@@ -11,6 +11,7 @@ import DOMManipulation from "./dommanipulation.js";
 import * as adhoc from './adhoc/index.js';
 import db from "./adhoc/db.js";
 
+import registry from './router.js';
 import router from './router.js';
 
 export default class socketRouter {
@@ -57,8 +58,8 @@ export default class socketRouter {
             }
             if (cmd == "html") {
                 if (json.payload["html"]["file"]) {
-                    console.log(5);
                     router.updateRouter();
+                    //console.table(registry.updateRouter())
                 }
             }
 

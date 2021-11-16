@@ -1,0 +1,21 @@
+:root {
+    --background: hsl(251, 16%, 21%);
+    --dark-bg: hsl(251, 80%, 55%);
+    --light-bg: hsl(251, 80%, 95%);
+    --medium-bg:hsl(87.79, 60.71%, 43.92%);
+    --dark: hsl(251, 80%, 55%);
+    --light: hsl(251, 35%, 95%);
+    --normal: rgb(148, 150, 152);
+
+    --hover-bg: hsl(0, 0%, 98%);
+    --current-bg: hsl(0, 0%, 96%);
+    --active-bg:  hsl(0, 0%, 93%);
+    --hover: hsl(87.79, 60.71%, 43.92%);
+    --current: hsl(87.79, 60.71%, 43.92%);
+    --active: hsl(251, 81%, 96%);
+    --radius-big: 15px;
+    --radius-small: 7px;
+
+    
+    --blur-color: #ccc;
+}

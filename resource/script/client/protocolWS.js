@@ -28,13 +28,8 @@ export default {
         return __awaiter(this, void 0, void 0, function* () {
             let json = { 'file': file };
             yield this.build(json).then(resolved => {
-                console.log('ff');
                 return true;
             });
-            //
-            //});
-            //console.log(response);
-            //return true
         });
     },
     build(json) {
@@ -50,14 +45,7 @@ export default {
                     console.log("Can't load page. Is the connection open?");
                 });
             }
-            //let y = new Promise((resolve,reject) => {
-            //});
-            //try {
             return Promise.resolve(socket(payload));
-            //} catch (error) {
-            //    console.error("ooops ", error);
-            //    return false;
-            //}
         });
     }
 };
