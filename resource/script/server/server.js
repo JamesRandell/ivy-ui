@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import { WebSocketServer } from 'ws';
 import * as fs from 'fs';
 import { createServer } from 'https';
@@ -16,8 +25,8 @@ var registry = {
     ws: {} // holds the websocket connection
 };
 var ws = null;
-//const wss = new WebSocketServer({ port: 8082 }); 
-const wss = new WebSocketServer({ server: httpsServer });
+const wss = new WebSocketServer({ port: 8082 });
+//const wss = new WebSocketServer({ server: httpsServer });
 var returnFile = function (err, data) {
     if (err)
         throw err;
@@ -121,7 +130,9 @@ wss.on('connection', ws => {
                 cmd = keys[i];
                 if (typeof cmd === 'string') {
                     console.log('Running \'' + cmd + '\' with \'' + message.payload[cmd] + '\'');
-                    library[cmd](message.payload[cmd]);
+                    library[cmd](message.payload[cmd]).then((result) => {
+                        ws.send(buildJSON(result));
+                    });
                 }
                 i += 1;
             }
@@ -171,90 +182,76 @@ var library = {
     },
     bringMeTheDOM() {
         fs.readFile('resource/script/server/dom.json', 'utf8', function (e, result) {
-            ws.send(result, 'DOM');
+            return { data: result, key: 'DOM' };
         });
     },
     file(file) {
-        /**
-         * basic check to see if the path a string
-         */
-        if (typeof file !== 'string') {
-            console.warn('Filepath is not a string, cancelling call to file');
-            return;
-        }
-        /**
-         * TODO: add in more checks to see if the file does exist and is of type html (and
-         * not like a fucking config or password file)
-         *
-         * Note this is the file system way to get files. The method below is the webserver way
-         * which is currenlty powered by NGINX and has re-write rules on it
-         */
-        /*
-        fs.readFile(path.resolve(__dirname, file), 'utf8', function(e, result) {
-          if (e) {
-            console.log(e);
-            return
-          }
-    
-          console.log('Returning file: ' + file);
-          ws.send(
-            buildJSON({html:{data:result,file:file}})
-          )
-    
-          
-        });*/
-        /**
-         * We use the web server to handle file requests instead of pissing about with building our
-         * own (because you know, I really think nginx can do better than what I can come up with.)
-         *
-         * We make an HTTP call, but we also tinker with the file url returns to account for re-write
-         * rules we may have in place
-         */
-        config_http.path = file;
-        const req = http.request(config_http, res => {
-            res.setEncoding('utf8');
-            if (res.statusCode < 200 || res.statusCode >= 300) {
-                buildJSON({ html: {
-                        data: null,
-                        file: file,
-                        statuscode: res.statusCode
-                    }
-                });
+        return __awaiter(this, void 0, void 0, function* () {
+            /**
+             * basic check to see if the path a string
+             */
+            if (typeof file !== 'string') {
+                console.warn('Filepath is not a string, cancelling call to file');
                 return;
             }
-            res.on('data', result => {
-                // return just the file name for our rewrite rules
-                //file = this._fileArr(file).fileNameShort;
-                console.log('Returning file: ' + file);
-                ws.send(buildJSON({ html: {
-                        data: result,
-                        file: file,
-                        statusCode: res.statusCode
+            /**
+             * TODO: add in more checks to see if the file does exist and is of type html (and
+             * not like a fucking config or password file)
+             *
+             * Note this is the file system way to get files. The method below is the webserver way
+             * which is currenlty powered by NGINX and has re-write rules on it
+             */
+            /*
+            fs.readFile(path.resolve(__dirname, file), 'utf8', function(e, result) {
+              if (e) {
+                console.log(e);
+                return
+              }
+        
+              console.log('Returning file: ' + file);
+              conn.send(
+                buildJSON({html:{data:result,file:file}})
+              )
+        
+              
+            });*/
+            /**
+             * We use the web server to handle file requests instead of pissing about with building our
+             * own (because you know, I really think nginx can do better than what I can come up with.)
+             *
+             * We make an HTTP call, but we also tinker with the file url returns to account for re-write
+             * rules we may have in place
+             */
+            config_http.path = file;
+            return new Promise((resolve, reject) => {
+                const req = http.request(config_http, res => {
+                    res.setEncoding('utf8');
+                    if (res.statusCode < 200 || res.statusCode >= 300) {
+                        return { html: {
+                                data: null,
+                                file: file,
+                                statuscode: res.statusCode
+                            }
+                        };
                     }
-                }));
+                    res.on('data', result => {
+                        console.log('Returning file: ' + file);
+                        resolve({ html: {
+                                data: result,
+                                file: file,
+                                statusCode: res.statusCode
+                            }
+                        });
+                    });
+                });
+                req.on('error', err => {
+                    console.error(err);
+                });
+                req.end();
             });
         });
-        req.on('error', err => {
-            console.error(err);
-        });
-        req.end();
     }
 };
-/*
-wss.on('connection', (ws: WebSocket) => {
-
-    //connection is up, let's add a simple simple event
-    ws.on('message', (message: string) => {
-
-        //log the received message and send it back to the client
-        console.log('received: %s', message);
-        ws.send(`Hello, you sent -> ${message}`);
-    });
-
-    //send immediatly a feedback to the incoming connection
-    ws.send('Hi there, I am a WebSocket server');
-});
-*/
 function debounce(callback, wait = 150) {
     return () => {
         const context = this;
@@ -292,9 +289,6 @@ const requestListener = function (req, res) {
             if (urlPathArr[0] == 'db' && urlPathArr[1] == 'cassandra') {
                 body["invoke"] = 'cassandra';
             }
-            //ws.send( 
-            //  buildJSON(body, 'db') 
-            //);
             wss.clients.forEach(function each(client) {
                 client.send(buildJSON(body, 'db'));
             });

@@ -59,7 +59,7 @@ function socketInit() {
         return Promise.resolve(socketInitS.server);
     }
     return new Promise(function (resolve, reject) {
-        socketInitS.server = new WebSocket('wss://localhost:8443');
+        socketInitS.server = new WebSocket('ws://localhost:8082');
         socketInitS.server.onopen = function () {
             socketInitS.failedCount = 0; // reset the connction counter
             resolve(socketInitS.server);

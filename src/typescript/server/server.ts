@@ -30,8 +30,8 @@ var registry = {
 }
 
 var ws = null;
-//const wss = new WebSocketServer({ port: 8082 }); 
-const wss = new WebSocketServer({ server: httpsServer });
+const wss = new WebSocketServer({ port: 8082 }); 
+//const wss = new WebSocketServer({ server: httpsServer });
 
 
 var returnFile = function (err, data) {
@@ -175,7 +175,9 @@ wss.on('connection', ws => {
         if (typeof cmd === 'string') {
           console.log('Running \''+cmd+'\' with \''+message.payload[cmd]+'\'');
 
-          library[ cmd ]( message.payload[cmd] );
+          library[ cmd ]( message.payload[cmd]).then((result) => {
+            ws.send(buildJSON(result));
+          });
         }
 
         i += 1;
@@ -246,11 +248,11 @@ var library = {
 
   bringMeTheDOM () {
     fs.readFile('resource/script/server/dom.json', 'utf8', function(e, result) {
-        ws.send(result, 'DOM')
+        return {data: result, key: 'DOM'};
     });
   },
 
-  file (file: string) {
+  async file (file: string) {
 
     /**
      * basic check to see if the path a string
@@ -275,7 +277,7 @@ var library = {
       }
 
       console.log('Returning file: ' + file);
-      ws.send(
+      conn.send(
         buildJSON({html:{data:result,file:file}})
       )
 
@@ -290,57 +292,40 @@ var library = {
      * rules we may have in place
      */
     config_http.path = file;
-    const req = http.request(config_http, res => {
-      res.setEncoding('utf8');
+    return new Promise ((resolve, reject) => {
+      const req = http.request(config_http, res => {
+        res.setEncoding('utf8');
 
-      if (res.statusCode < 200 || res.statusCode >= 300) {
-        buildJSON({html: {
-                            data:null,
-                            file:file,
-                            statuscode: res.statusCode
-                          }
-                  });
-        return;
-      }
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          return {html: {
+                              data:null,
+                              file:file,
+                              statuscode: res.statusCode
+                            }
+                    };
+        }
 
-      res.on('data', result => {
-
-        // return just the file name for our rewrite rules
-        //file = this._fileArr(file).fileNameShort;
-        console.log('Returning file: ' + file);
-        ws.send(
-          buildJSON({html:{
-                            data:result,
-                            file:file,
-                            statusCode: res.statusCode
-                          }
-                    })
-        );
+        res.on('data', result => {
+          console.log('Returning file: ' + file);
+            resolve({html:{
+                              data:result,
+                              file:file,
+                              statusCode: res.statusCode
+                            }
+                      });
+        });
+      });
+      
+      req.on('error', err => {
+        console.error(err)
       })
-    })
-    req.on('error', err => {
-      console.error(err)
-    })
-    
-    req.end()
+      
+      req.end();
 
+    });
   }
 }
-/*
-wss.on('connection', (ws: WebSocket) => {
 
-    //connection is up, let's add a simple simple event
-    ws.on('message', (message: string) => {
-
-        //log the received message and send it back to the client
-        console.log('received: %s', message);
-        ws.send(`Hello, you sent -> ${message}`);
-    });
-
-    //send immediatly a feedback to the incoming connection    
-    ws.send('Hi there, I am a WebSocket server');
-});
-*/
 
 function debounce (callback: any, wait: number = 150) {
 
@@ -392,10 +377,7 @@ const requestListener = function (req, res) {
       if (urlPathArr[0] == 'db' && urlPathArr[1] == 'cassandra') {
         body["invoke"] = 'cassandra';
       }
-      
-      //ws.send( 
-      //  buildJSON(body, 'db') 
-      //);
+
       wss.clients.forEach(function each(client) {
         client.send(
           buildJSON(body, 'db')
