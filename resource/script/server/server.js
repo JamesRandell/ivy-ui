@@ -7,17 +7,17 @@ const config_http = {
     method: 'GET',
     path: '/'
 };
-const cert = fs.readFileSync('../ivy-build/cert/server.crt');
-const key = fs.readFileSync('../ivy-build/cert/server.key');
-var server = createServer({ key, cert });
+const key = fs.readFileSync('../ivy-build/cert/server.key', 'utf8');
+const cert = fs.readFileSync('../ivy-build/cert/server.crt', 'utf8');
+var httpsServer = createServer({ key, cert });
+httpsServer.listen(8443);
 var registry = {
     timeout: null,
     ws: {} // holds the websocket connection
 };
 var ws = null;
-//const wss = new WebSocketServer({ port: 8082 });
-const wss = new WebSocketServer({ server });
-//server.listen(8082);
+//const wss = new WebSocketServer({ port: 8082 }); 
+const wss = new WebSocketServer({ server: httpsServer });
 var returnFile = function (err, data) {
     if (err)
         throw err;
