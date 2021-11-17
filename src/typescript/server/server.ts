@@ -20,8 +20,8 @@ const config_http = {
 const key = fs.readFileSync('../ivy-build/cert/server.key', 'utf8');
 const cert = fs.readFileSync('../ivy-build/cert/server.crt', 'utf8');
 
-var httpsServer = createServer({key, cert});
-httpsServer.listen(8443);
+//var httpsServer = createServer({key, cert});
+//httpsServer.listen(8443);
 
 
 var registry = {

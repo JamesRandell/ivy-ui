@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { WebSocketServer } from 'ws';
 import * as fs from 'fs';
-import { createServer } from 'https';
 const config_http = {
     hostname: 'localhost',
     port: 8080,
@@ -18,8 +17,8 @@ const config_http = {
 };
 const key = fs.readFileSync('../ivy-build/cert/server.key', 'utf8');
 const cert = fs.readFileSync('../ivy-build/cert/server.crt', 'utf8');
-var httpsServer = createServer({ key, cert });
-httpsServer.listen(8443);
+//var httpsServer = createServer({key, cert});
+//httpsServer.listen(8443);
 var registry = {
     timeout: null,
     ws: {} // holds the websocket connection
