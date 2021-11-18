@@ -15,7 +15,7 @@ const config_http = {
   port: 8080,
   method: 'GET',
   path: '/'
-};
+}; 
 
 const key = fs.readFileSync('../ivy-build/cert/server.key', 'utf8');
 const cert = fs.readFileSync('../ivy-build/cert/server.crt', 'utf8');
