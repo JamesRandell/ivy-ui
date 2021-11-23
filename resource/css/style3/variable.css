@@ -1,0 +1,23 @@
+:root {
+    --background: hsl(222, 9.2%, 27.6%); 
+    --content-bg: hsl(0, 0%, 11%);
+    --nav-primary-bg: hsl(0, 0%, 7.1%);
+    --dark-bg: hsl(0, 0%, 7.1%);
+    --light-bg: hsl(251, 80%, 95%);
+    --medium-bg: hsl(251, 35%, 69%);
+    --dark: hsl(251, 80%, 55%);
+    --light: hsl(251, 35%, 95%);
+    --normal: #666; 
+
+    --hover-bg: hsl(0, 0%, 90%);
+    --current-bg: hsl(0, 0%, 30%);
+    --active-bg: hsl(0, 0%, 57%);
+    --hover: hsl(0, 0%, 10%);
+    --current: hsl(0, 0%, 90%);
+    --active: hsl(251, 81%, 96%);
+    --text-color: hsl(0, 0%, 90%);
+    --radius-big: 15px;
+    --radius-small: 7px;
+
+    --blur-color: #ccc;
+}

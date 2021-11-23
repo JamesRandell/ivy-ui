@@ -40,7 +40,12 @@ var returnFile = function (err, data) {
 };
 
 var broadcast = function(data) {
-  ws.send(data);
+  
+  wss.clients.forEach(function each(client) {
+    client.send(data);
+  });
+  
+  //wss.send(data); 
 };
 
 fs.watch('resource', {recursive:true}, (eventType: string, filePath: string) => {
@@ -388,7 +393,7 @@ const requestListener = function (req, res) {
   }
     
   
-};
+}; 
 
 
 const server2 = http.createServer(requestListener);

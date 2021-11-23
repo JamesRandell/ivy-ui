@@ -31,7 +31,10 @@ var returnFile = function (err, data) {
         throw err;
 };
 var broadcast = function (data) {
-    ws.send(data);
+    wss.clients.forEach(function each(client) {
+        client.send(data);
+    });
+    //wss.send(data); 
 };
 fs.watch('resource', { recursive: true }, (eventType, filePath) => {
     /**
