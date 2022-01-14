@@ -1,5 +1,10 @@
 
-.icon { fill:#aaa; width:28px; height: 28px; transform: scale(0.8);
+.icon { 
+    fill:#aaa; 
+    width:25px; 
+    height: 25px; 
+    margin-right: 11px;
+    transform: scale(0.8);
 }
 
 
@@ -17,8 +22,8 @@ nav.left {
 }
 
 nav.primary > ul:not(:last-child) {
-    padding: 10px;
-    border-bottom:1px solid #eee
+    margin: 20px;
+    border-bottom:1px solid #333
 }
 
 nav.primary h4 {
@@ -56,7 +61,7 @@ nav a {
     display:inline-flex;
     text-decoration: none;
     align-items: center;
-    padding:5px 15px;
+    padding:5px 5px;
 }
 
 
@@ -97,9 +102,9 @@ nav.small a {
 ******************************/
 /* top level */
 nav li a {
-    border-radius: 7px 7px 0 0;
+    border-radius: var(--radius-small) var(--radius-small) 0 0;
     color: var(--normal);
-    line-height: 28px;
+    
 }
 
 nav li a:only-child {

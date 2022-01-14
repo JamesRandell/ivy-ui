@@ -19,5 +19,5 @@
     --radius-big: 15px;
     --radius-small: 7px;
 
-    --blur-color: #ccc;
+    --blur-color: hsl(0, 0%, 100%);
 }

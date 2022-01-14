@@ -3,12 +3,23 @@ body {
     font-size:11px;
     font-family: 'Roboto', sans-serif;
     font-weight: 300;
+    padding: 20px;
+    display: grid;
+    
+    /*
+     * https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-area 
+     * fr = fractional unit: percentage of remaining space
+     */
+    grid-template-columns: 150px 1fr;
+    grid-template-rows: 75px 1fr;
 
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-
-    padding:20px
+    /*
+     * formatted like: "col col col" = row
+     *                 "col col col" = row
+     */
+    grid-template-areas: 
+      "nav header"
+      "nav content";
 }
 * {
   color: var(--text-color);
@@ -17,49 +28,61 @@ body {
 body.connected {
     background-color: var(--background)
 }
+body > * {
+
+}
 
 body > header,
 body > section,
 body > nav.primary {
-    flex: 1 1 80px;
+    
 }
 body > section {
   /* grow the content to the remainder of the space (works with padding!) */
 
-  order: 2;
+  grid-area: content;
 
-  width:70%
+
 }
 body > header {
-    background-color: var(--nav-primary-bg);
-    border-radius: var(--radius-small);
-    padding: 10px;
+    background-color: var(--content-bg);
+    border-radius: 0 var(--radius-small) 0 0;
+    padding: 2em;
 
-    order: 2;
+    grid-area: header;
 
-    width:70%
+
 }
 
 body > nav.primary {
 
     border-radius: var(--radius-big) 0 0 var(--radius-big);
-    order: 1;
-    width:25%;
+
+
+    grid-area: nav;
 }
 
 
 body > section {
 
     background-color: var(--content-bg);
-    border-top-right-radius: var(--radius-big);
-    border-bottom-right-radius: var(--radius-big);
-    padding:2em;
+    border-radius: 0 0 var(--radius-big) 0;
+    padding: 2em;
     
 }
 
+h1 {
+  font-size: 2em;
+  font-weight: 500
+}
 h4 { 
   text-transform: uppercase;
   color: #aaa;
+}
+
+em {
+  color: #555;
+  font-weight: 500;
 }
 .content {
     /*
@@ -78,7 +101,7 @@ h4 {
  **/
 .status {
   position:fixed;
-  background-color: #fff;
+  background-color: #141414;
   width:40px;
   height: 40px; 
   bottom:0px;
