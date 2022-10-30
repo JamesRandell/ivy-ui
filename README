@@ -24,6 +24,7 @@ Node Server
 npm install
 npm run dev
 
+// the typescript transpiler
 npx tsc -w
 
 docker-compose up -d --force-recreate --build

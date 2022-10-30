@@ -1,0 +1,28 @@
+main {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: var(--background);
+    gap: 2rem;
+ 
+    padding: 2rem;
+}
+
+main > header {
+    
+    flex: 0 1 100%;
+    background: white;
+    margin: -2rem  -2rem 0  -2rem;
+    padding: 2rem
+
+}
+
+main > section {
+    flex-grow: 1;
+    background-color: white
+}
+
+main > section {
+    padding: 1rem;
+    border-radius: var(--radius-small);
+}
+

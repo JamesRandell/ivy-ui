@@ -1,0 +1,302 @@
+html, body {
+    height: 100%
+}
+
+body {
+    background-color: white;
+    font-size:12px;
+    font-family: 'Roboto', sans-serif;
+    font-weight:300;
+
+    display: flex;
+    flex-wrap: wrap;
+}
+
+body.connected {
+    background-color: var(--background)
+}
+
+body > main {
+  /* grow the content to the remainder of the space (works with padding!) */
+  flex-grow: 1;
+}
+body > header {
+    /*flex: 0 0 100%*/
+}
+
+body > nav.primary {
+    flex: 0 0 70px;
+
+}
+
+
+body > main {
+
+    
+    
+    
+}
+
+h4 { 
+  text-transform: uppercase;
+  color: #aaa;
+}
+.content {
+    /*
+    transition: transform ease-in 1000ms,
+                filter ease-in 1000ms;
+    */
+    /*
+    will-change: transform;
+    */ /* fixes cpu to gpu handoff */
+    
+
+}
+
+/**
+ the flashy loading web socket connection indicator
+ **/
+.status {
+  position:fixed;
+  background-color: #fff;
+  width:40px;
+  height: 40px; 
+  bottom:0px;
+  right:0px;
+  padding: 18px 0 0 18px;
+  border-radius: 50% 50% 0 50%;
+  box-shadow: 0 0 5px var(--blur-color);
+
+
+}
+
+body.loading main.content > * {
+
+    animation: pageIn 300ms ease-in;
+    animation-fill-mode: forwards;
+
+
+    animation: pageOut 300ms ease-in;
+    animation-fill-mode: forwards;
+    
+
+    /* 
+    animation-duration: 1s;
+    animation-name: slidein;
+    animation-direction: reverse;
+    */
+    /*
+    margin-left: -30px;
+    */
+
+    /* 
+     *use translate instead of margin as we 
+     *can do sub-pixel movement (less janky) 
+     */
+    /*
+    transform: translateX(-10px);
+    filter: blur(3px) grayscale(1) opacity(0);
+    transition: translateX(10px);
+    */
+}
+
+
+@keyframes pageOut {
+    /* You could think of as "step 1" */
+    0% {
+        
+    }
+    /* You could think of as "step 2" */
+    99% {
+        filter: blur(3px) grayscale(1) opacity(0);
+        transform: translateX(-10px);
+        
+    }
+    100% {
+        transform: translateX(10px);
+        opacity: 0;
+    }
+  }
+
+  @keyframes pageIn {
+    0% {
+      filter: opacity(0);
+      transform: translateX(10px);
+  }
+    /* You could think of as "step 1" */
+    1% {
+        filter: blur(3px) grayscale(1) opacity(0);
+        transform: translateX(10px);
+    }
+    /* You could think of as "step 2" */
+    100% {
+        filter: blur(0px) grayscale(0) opacity(1);
+        transform: translateX(0);
+    }
+}
+
+.pulse {
+    display: block;
+  }
+  
+.pulse:before, .pulse:after {
+    content: '';
+    border: 1px solid green;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+  }
+  
+.pulse:before {
+    -webkit-transform: scale(1, 1);
+        -ms-transform: scale(1, 1);
+            transform: scale(1, 1);
+    opacity: 1;
+    -webkit-animation: spWaveBe 1.5s infinite linear;
+            animation: spWaveBe 1.5s infinite linear;
+  }
+  
+  .pulse:after {
+    -webkit-transform: scale(0, 0);
+        -ms-transform: scale(0, 0);
+            transform: scale(0, 0);
+    opacity: 0;
+    -webkit-animation: spWaveAf 1.5s infinite linear;
+            animation: spWaveAf 1.5s infinite linear;
+  }
+  
+  @-webkit-keyframes spWaveAf {
+    from {
+      -webkit-transform: scale(0.5, 0.5);
+              transform: scale(0.5, 0.5);
+      opacity: 0;
+    }
+    to {
+      -webkit-transform: scale(1, 1);
+              transform: scale(1, 1);
+      opacity: 1;
+    }
+  }
+  @keyframes spWaveAf {
+    from {
+      -webkit-transform: scale(0.5, 0.5);
+              transform: scale(0.5, 0.5);
+      -webkit-transform: scale(0.5, 0.5);
+              transform: scale(0.5, 0.5);
+      opacity: 0;
+    }
+    to {
+      -webkit-transform: scale(1, 1);
+              transform: scale(1, 1);
+      -webkit-transform: scale(1, 1);
+              transform: scale(1, 1);
+      opacity: 1;
+    }
+  }
+  @-webkit-keyframes spWaveBe {
+    from {
+      -webkit-transform: scale(1, 1);
+              transform: scale(1, 1);
+      opacity: 1;
+    }
+    to {
+      -webkit-transform: scale(1.5, 1.5);
+              transform: scale(1.5, 1.5);
+      opacity: 0;
+    }
+  }
+  @keyframes spWaveBe {
+    from {
+      -webkit-transform: scale(1, 1);
+              transform: scale(1, 1);
+      opacity: 1;
+    }
+    to {
+      -webkit-transform: scale(1.5, 1.5);
+              transform: scale(1.5, 1.5);
+      opacity: 0;
+    }
+  }
+
+
+
+
+
+
+/*-----------------------------------------------------------------------*/
+/**===== bars3 =====*/
+#bars3 {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 50px;
+    width: 50px;
+    margin: -25px 0 0 -25px;
+  }
+  
+  #bars3 span {
+    position: absolute;
+    display: block;
+    bottom: 10px;
+    width: 9px;
+    height: 15px;
+    background: rgba(0, 0, 0, 0.25);
+    -webkit-animation: bars3 2s  infinite ease-in;
+            animation: bars3 2s  infinite ease-in;
+  }
+  
+  #bars3 span:nth-child(2) {
+    left: 11px;
+    -webkit-animation-delay: 0.2s;
+            animation-delay: 0.2s;
+  }
+  
+  #bars3 span:nth-child(3) {
+    left: 22px;
+    -webkit-animation-delay: 0.4s;
+            animation-delay: 0.4s;
+  }
+  
+  #bars3 span:nth-child(4) {
+    left: 33px;
+    -webkit-animation-delay: 0.6s;
+            animation-delay: 0.6s;
+  }
+  
+  #bars3 span:nth-child(5) {
+    left: 44px;
+    -webkit-animation-delay: 0.8s;
+            animation-delay: 0.8s;
+  }
+  
+  @keyframes bars3 {
+    0% {
+      background: rgba(0, 0, 0, 0.25);
+    }
+    25% {
+      background: #000000;
+    }
+    50% {
+      background: rgba(0, 0, 0, 0.25);
+    }
+    100% {
+      background: rgba(0, 0, 0, 0.25);
+    }
+  }
+  @-webkit-keyframes bars3 {
+    0% {
+      background: rgba(0, 0, 0, 0.25);
+    }
+    25% {
+      background: #000000;
+    }
+    50% {
+      background: rgba(0, 0, 0, 0.25);
+    }
+    100% {
+      background: rgba(0, 0, 0, 0.25);
+    }
+  }
+  /** END of bars3 */

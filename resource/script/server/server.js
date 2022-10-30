@@ -59,8 +59,15 @@ fs.watch('resource', { recursive: true }, (eventType, filePath) => {
                 // old way to send file contents out
                 //filePush('resource/css/' + filename);
                 console.log('File changed: ' + filePath);
+                /**
+                 * replaceAll doesn't exist in the lib of typescript i'm using, so can't use it
+                 * here is a regexp instead
+                 */
+                let name = fileArr.fileNameShort.replace(/["\\]/g, '/');
+                let ext = fileArr.ext;
+                let path = (fileArr.path == 0) ? '' : '/' + fileArr.path;
                 // instead we just send the file name and let the client deal with it
-                broadcast(buildJSON('/resource/' + fileArr.path + '/' + fileArr.fileName, fileArr.ext + 'File'));
+                broadcast(buildJSON('/resource' + path + '/' + name + '.' + ext, ext + 'File'));
         }
     })();
 });
@@ -224,23 +231,23 @@ var library = {
              * We make an HTTP call, but we also tinker with the file url returns to account for re-write
              * rules we may have in place
              */
-            config_http.path = file;
+            config_http.path = '/ui' + file;
             return new Promise((resolve, reject) => {
                 const req = http.request(config_http, res => {
                     res.setEncoding('utf8');
                     if (res.statusCode < 200 || res.statusCode >= 300) {
                         return { html: {
                                 data: null,
-                                file: file,
+                                file: config_http.path,
                                 statuscode: res.statusCode
                             }
                         };
                     }
                     res.on('data', result => {
-                        console.log('Returning file: ' + file);
+                        console.log('Returning file: ' + config_http.path);
                         resolve({ html: {
                                 data: result,
-                                file: file,
+                                file: config_http.path,
                                 statusCode: res.statusCode
                             }
                         });

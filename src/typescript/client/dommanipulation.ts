@@ -36,13 +36,14 @@ export default class DOMManipulation {
     }
 
     get content() {
-        return document.getElementsByClassName('content')[0];
+        //return document.getElementsByClassName('content')[0];
+        return document.getElementsByTagName('main')[0];
     }
 
     DOMData: object = {};
 
     config = {
-        contentSelector:"section.content"
+        contentSelector:"main"
     }; // passed from client and set here
 
     cssClasses = {
@@ -281,7 +282,7 @@ export default class DOMManipulation {
          * All loadedContent will either have HTML tags or it won't. Most will
          * 
          * LOCAL templates will replace everything in our primary content 
-         * block (by default section.content)
+         * block (by default main.content)
          * WIDGET templates will loop and match elements that match the corresponding selector
          */
 
@@ -316,8 +317,10 @@ export default class DOMManipulation {
          * content with things from the WIDGET
          */
         if (isWidget === true) {
+            console.log('isWidget === true');
             let g = loadedBody.querySelectorAll('body > *');
             let gLength = g.length;
+
 
             loopLoaded: for (let i=0; i<gLength; i++) {
                   
@@ -328,13 +331,17 @@ export default class DOMManipulation {
 
                 if (id) {
                     // we have an id, let try to find it in the existing document
-                    let pageWidget = this.body.querySelector('[id='+id+']');
-
-                    if (pageWidget) {
-                        // we found it! so lets update its contents
-                        pageWidget.innerHTML = g[i].innerHTML;
-                        continue;
+                    try {
+                        let pageWidget = this.body.querySelector('[id='+id+']');
+                        if (pageWidget) {
+                            // we found it! so lets update its contents
+                            pageWidget.innerHTML = g[i].innerHTML;
+                            continue;
+                        }
+                    } catch (error) {
+                        console.log(error);
                     }
+                    
 
                     continue;
                 }
@@ -392,13 +399,22 @@ export default class DOMManipulation {
          * We can inject the whole thing into the default content area as is
          */
         let content = loadedBody.querySelector(this.config.contentSelector);
+        
+        /**
+         * 'content' could be null if the HTML element does not exist
+         * For example, the html file we call from the server, may not have the main.content node in it,
+         * it could just have other page elements to update, but not the main content. If so, don't bother 
+         * changing the current page 'content'
+         */
         //let contentArr = loadedBody.querySelectorAll(this.config.contentSelector);
         //let contentLength = contentArr.length
 
         //let content = contentArr[contentLength-1];
-
-        this.content.innerHTML = content.innerHTML;
         
+        if (content) {
+            this.content.innerHTML = content.innerHTML;
+        }
+
         this.loading(false);
     }
 

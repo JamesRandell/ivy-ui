@@ -1,0 +1,297 @@
+
+.icon { fill:var(--light-bg); width:28px; height: 28px; 
+}
+
+nav * {
+    color: var(--normal);
+}
+nav.primary {
+    font-weight: 600;
+    background: var(--dark-bg);
+
+
+    align-items: center;
+    justify-content: center
+}
+nav.left {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+nav.primary > ul:not(:last-child) {
+    padding: 10px;
+    border-bottom:1px solid #eee
+}
+
+nav.primary h4 {
+    
+    line-height: 28px;
+    display: flex;
+}
+/*
+nav.primary h4:first-child::after {
+    content: "<<";
+    margin-left: auto;
+    background-color: #eee;
+    text-align: center;
+    border-radius: 14px;
+    line-height: 28px;
+    height:28px;
+    width: 28px
+}
+*/
+
+nav.primary h4:first-child:hover::after {
+    background-color: #ccc;
+    cursor: pointer;
+}
+
+nav.primary li {
+    display: flex;
+    flex-flow: column;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    margin:0;
+}
+
+nav.primary a {
+    display:inline-flex;
+    text-decoration: none;
+    align-items: center;
+    padding:5px 15px;
+    text-indent: -9999px
+}
+
+
+nav.primary li {
+    margin-bottom:2px
+}
+
+/*****************************
+ menu size effects
+
+ Full size
+ Small size
+ Mini size
+******************************/
+nav.small {
+    width: 70px;
+}
+
+nav.small h4 { 
+    padding: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 36px;
+}
+
+
+
+nav.small a {
+    font-size: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+/*****************************
+ base effects
+******************************/
+/* top level */
+nav.primary li a {
+    border-radius: 7px 7px 0 0;
+    color: var(--normal);
+    line-height: 28px;
+}
+
+nav.primary li a:only-child {
+    border-radius: 7px;
+}
+
+
+/* special effects for those with a sub-menu */
+nav.primary li a:not(:only-child)::after {
+    content: "+";
+    margin-left: auto
+}
+nav.primary li a:not(:only-child) {
+    align-items: center;
+    border-radius: 7px 7px 0 0;
+    flex:auto;
+    justify-content: space-between;
+}
+/* sub levels */
+nav.primary li ul li a:only-child {
+    border-radius: 0;
+}
+
+nav.primary li ul {
+    border-radius: 0 0 7px 7px
+}
+
+nav.primary li ul li {
+    margin: 0
+}
+
+nav.primary li ul li a {
+    border-radius: 0;
+}
+
+
+/*****************************
+ hover effects
+******************************/
+/* top level */
+/* HOVER */
+nav.primary li:hover a:not(:only-child)  {
+    color: var(--active);
+    background-color: var(--active-bg);
+}
+
+nav.primary li:hover a:not(:only-child) svg {
+    fill: var(--active);
+    
+}
+
+/* part 1 of 3 rules, part 2 & 3 hits the sub menu below
+   this hits single menu items that don't have a sub-menu */
+nav.primary li:hover a:only-child:not(.current) {
+    color: var(--hover);
+    background-color: var(--hover-bg);
+}
+nav.primary li:hover a:only-child:not(.current) svg {
+    fill: var(--hover)
+}
+
+/* sub levels */
+nav.primary li ul {
+    max-height: 0;
+    overflow: hidden;
+    background-color: var(--hover-bg)
+}
+nav.primary li:hover ul,
+nav.primary li a.current:not(:only-child) ul {
+    max-height: 5500px;
+}
+/*
+nav li:hover ul a:hover {
+    color: var(--active-bg)
+}
+*/
+
+/* part 2 of 3 rules, part 1 hits the top menu below
+   This hits the hover effect of a sub-menu link */
+nav.primary li:hover ul li:hover a:only-child:not(.current) {
+    color: var(--hover);
+    background-color: var(--current-bg);
+}
+
+
+
+/*****************************
+ current effects
+******************************/
+/* top level */
+nav.primary li.current a {
+    color: var(--current);
+    
+    background-color: var(--current-bg);
+}
+
+nav.primary li.current a svg {
+    fill: var(--hover)
+}
+
+ 
+/* sub levels */
+
+/* part 3 of 3 rules, part 1 hits the top menu below
+   This hits sub-menu links that aren't in hover state
+   This is under current because this styles sub-links that appear under a current top link */
+nav.primary li:hover ul li a:only-child:not(.current) {
+    color: var(--normal);
+    background-color: var(--hover-bg)
+}
+
+
+/*****************************
+ transitions
+******************************/
+nav li a {
+    transition: background-color 100ms linear;
+}
+nav li a:not(:only-child) {
+    transition-delay: 200ms;
+}
+nav li:hover a {
+    transition: background-color 100ms linear;
+}
+nav li ul {
+    transition: max-height 300ms 200ms ease-out;
+}
+nav li:hover ul  {
+    transition: max-height 500ms 0ms ease-in;
+}
+
+/* 
+  sub-menus
+*/
+/* dynamically collapse submenus when not targeted */
+/*
+nav ul > li:not(:target):not(:hover) > ul {
+    visibility: collapse;
+    height:0;
+
+    transition: max-height 5s ease-in;
+    max-height: 0;
+}
+*/
+
+
+
+/*
+nav a:not(:only-child),
+nav a:not(:only-child) .icon {
+    transition: background-color linear 100ms 500ms; 
+}
+
+nav li:hover a:not(:only-child),
+nav li:hover a:not(:only-child) .icon {
+    transition: background-color linear 100ms 0ms; 
+}
+*/
+
+/* lets fix up some of the border radius for sub-menus */
+nav.primary li ul li:last-child a {
+    margin: 0
+}
+nav.primary li ul {
+    margin-bottom: 2px;
+}
+
+/*
+nav li ul li:hover:not(:last-child) a {
+    border-radius: 0px
+}
+nav li ul li:hover:last-child a {
+    border-radius: 0 0 7px 7px
+}
+*/
+
+
+
+main header nav {
+    flex-direction: column;
+    width: 80%;
+    margin: 0 auto;
+    align-items: center;
+    
+}
+
+main header nav ul {
+    display: flex
+}
+
+main header nav li {
+    padding: 0 2rem
+}   
+

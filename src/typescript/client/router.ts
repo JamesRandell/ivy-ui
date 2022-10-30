@@ -94,9 +94,16 @@ export default class router implements iprotocol {
         
         let currentURL = window.location.pathname.replace(/^|\/$/g, '');
 
-        if (!force && currentURL === file) {
-            console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
-            return;
+        /**
+         * @modified 30/10/2022
+         * removed the blanked rule to prevent loading if the URL is the same as the file we want to load since we 
+         * changed out nginx rules to create a better SPA and client side routing experiance
+         * We now prevent index.html from double loading - anything else is fair game
+         */
+
+        if (!force && currentURL === file && currentURL === '/index') {
+            //console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
+            //return;
         }
         
         t.loading(true);
@@ -286,10 +293,12 @@ export default class router implements iprotocol {
         let path = window.location.pathname.replace(/^\/|\/$/g, '');
 
         /**
-         * it's fine! the user hasn't landed on any specific page, so just exist here
+         * it's fine! the user hasn't landed on any specific page, so just exit here
          */
-        if (path == '') return;
-
+        if (path == '') {
+            this.go('/index');   
+            return;
+        }
         
         let pathArr = path.split('/'),
             i: number = 0;
