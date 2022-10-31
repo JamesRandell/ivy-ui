@@ -272,7 +272,13 @@ export default class DOMManipulation {
                 if (id) {
                     // we have an id, let try to find it in the existing document
                     try {
-                        let pageWidget = this.body.querySelector('[id=' + id + ']');
+                        /**
+                         * ID don't support only numbers. you need a letter in there according to the CSS3 selector spec
+                         * https://stackoverflow.com/questions/37270787/uncaught-syntaxerror-failed-to-execute-queryselector-on-document
+                         */
+                        //let pageWidget = this.body.querySelector('[id='+id+']');
+                        //let pageWidget = this.body.querySelector('#'+id);
+                        let pageWidget = document.getElementById(id);
                         if (pageWidget) {
                             // we found it! so lets update its contents
                             pageWidget.innerHTML = g[i].innerHTML;

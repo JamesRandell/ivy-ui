@@ -100,10 +100,9 @@ export default class router implements iprotocol {
          * changed out nginx rules to create a better SPA and client side routing experiance
          * We now prevent index.html from double loading - anything else is fair game
          */
-
-        if (!force && currentURL === file && currentURL === '/index') {
-            //console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
-            //return;
+        if (!force && currentURL === file && currentURL !== '/index') {
+            console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
+            return;
         }
         
         t.loading(true);
@@ -124,7 +123,8 @@ export default class router implements iprotocol {
             window.dispatchEvent(new CustomEvent('post-navigate', {detail: file}));
             t._navigateCleanUpLinks();
             t.loading(false);
-            
+       
+
         });
 
         return true
@@ -157,7 +157,24 @@ export default class router implements iprotocol {
             return;
         }
         
-        document.querySelectorAll("a").forEach((e) => {
+        document.body.addEventListener("click", function(event) {
+
+            let obj = event.target.closest("a");
+
+            if (!obj) {
+                return
+            }
+
+            let href = obj.getAttribute('href');
+            console.log(href);
+            window.dispatchEvent(new CustomEvent('post-linkClick', {detail: href}));
+            
+            event.stopPropagation();
+            event.preventDefault();
+            
+            that.go(href);
+        }, false);
+        /*document.querySelectorAll("a").forEach((e) => {
 
             e.addEventListener("click", function(event) {
                 let href = e.getAttribute('href');
@@ -172,7 +189,7 @@ export default class router implements iprotocol {
                 
                 that.go(href);
             }, false);
-        });
+        });*/
 
         window.addEventListener('popstate',(e)=>{
 

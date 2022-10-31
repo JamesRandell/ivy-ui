@@ -75,9 +75,9 @@ export default class router {
          * changed out nginx rules to create a better SPA and client side routing experiance
          * We now prevent index.html from double loading - anything else is fair game
          */
-        if (!force && currentURL === file && currentURL === '/index') {
-            //console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
-            //return;
+        if (!force && currentURL === file && currentURL !== '/index') {
+            console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
+            return;
         }
         t.loading(true);
         /**
@@ -121,16 +121,34 @@ export default class router {
         if (document.querySelector('a') === null) {
             return;
         }
-        document.querySelectorAll("a").forEach((e) => {
-            e.addEventListener("click", function (event) {
+        document.body.addEventListener("click", function (event) {
+            let obj = event.target.closest("a");
+            if (!obj) {
+                return;
+            }
+            let href = obj.getAttribute('href');
+            console.log(href);
+            window.dispatchEvent(new CustomEvent('post-linkClick', { detail: href }));
+            event.stopPropagation();
+            event.preventDefault();
+            that.go(href);
+        }, false);
+        /*document.querySelectorAll("a").forEach((e) => {
+
+            e.addEventListener("click", function(event) {
                 let href = e.getAttribute('href');
-                window.dispatchEvent(new CustomEvent('post-linkClick', { detail: href }));
+                
+                window.dispatchEvent(new CustomEvent('post-linkClick', {detail: href}));
+                
                 event.stopPropagation();
                 //document.getElementById("output-box").innerHTML += "Sorry! <code>preventDefault()</code> won't let you check this!<br>";
+                
+                
                 event.preventDefault();
+                
                 that.go(href);
             }, false);
-        });
+        });*/
         window.addEventListener('popstate', (e) => {
             if (e.state == null) {
                 return;

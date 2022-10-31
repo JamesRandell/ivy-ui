@@ -68,7 +68,6 @@ class ivy extends hotModuleReload {
     });
     
     window.addEventListener("post-navigate", function(evt){
-      console.log('i have navigated');
       //socket({file:"/ui/fragment"});
 
     });
