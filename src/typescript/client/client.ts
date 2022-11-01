@@ -40,6 +40,7 @@ import DOMManipulation from './dommanipulation.js';
 //@ts-ignore 
 import svg from './svg.js';
 
+
 //@ts-ignore 
 import polyfill from './polyfill.js';
 
@@ -58,18 +59,19 @@ class ivy extends hotModuleReload {
     
     dommanipulationinstance = DOMManipulation.getInstance();
 
-    new svg(dommanipulationinstance);
+    
 
     dommanipulationinstance.m(uiComponent.createStatusElement);
 
 
     socketInit().then(function(server){
       //server.send(JSON.stringify({payload:{file:"/ui/fragment"}}));
+      //console.log('f')
     });
     
     window.addEventListener("post-navigate", function(evt){
       //socket({file:"/ui/fragment"});
-
+      
     });
   }
 }
@@ -101,6 +103,8 @@ function socketInit () {
 
       resolve(socketInitS.server);
       dommanipulationinstance.m(uiComponent.connected);
+
+      socket({file:"/ui/widget/nav.html"});
     };
 
     socketInitS.server.onclose = function(reason){
@@ -118,8 +122,10 @@ function socketInit () {
 
     socketInitS.server.onmessage = function(data){
       const result = JSON.parse(data.data);
-
+      const svgInstance = new svg(dommanipulationinstance);
+      svgInstance.run()
       ivyui.message(result);
+      
     };
 
 

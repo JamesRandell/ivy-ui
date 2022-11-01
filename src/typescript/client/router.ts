@@ -157,9 +157,11 @@ export default class router implements iprotocol {
             return;
         }
         
-        document.body.addEventListener("click", function(event) {
-
-            let obj = event.target.closest("a");
+        document.body.addEventListener("click", function(event: Event & {
+            target: HTMLButtonElement
+        }) {
+            const { target } = event;
+            let obj = target.closest("a");
 
             if (!obj) {
                 return

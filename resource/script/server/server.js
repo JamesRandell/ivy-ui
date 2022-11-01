@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { WebSocketServer } from 'ws';
 import * as fs from 'fs';
+import * as path from 'path';
 const config_http = {
     hostname: 'localhost',
     port: 8080,
@@ -36,7 +37,14 @@ var broadcast = function (data) {
     });
     //wss.send(data); 
 };
-fs.watch('resource', { recursive: true }, (eventType, filePath) => {
+const ivyWatch = (eventType, filePath) => {
+    if (filePath.includes('\\') !== true) {
+        return;
+    }
+    const basePath = filePath.split('\\')[0];
+    if (['resource', 'ui'].indexOf(basePath) < 0) {
+        return;
+    }
     /**
      * we need to figure out the path, filename and extension so we can pass it to
      * another method that sends the result back to the client
@@ -65,12 +73,32 @@ fs.watch('resource', { recursive: true }, (eventType, filePath) => {
                  */
                 let name = fileArr.fileNameShort.replace(/["\\]/g, '/');
                 let ext = fileArr.ext;
-                let path = (fileArr.path == 0) ? '' : '/' + fileArr.path;
+                let path2 = (fileArr.path == 0) ? '' : '/' + fileArr.path;
                 // instead we just send the file name and let the client deal with it
-                broadcast(buildJSON('/resource' + path + '/' + name + '.' + ext, ext + 'File'));
+                if (basePath == 'ui') {
+                    let file = path2 + '/' + name + '.' + ext;
+                    /**
+                     * this allows us to 'push' the contents of the changed file back through the websocket
+                     * The ui will update itself with the new path/content
+                     */
+                    library['file'](name.replace('ui/', '/')).then((result) => {
+                        broadcast(buildJSON(result));
+                    });
+                }
+                else {
+                    broadcast(buildJSON(path2 + '/' + name + '.' + ext, ext + 'File'));
+                }
         }
     })();
-});
+};
+fs.watch('.', { recursive: true }, ivyWatch);
+const readFile = (file) => {
+    fs.readFile(path.resolve() + file, 'utf8', (err, data) => {
+        library[file](data).then((result) => {
+            ws.send(buildJSON(result));
+        });
+    });
+};
 const filePush = (file) => {
     fs.readFile(file, 'utf8', (err, data) => {
         let result = buildJSON(data, 'css');

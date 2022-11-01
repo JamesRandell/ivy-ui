@@ -48,8 +48,20 @@ var broadcast = function(data) {
   //wss.send(data); 
 };
 
-fs.watch('resource', {recursive:true}, (eventType: string, filePath: string) => {
+
+
+const ivyWatch = (eventType: string, filePath: string) => {
   
+  if (filePath.includes('\\') !== true) {
+    return
+  }
+  
+  const basePath = filePath.split('\\')[0];
+
+  if (['resource','ui'].indexOf(basePath) < 0) {
+    return
+  }
+
 
   /**
    * we need to figure out the path, filename and extension so we can pass it to 
@@ -87,19 +99,44 @@ fs.watch('resource', {recursive:true}, (eventType: string, filePath: string) => 
           let name = fileArr.fileNameShort.replace(/["\\]/g, '/')
           let ext = fileArr.ext
 
-          let path = (fileArr.path == 0) ? '' : '/' + fileArr.path
+          let path2 = (fileArr.path == 0) ? '' : '/' + fileArr.path
           // instead we just send the file name and let the client deal with it
 
-          broadcast( 
-            buildJSON('/resource' + path + '/' + name + '.' + ext, ext + 'File')
-          );
+          if (basePath == 'ui') {
+
+            let file = path2 + '/' + name + '.' + ext;
+
+            /**
+             * this allows us to 'push' the contents of the changed file back through the websocket
+             * The ui will update itself with the new path/content
+             */
+            library['file'](name.replace('ui/', '/')).then((result) => {
+              broadcast(buildJSON(result));
+            });
+            
+          } else {
+            broadcast( 
+              buildJSON(path2 + '/' + name + '.' + ext, ext + 'File')
+            );
+          }
       }
     })();
-})
+}
 
+fs.watch('.', {recursive:true}, ivyWatch);
+
+const readFile = (file: string) => {
+
+  fs.readFile(path.resolve() + file, 'utf8', (err, data) => {
+    library[ file ]( data ).then((result) => {
+      ws.send(buildJSON(result));
+    });
+    
+    
+  });
+}
 
 const filePush = (file: string) => {
-
 
   fs.readFile(file, 'utf8', 
   (err, data) => {
@@ -308,6 +345,7 @@ var library = {
     config_http.path = '/ui' + file;
     return new Promise ((resolve, reject) => {
       const req = http.request(config_http, res => {
+
         res.setEncoding('utf8');
 
         if (res.statusCode < 200 || res.statusCode >= 300) {

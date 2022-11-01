@@ -34,10 +34,10 @@ class ivy extends hotModuleReload {
     constructor() {
         super();
         dommanipulationinstance = DOMManipulation.getInstance();
-        new svg(dommanipulationinstance);
         dommanipulationinstance.m(uiComponent.createStatusElement);
         socketInit().then(function (server) {
             //server.send(JSON.stringify({payload:{file:"/ui/fragment"}}));
+            //console.log('f')
         });
         window.addEventListener("post-navigate", function (evt) {
             //socket({file:"/ui/fragment"});
@@ -63,6 +63,7 @@ function socketInit() {
             socketInitS.failedCount = 0; // reset the connction counter
             resolve(socketInitS.server);
             dommanipulationinstance.m(uiComponent.connected);
+            socket({ file: "/ui/widget/nav.html" });
         };
         socketInitS.server.onclose = function (reason) {
             socketInitS.failedCount++;
@@ -77,6 +78,8 @@ function socketInit() {
         };
         socketInitS.server.onmessage = function (data) {
             const result = JSON.parse(data.data);
+            const svgInstance = new svg(dommanipulationinstance);
+            svgInstance.run();
             ivyui.message(result);
         };
         function check() {

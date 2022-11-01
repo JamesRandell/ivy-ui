@@ -122,7 +122,8 @@ export default class router {
             return;
         }
         document.body.addEventListener("click", function (event) {
-            let obj = event.target.closest("a");
+            const { target } = event;
+            let obj = target.closest("a");
             if (!obj) {
                 return;
             }

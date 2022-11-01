@@ -341,7 +341,7 @@ export default class DOMManipulation {
                         let pageWidget = document.getElementById(id);
 
                         if (pageWidget) {
-                            
+                            console.log('Updating widget contents: ' + id + ' with ' + g[i].innerHTML)
                             // we found it! so lets update its contents
                             pageWidget.innerHTML = g[i].innerHTML;
                             continue;

@@ -155,8 +155,8 @@ nav.primary li:hover a:not(:only-child) svg {
 /* part 1 of 3 rules, part 2 & 3 hits the sub menu below
    this hits single menu items that don't have a sub-menu */
 nav.primary li:hover a:only-child:not(.current) {
-    color: var(--hover);
-    background-color: var(--hover-bg);
+    color: grey;
+    background-color: hsl(0, 0%, 80%);
 }
 nav.primary li:hover a:only-child:not(.current) svg {
     fill: var(--hover)
@@ -217,16 +217,16 @@ nav.primary li:hover ul li a:only-child:not(.current) {
  transitions
 ******************************/
 nav li a {
-    transition: background-color 100ms linear;
+    transition: background-color 50ms linear;
 }
 nav li a:not(:only-child) {
-    transition-delay: 200ms;
+    transition-delay: 100ms;
 }
 nav li:hover a {
-    transition: background-color 100ms linear;
+    transition: background-color 50ms linear;
 }
 nav li ul {
-    transition: max-height 300ms 200ms ease-out;
+    transition: max-height 150ms 100ms ease-out;
 }
 nav li:hover ul  {
     transition: max-height 500ms 0ms ease-in;
