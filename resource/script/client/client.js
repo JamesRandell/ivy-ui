@@ -79,7 +79,6 @@ function socketInit() {
         socketInitS.server.onmessage = function (data) {
             const result = JSON.parse(data.data);
             const svgInstance = new svg(dommanipulationinstance);
-            svgInstance.run();
             ivyui.message(result);
         };
         function check() {

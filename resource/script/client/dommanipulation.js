@@ -270,6 +270,7 @@ export default class DOMManipulation {
                  */
                 let id = g[i].id;
                 if (id) {
+                    console.log('id found \'' + id + '\', starting innerHTML replacement');
                     // we have an id, let try to find it in the existing document
                     try {
                         /**
@@ -283,6 +284,18 @@ export default class DOMManipulation {
                             console.log('Updating widget contents: ' + id + ' with ' + g[i].innerHTML);
                             // we found it! so lets update its contents
                             pageWidget.innerHTML = g[i].innerHTML;
+                            /*
+                            let svgArray = loadedBody.querySelectorAll('svg[data-url]');
+                            let c = svgArray.length;
+                            console.log(svgArray)
+                            for (let i=0; i<c; i++) {
+
+                                console.log(c[i])
+                                
+                                this._svgFile(c[i]);
+
+                            }
+                            */
                             continue;
                         }
                     }
@@ -299,6 +312,7 @@ export default class DOMManipulation {
                 let classStr = g[i].classList[0];
                 let nodeStr = g[i].nodeName;
                 if (classStr) {
+                    console.log('class found \'' + classStr + '\', starting innerHTML replacement');
                     // we'll use the first class found. Now we need to make sure the tag name
                     // matches
                     let pageWidgetArr = this.body.querySelectorAll('[class=' + classStr + ']');
