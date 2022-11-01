@@ -76,8 +76,8 @@ export default class router {
          * We now prevent index.html from double loading - anything else is fair game
          */
         if (!force && currentURL === file && currentURL !== '/index') {
-            console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
-            return;
+            //console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
+            //return;
         }
         t.loading(true);
         /**
