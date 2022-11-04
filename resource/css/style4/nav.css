@@ -1,9 +1,14 @@
 
-.icon { fill:var(--light-bg); width:28px; height: 28px; 
+.icon { fill:var(--light-bg); width:24px; height: 24px; 
 }
 
-nav * {
-    color: var(--normal);
+nav.primary > * { 
+    margin:10px
+}
+
+nav.primary > :not(ul) {
+    margin-left: 20px;
+    margin-right: 20px
 }
 nav.primary {
     font-weight: 600;
@@ -58,8 +63,9 @@ nav.primary a {
     display:inline-flex;
     text-decoration: none;
     align-items: center;
-    padding:5px 15px;
-    text-indent: -9999px
+    padding: 7px 15px;
+    /*text-indent: -9999px*/
+    text-indent: 10px
 }
 
 
@@ -82,7 +88,7 @@ nav.small h4 {
     padding: 12px;
     white-space: nowrap;
     overflow: hidden;
-    max-width: 36px;
+
 }
 
 
@@ -97,16 +103,20 @@ nav.small a {
  base effects
 ******************************/
 /* top level */
+nav.primary li {
+
+}
 nav.primary li a {
-    border-radius: 7px 7px 0 0;
+    border-radius: 7px;
     color: var(--normal);
     line-height: 28px;
 }
 
+/*
 nav.primary li a:only-child {
     border-radius: 7px;
 }
-
+*/
 
 /* special effects for those with a sub-menu */
 nav.primary li a:not(:only-child)::after {
@@ -115,7 +125,7 @@ nav.primary li a:not(:only-child)::after {
 }
 nav.primary li a:not(:only-child) {
     align-items: center;
-    border-radius: 7px 7px 0 0;
+
     flex:auto;
     justify-content: space-between;
 }
@@ -155,8 +165,8 @@ nav.primary li:hover a:not(:only-child) svg {
 /* part 1 of 3 rules, part 2 & 3 hits the sub menu below
    this hits single menu items that don't have a sub-menu */
 nav.primary li:hover a:only-child:not(.current) {
-    color: grey;
-    background-color: hsl(0, 0%, 80%);
+    color: white;
+    background-color: var(--current-bg)
 }
 nav.primary li:hover a:only-child:not(.current) svg {
     fill: var(--hover)

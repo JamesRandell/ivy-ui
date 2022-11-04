@@ -10,12 +10,13 @@ html, body {
 
 body {
     background-color: white;
-    font-size:12px;
+    font-size: .875rem;
     
     font-weight:300;
 
     display: flex;
-    flex-wrap: wrap;
+
+    flex-direction: row
 }
 
 body.connected {
@@ -31,7 +32,7 @@ body > header {
 }
 
 body > nav.primary {
-    flex: 0 0 70px;
+    flex: 0 0 280px;
 
 }
 
@@ -39,10 +40,12 @@ body > nav.primary {
 body > main {
 
     
-    
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row
     
 }
-#
+
 h1, h2, h3, h4, h5, h6, p {
   text-rendering: optimizeLegibility;
 }
@@ -67,10 +70,10 @@ h3 {
   font-weight: 600;
 }
 h4 { 
-  font-size:1rem;
-  font-weight:500;
-  line-height: 1.5rem
-  
+  font-size:0.8rem;
+  font-weight:600;
+  line-height: 1rem;
+  text-transform: uppercase;
 }
 h5 { 
   font-size:1rem;
@@ -86,13 +89,22 @@ h6 {
 }
 p {
   font-size: .875rem;
-  font-weight: 500;
+  font-weight: 400;
   font-feature-settings: "salt";
-
+  color: var(--text-color)
 }
 em {
-  font-weight: 300;
-  font-size: 0.8rem
+  font-weight: 700;
+  font-size: 0.7rem;
+  color: #888
+}
+
+
+
+
+
+.color-alt {
+  color: var(--color-alt)
 }
 .content {
     /*

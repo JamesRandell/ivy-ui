@@ -1,5 +1,5 @@
 //@ts-ignore
-import { template } from '/ivy-ui/resource/script/client/template.js';
+import { template } from '/resource/script/client/template.js';
 const html = `<section class="content">
 <p>This is some CASSANDRA content</p>
 <p>Datacenter: {{db.datacenter}}</p>
@@ -42,7 +42,8 @@ const person = {
     }
 };
 //const handler = new Function(  "const data = this; console.warn(data); return `"+v +"`;").apply(data);
-const q = document.querySelector('.content');
+const q = document.querySelector('footer');
+console.log(q);
 q.innerHTML = template.compile(v, data);
 /*
 

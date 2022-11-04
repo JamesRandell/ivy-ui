@@ -75,9 +75,10 @@ export default class router {
          * changed out nginx rules to create a better SPA and client side routing experiance
          * We now prevent index.html from double loading - anything else is fair game
          */
-        if (!force && currentURL === file && currentURL !== '/index') {
-            //console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
-            //return;
+        if (!force && window.location.pathname === file) {
+            //if (!force && currentURL === file && currentURL !== '/index') {
+            console.log('"' + currentURL + '" is the same as "' + file + '" so no loading');
+            return;
         }
         t.loading(true);
         /**
@@ -118,9 +119,6 @@ export default class router {
      */
     _linkHandler() {
         const that = this;
-        if (document.querySelector('a') === null) {
-            return;
-        }
         document.body.addEventListener("click", function (event) {
             const { target } = event;
             let obj = target.closest("a");
@@ -128,7 +126,6 @@ export default class router {
                 return;
             }
             let href = obj.getAttribute('href');
-            console.log(href);
             window.dispatchEvent(new CustomEvent('post-linkClick', { detail: href }));
             event.stopPropagation();
             event.preventDefault();
@@ -247,9 +244,12 @@ export default class router {
         let path = window.location.pathname.replace(/^\/|\/$/g, '');
         /**
          * it's fine! the user hasn't landed on any specific page, so just exit here
+         *
+         * We also check if that path == index. This is so when the user first lands here, we force a call
+         * to the server for the index page. This accounts for url with and without index as a page call
          */
-        if (path == '') {
-            this.go('/index');
+        if (path == '' || path == 'index') {
+            this.go('/index', true);
             return;
         }
         let pathArr = path.split('/'), i = 0;

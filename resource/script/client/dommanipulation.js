@@ -9,6 +9,7 @@ let instance = null;
 export default class DOMManipulation {
     constructor() {
         this.head = document.head || document.getElementsByTagName('head')[0];
+        this.templateType = 'global';
         this.DOMData = {};
         this.config = {
             contentSelector: "main"
@@ -240,9 +241,13 @@ export default class DOMManipulation {
          */
         if (loadedContent.startsWith('<!DOCTYPE') === true) {
             isWidget = false;
+            this.templateType = 'local';
+            console.log('_html is template: local');
         }
         else {
             isWidget = true;
+            this.templateType = 'widget';
+            console.log('_html is template: widget');
         }
         //html = this.sanitizeHTML(html);
         let temp = document.createElement('html');
@@ -281,7 +286,7 @@ export default class DOMManipulation {
                         //let pageWidget = this.body.querySelector('#'+id);
                         let pageWidget = document.getElementById(id);
                         if (pageWidget) {
-                            console.log('Updating widget contents: ' + id + ' with ' + g[i].innerHTML);
+                            console.log('Updating widget contents: ' + id + ' with: ' + g[i].innerHTML);
                             // we found it! so lets update its contents
                             pageWidget.innerHTML = g[i].innerHTML;
                             /*
@@ -378,6 +383,11 @@ export default class DOMManipulation {
      * @param CurrentFile the URL that the user is currently on... RIGHT NOW!
      */
     _navigateCleanUpLinks(currentURL = null) {
+        console.log(' -- ' + this.templateType);
+        if (this.templateType == 'widget') {
+            console.log('_navigateCleanUpLinks returning...');
+            return;
+        }
         if (!currentURL) {
             var currentURL = window.location.pathname.replace(/^|\/$/g, '');
         }
@@ -385,16 +395,6 @@ export default class DOMManipulation {
         let oldCount = elementWithOldURLArr.length;
         let elementWithCurrentURLArr = this.body.querySelectorAll('a[href=\'' + currentURL + '\']');
         let currentCount = elementWithCurrentURLArr.length;
-        for (let i = 0; i < oldCount; i++) {
-            elementWithOldURLArr[i].classList.remove(this.cssClasses.current);
-            /**
-              * Time for a HACK :(
-              * Lets check to see if this link is the direct child of a LI element, so we can apply the class to that as well
-              */
-            if (elementWithOldURLArr[i].parentElement.nodeName.toLowerCase() === 'li') {
-                elementWithOldURLArr[i].parentElement.classList.remove(this.cssClasses.current);
-            }
-        }
         /**
          * Now we add the class to the current file
          */
@@ -406,6 +406,20 @@ export default class DOMManipulation {
              */
             if (elementWithCurrentURLArr[i].parentElement.nodeName.toLowerCase() === 'li') {
                 elementWithCurrentURLArr[i].parentElement.classList.add(this.cssClasses.current);
+            }
+        }
+        for (let i = 0; i < oldCount; i++) {
+            /**
+             * check to see if the a tag that has current has its href url the same.
+             * If it's not the same, don't remove the current class
+             */
+            elementWithOldURLArr[i].classList.remove(this.cssClasses.current);
+            /**
+              * Time for a HACK :(
+              * Lets check to see if this link is the direct child of a LI element, so we can apply the class to that as well
+              */
+            if (elementWithOldURLArr[i].parentElement.nodeName.toLowerCase() === 'li') {
+                elementWithOldURLArr[i].parentElement.classList.remove(this.cssClasses.current);
             }
         }
     }

@@ -263,14 +263,20 @@ var library = {
             return new Promise((resolve, reject) => {
                 const req = http.request(config_http, res => {
                     res.setEncoding('utf8');
+                    /**
+                     * Takes care of any errors like a 404
+                     */
                     if (res.statusCode < 200 || res.statusCode >= 300) {
-                        return { html: {
+                        resolve({ html: {
                                 data: null,
                                 file: config_http.path,
                                 statuscode: res.statusCode
                             }
-                        };
+                        });
                     }
+                    /**
+                     * returns the file contents
+                     */
                     res.on('data', result => {
                         console.log('Returning file: ' + config_http.path);
                         resolve({ html: {

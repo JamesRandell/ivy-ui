@@ -1,0 +1,11 @@
+<main>
+    <p>This is some CASSANDRA content</p>
+Datacenter: {{db.datacenter}}<br>
+    {{#each db.host}}
+    {{#each}}
+    <p>---{{key|uppercase}}:{{value}}</p>
+    {{/each}}
+    {{/each}}
+
+
+</main>
