@@ -120,12 +120,8 @@ export default class router implements iprotocol {
 
         let y = this.server.go(file);
         y.then(resolved => {
-            history.pushState({pageID: file}, file,  file);
             window.dispatchEvent(new CustomEvent('post-navigate', {detail: file}));
-            t._navigateCleanUpLinks();
             t.loading(false);
-       
-
         });
 
         return true
@@ -206,9 +202,13 @@ export default class router implements iprotocol {
     }
 
 
-    static updateRouter () {
-        let path = window.location.pathname.replace(/^\/|\/$/g, '');
+    static updateRouter (file: string) {
 
+
+        //let path = window.location.pathname.replace(/^\/|\/$/g, '');
+        let path = file
+
+        history.pushState({pageID: file}, file,  file);
         /**
          * it's fine! the user hasn't landed on any specific page, so just exist here
          */

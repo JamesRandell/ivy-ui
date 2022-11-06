@@ -91,9 +91,7 @@ export default class router {
         window.dispatchEvent(new CustomEvent('pre-pageRequest', { detail: file }));
         let y = this.server.go(file);
         y.then(resolved => {
-            history.pushState({ pageID: file }, file, file);
             window.dispatchEvent(new CustomEvent('post-navigate', { detail: file }));
-            t._navigateCleanUpLinks();
             t.loading(false);
         });
         return true;
@@ -154,8 +152,10 @@ export default class router {
             that.go(e.state.pageID, true);
         });
     }
-    static updateRouter() {
-        let path = window.location.pathname.replace(/^\/|\/$/g, '');
+    static updateRouter(file) {
+        //let path = window.location.pathname.replace(/^\/|\/$/g, '');
+        let path = file;
+        history.pushState({ pageID: file }, file, file);
         /**
          * it's fine! the user hasn't landed on any specific page, so just exist here
          */

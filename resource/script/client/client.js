@@ -28,8 +28,6 @@ import DOMManipulation from './dommanipulation.js';
 import svg from './svg.js';
 //@ts-ignore
 import hotModuleReload from './socketRouter.js';
-//@ts-ignore
-import { template } from './template.js';
 var data = {
     "db": {
         "datacenter": "datacenter1",
@@ -45,16 +43,10 @@ var data = {
         ]
     }
 };
-const v = template.parse(html, data);
-const person = {
-    fullName: function () {
-        return this;
-    }
-};
-//const handler = new Function(  "const data = this; console.warn(data); return `"+v +"`;").apply(data);
+//const v = template.parse(html, data, );
 const q = document.querySelector('footer');
 console.log(q);
-q.innerHTML = template.compile(v, data);
+//q.innerHTML = template.compile(v, data);
 var dommanipulationinstance;
 var ivyui;
 class ivy extends hotModuleReload {
@@ -68,6 +60,7 @@ class ivy extends hotModuleReload {
         });
         window.addEventListener("post-navigate", function (evt) {
             //socket({file:"/ui/fragment"});
+            dommanipulationinstance._navigateCleanUpLinks();
         });
     }
 }
@@ -90,7 +83,7 @@ function socketInit() {
             socketInitS.failedCount = 0; // reset the connction counter
             resolve(socketInitS.server);
             dommanipulationinstance.m(uiComponent.connected);
-            socket({ file: "/ui/widget/nav.html" });
+            socket({ file: "/widget/nav" });
         };
         socketInitS.server.onclose = function (reason) {
             socketInitS.failedCount++;
@@ -105,6 +98,7 @@ function socketInit() {
         };
         socketInitS.server.onmessage = function (data) {
             const result = JSON.parse(data.data);
+            console.log('msg received');
             ivyui.message(result);
             const svgInstance = new svg(dommanipulationinstance);
         };

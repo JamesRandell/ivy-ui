@@ -14,7 +14,8 @@ const config_http = {
     hostname: 'localhost',
     port: 8080,
     method: 'GET',
-    path: '/'
+    path: '/',
+    template_directory: '/ui'
 };
 const key = fs.readFileSync('../ivy-build/cert/server.key', 'utf8');
 const cert = fs.readFileSync('../ivy-build/cert/server.crt', 'utf8');
@@ -81,7 +82,8 @@ const ivyWatch = (eventType, filePath) => {
                      * this allows us to 'push' the contents of the changed file back through the websocket
                      * The ui will update itself with the new path/content
                      */
-                    library['file'](name.replace('ui/', '/')).then((result) => {
+                    //library['file'](name.replace('ui/', '/')).then((result) => {
+                    library['file'](name).then((result) => {
                         broadcast(buildJSON(result));
                     });
                 }
@@ -188,18 +190,53 @@ var library = {
         let result = {
             fileName: null,
             fileNameShort: null,
+            pathFull: String,
+            isTemplate: Boolean,
+            isWidget: Boolean,
+            isApi: Boolean,
             path: null,
             ext: null
         };
+        result.isTemplate = false;
+        result.isWidget = false;
+        result.isApi = false;
+        result.pathFull = filePath;
         /**
          * we need to figure out the path, filename and extension so we can pass it to
          * another method that sends the result back to the client
          */
         let fileArray = filePath.split('/');
+        /**
+         * first element will be empty because the split action above looks at the '/'
+         */
+        if (fileArray[0] === '') {
+            fileArray.shift();
+        }
+        const fileArrayLength = fileArray.length;
         // forward slash here as it's a webserver path
-        result.fileName = fileArray[fileArray.length - 1];
+        result.fileName = fileArray[fileArrayLength - 1];
         // remove the filename.ext so we're just left with the path components
         fileArray.pop();
+        /**
+         * we check if one of the path directories contains a keyword, except the filename (last part)
+         */
+        let i = 0, len = fileArrayLength - 1;
+        while (i < len) {
+            switch (fileArray[i]) {
+                case 'widget':
+                    result.isWidget = true;
+                    break;
+                case 'api':
+                    result.isApi = true;
+                    break;
+            }
+            i++;
+        }
+        if (result.isApi === false) {
+            result.isTemplate = true;
+            fileArray.unshift('/ui');
+            result.pathFull = '/ui' + filePath;
+        }
         // join all the parts seperated by a slash (/) so we combine our full path
         result.path = fileArray.join('/');
         /**
@@ -211,8 +248,6 @@ var library = {
          */
         result.fileNameShort = result.fileName.replace('.' + result.ext, '');
         return result;
-    },
-    test() {
     },
     newImproved() {
         console.log('newImproved');
@@ -231,27 +266,21 @@ var library = {
                 console.warn('Filepath is not a string, cancelling call to file');
                 return;
             }
+            const fileAttributes = this._fileArr(file);
             /**
-             * TODO: add in more checks to see if the file does exist and is of type html (and
-             * not like a fucking config or password file)
+             * we can use the _fileArr private function to find out the first path part of the url
+             * we can do different things if it matches specific directories
              *
-             * Note this is the file system way to get files. The method below is the webserver way
-             * which is currenlty powered by NGINX and has re-write rules on it
+             * we do some funky stuff with the file. BEar in mind that the file that's being requested
+             * may not be the true path of where the source is.
+             * For example, in this project, I keep all my templates in a /ui folder. However, on the
+             * front end, they don't reference that, and it's down to this server to prefix those requests
+             * with /ui.
+             * This means the file is actually different, and we want to return the right one back to the
+             * front end for the router to function correctly (change the url etc)
              */
-            /*
-            fs.readFile(path.resolve(__dirname, file), 'utf8', function(e, result) {
-              if (e) {
-                console.log(e);
-                return
-              }
-        
-              console.log('Returning file: ' + file);
-              conn.send(
-                buildJSON({html:{data:result,file:file}})
-              )
-        
-              
-            });*/
+            config_http.path = fileAttributes.pathFull;
+            console.log(fileAttributes);
             /**
              * We use the web server to handle file requests instead of pissing about with building our
              * own (because you know, I really think nginx can do better than what I can come up with.)
@@ -259,32 +288,45 @@ var library = {
              * We make an HTTP call, but we also tinker with the file url returns to account for re-write
              * rules we may have in place
              */
-            config_http.path = '/ui' + file;
             return new Promise((resolve, reject) => {
                 const req = http.request(config_http, res => {
                     res.setEncoding('utf8');
+                    let returnObject = {
+                        data: null,
+                        file: null,
+                        fileSrc: null,
+                        statuscode: null,
+                        url: null
+                    };
+                    returnObject.statuscode = res.statusCode;
+                    returnObject.file = file;
+                    returnObject.fileSrc = config_http.path;
                     /**
                      * Takes care of any errors like a 404
                      */
                     if (res.statusCode < 200 || res.statusCode >= 300) {
-                        resolve({ html: {
-                                data: null,
-                                file: config_http.path,
-                                statuscode: res.statusCode
-                            }
-                        });
+                        resolve({ html: returnObject });
                     }
                     /**
                      * returns the file contents
                      */
                     res.on('data', result => {
-                        console.log('Returning file: ' + config_http.path);
-                        resolve({ html: {
-                                data: result,
-                                file: config_http.path,
-                                statusCode: res.statusCode
-                            }
-                        });
+                        /**
+                         * when the result is pure JSON, send back just a data key, and don't instruct the UI to change the url
+                         * need to manually parse the result this time
+                         */
+                        if (res.headers['content-type'].startsWith('application/json')) {
+                            resolve({ data: JSON.parse(result) });
+                        }
+                        else if (fileAttributes.isWidget === true) {
+                            returnObject.data = result;
+                            resolve({ html: returnObject });
+                        }
+                        else if (fileAttributes.isTemplate === true) {
+                            returnObject.url = file;
+                            returnObject.data = result;
+                            resolve({ html: returnObject });
+                        }
                     });
                 });
                 req.on('error', err => {

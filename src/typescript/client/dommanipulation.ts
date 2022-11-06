@@ -3,7 +3,7 @@
  */
 
 //@ts-ignore
-import hotModuleReload from './socketRouter.js';
+import router from './router.js';
 
 //@ts-ignore
 import { ClassMapper } from "./ClassMapper.js";
@@ -22,7 +22,8 @@ interface IAttributes {
 
 interface Ihtml {
     data?: string; // the HTML of the page returned
-    file?: string; // file name including path that the server returned (URL)
+    file?: string; // name of the source file 
+    url?: string; // path that we redirct to
     statusCode?: number; // HTTP status code
 }
 
@@ -129,8 +130,12 @@ export default class DOMManipulation {
     private _data (json: object) {
         const id = this._getKey(json);
 
-        var e = document.getElementById(id);
-        e.innerText = json[id];
+        try {
+            var e = document.getElementById(id);
+            e.innerText = json[id];
+        } catch(e) {
+
+        }
     }
 
     /**
@@ -293,7 +298,10 @@ export default class DOMManipulation {
          * Check if the loadedContent starts with a DOCTYPE. If it does - this is a GLOBAL/LOCAL
          * template
          */
-        if (loadedContent.startsWith('<!DOCTYPE') === true) {
+        if (loadedContent == null) {
+            console.warn('dommanipulation::_html: Unable to parse json data into html')
+            return
+        } else if (loadedContent.startsWith('<!DOCTYPE') === true) {
             isWidget = false;
             this.templateType = 'local'
             console.log('_html is template: local')
@@ -324,7 +332,7 @@ export default class DOMManipulation {
          * content with things from the WIDGET
          */
         if (isWidget === true) {
-            console.log('isWidget === true');
+
             let g = loadedBody.querySelectorAll('body > *');
             let gLength = g.length;
 
@@ -443,6 +451,10 @@ export default class DOMManipulation {
             this.content.innerHTML = content.innerHTML;
         }
 
+        /**
+         * updating the browser url is done in socketRouter and looks for a 'url' key
+         */
+        //router.updateRouter(json.url);
         this.loading(false);
     }
 

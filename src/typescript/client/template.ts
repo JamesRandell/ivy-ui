@@ -334,8 +334,7 @@ console.log('retrievedObject: ', JSON.parse(retrievedObject));
 */
             return h;
         } catch (e) {
-            console.error('Problem with template: ' + e);
-            console.error(templateString);
+            console.warn('Problem with template: ' + e, templateString);
         }
     },
 

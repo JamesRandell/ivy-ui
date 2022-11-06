@@ -36,8 +36,12 @@ export default class socketRouter {
                 alert("yes, i have that property");
             }
             if (cmd == "html") {
-                if (json.payload["html"]["file"]) {
-                    router.updateRouter();
+                if (json.payload.html.statuscode == 404) {
+                    console.warn('File not found: ' + json.payload.html.file);
+                    return;
+                }
+                if (json.payload["html"]["url"]) {
+                    router.updateRouter(json.payload["html"]["url"]);
                     //console.table(registry.updateRouter())
                 }
             }

@@ -81,8 +81,12 @@ export default class DOMManipulation {
      */
     _data(json) {
         const id = this._getKey(json);
-        var e = document.getElementById(id);
-        e.innerText = json[id];
+        try {
+            var e = document.getElementById(id);
+            e.innerText = json[id];
+        }
+        catch (e) {
+        }
     }
     /**
      * Builds what ever node are in the array (like a div). Handles the verbs, such
@@ -239,7 +243,11 @@ export default class DOMManipulation {
          * Check if the loadedContent starts with a DOCTYPE. If it does - this is a GLOBAL/LOCAL
          * template
          */
-        if (loadedContent.startsWith('<!DOCTYPE') === true) {
+        if (loadedContent == null) {
+            console.warn('dommanipulation::_html: Unable to parse json data into html');
+            return;
+        }
+        else if (loadedContent.startsWith('<!DOCTYPE') === true) {
             isWidget = false;
             this.templateType = 'local';
             console.log('_html is template: local');
@@ -266,7 +274,6 @@ export default class DOMManipulation {
          * content with things from the WIDGET
          */
         if (isWidget === true) {
-            console.log('isWidget === true');
             let g = loadedBody.querySelectorAll('body > *');
             let gLength = g.length;
             loopLoaded: for (let i = 0; i < gLength; i++) {
@@ -367,6 +374,10 @@ export default class DOMManipulation {
         if (content) {
             this.content.innerHTML = content.innerHTML;
         }
+        /**
+         * updating the browser url is done in socketRouter and looks for a 'url' key
+         */
+        //router.updateRouter(json.url);
         this.loading(false);
     }
     /**
