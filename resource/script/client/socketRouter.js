@@ -45,6 +45,10 @@ export default class socketRouter {
                     //console.table(registry.updateRouter())
                 }
             }
+            if (cmd == "data") {
+                t.DOMData = json.payload;
+                t.m(t.lastTemplate);
+            }
             if (typeof t['_' + cmd] !== 'function') {
                 //console.log('Can\'t reload file: Function \'_'+cmd+'\' does not exist in socketRouter');
             }

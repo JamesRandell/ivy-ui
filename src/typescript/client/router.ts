@@ -20,6 +20,8 @@ import DOMManipulation from "./dommanipulation.js";
 import client, { config, registry } from "./client.js";
 import { isVoidExpression } from "typescript";
 
+//@ts-ignore
+import {route} from "./route.js"
 
 export default class router implements iprotocol {
 
@@ -39,6 +41,7 @@ export default class router implements iprotocol {
     currentURL: string = "";
 
 
+
     constructor () {
         
         switch (this.serverType) {
@@ -50,6 +53,7 @@ export default class router implements iprotocol {
 
         var historyMove = false;
         var that = this;
+        
 
         (function(history){
             var rpushState = history.pushState.bind(history);
@@ -95,6 +99,16 @@ export default class router implements iprotocol {
         let currentURL = window.location.pathname.replace(/^|\/$/g, '');
 
         /**
+         * look at the config found in client.js for base Path, which tells us where 
+         * all the html files are
+         */
+         if (file.indexOf(config.basePath) === -1) {
+            file = config.basePath + file;
+        }
+
+        this.goRoute(file);
+
+        /**
          * @modified 30/10/2022
          * removed the blanked rule to prevent loading if the URL is the same as the file we want to load since we 
          * changed out nginx rules to create a better SPA and client side routing experiance
@@ -108,17 +122,13 @@ export default class router implements iprotocol {
         
         t.loading(true);
 
-        /**
-         * look at the config found in client.js for base Path, which tells us where 
-         * all the html files are
-         */
-        if (file.indexOf(config.basePath) === -1) {
-            file = config.basePath + file;
-        }
+        
 
         window.dispatchEvent(new CustomEvent('pre-pageRequest', {detail: file}));
 
         let y = this.server.go(file);
+
+        
         y.then(resolved => {
             window.dispatchEvent(new CustomEvent('post-navigate', {detail: file}));
             t.loading(false);
@@ -127,6 +137,16 @@ export default class router implements iprotocol {
         return true
     }
 
+    /**
+     * this takes a url and checks the routing table in routes to see if there are any secondary calls to make
+     */
+    private goRoute (url) {
+        if (route(url)) {
+            for(let i=0;i<route(url).length;i++) {
+                this.server.go(route(url)[i])
+            };
+        }
+    }
     /**
      * This compliments the 'go' function in that it updates page elements instead of
      * the whole thing
@@ -173,6 +193,17 @@ export default class router implements iprotocol {
             
             that.go(href);
         }, false);
+
+        document.body.addEventListener("submit", function(event: Event & {
+            target: HTMLButtonElement
+        }) {
+            const { target } = event;
+
+            console.log(target)
+
+            event.stopPropagation();
+            event.preventDefault();
+        }, false)
         /*document.querySelectorAll("a").forEach((e) => {
 
             e.addEventListener("click", function(event) {

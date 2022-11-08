@@ -11,6 +11,7 @@ export default class DOMManipulation {
         this.head = document.head || document.getElementsByTagName('head')[0];
         this.templateType = 'global';
         this.DOMData = {};
+        this.lastTemplate = '';
         this.config = {
             contentSelector: "main"
         }; // passed from client and set here
@@ -86,6 +87,17 @@ export default class DOMManipulation {
             e.innerText = json[id];
         }
         catch (e) {
+            /**
+             * 7th November, 2022
+             * VERY HACKY
+             *
+             * This allows us to push data into an already loaded template
+             * Bad sides:
+             * - only stores the last template
+             * - this is all a bit pants
+             */
+            this.DOMData = json;
+            this._html({ data: this.lastTemplate });
         }
     }
     /**
@@ -225,7 +237,9 @@ export default class DOMManipulation {
         /**
          * template engine. Parses the string then compiles it with what ever is in this.DOMData
          */
+        //this.DOMData = json
         let parsedTemplate = template.parse(loadedContent, this.DOMData);
+        this.lastTemplate = loadedContent;
         loadedContent = template.compile(parsedTemplate, this.DOMData);
         /**
          * we need a way to find out if what's in loadedContent is a complete HTML page,

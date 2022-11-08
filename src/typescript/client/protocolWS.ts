@@ -19,7 +19,7 @@ export default {
     },
 
     async go (file: string) {
-        let json = {'file':file};
+        let json = {'url':file};
         await this.build(json).then(resolved => {
             return true;
         });

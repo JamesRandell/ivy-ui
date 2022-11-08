@@ -136,7 +136,7 @@ function socketInit () {
       resolve(socketInitS.server);
       dommanipulationinstance.m(uiComponent.connected);
 
-      socket({file:"/widget/nav"});
+      socket({url:"/widget/nav"});
     };
 
     socketInitS.server.onclose = function(reason){

@@ -54,26 +54,22 @@ var broadcast = function(data) {
 const ivyWatch = (eventType: string, filePath: string) => {
   
   if (filePath.includes('\\') !== true) {
-    return
+    //return
   }
+
+  //let fileArr = library._fileArr(filePath);
+
   
-  const basePath = filePath.split('\\')[0];
-
-  if (['resource','ui'].indexOf(basePath) < 0) {
-    return
-  }
-
-
   /**
    * we need to figure out the path, filename and extension so we can pass it to 
    * another method that sends the result back to the client
    */
-  const fileArr = library._fileArr(filePath);
+  
 
   /**
    * don't return server changes to the client!!
    */
-  if (fileArr.path === 'server') return;
+  //if (fileArr.path == null) return;
 
 
   // eventType could be either 'rename' or 'change'. new file event and delete
@@ -90,35 +86,33 @@ const ivyWatch = (eventType: string, filePath: string) => {
         case 'change' :
           // old way to send file contents out
           //filePush('resource/css/' + filename);
- 
-          console.log('File changed: ' + filePath);
+          const fileArr = library._fileArr(filePath);
+          console.log(fileArr)
 
           /**
-           * replaceAll doesn't exist in the lib of typescript i'm using, so can't use it
-           * here is a regexp instead
+           * only push changes if they exist in these paths
            */
-          let name = fileArr.fileNameShort.replace(/["\\]/g, '/')
-          let ext = fileArr.ext
+          if (['ui','resource'].indexOf(fileArr.pathFirst) < 0) {
+            console.log('ui or resource not found')
+            return;
+          }
+          
+          console.log('File changed: ' + filePath);
 
-          let path2 = (fileArr.path == 0) ? '' : '/' + fileArr.path
-          // instead we just send the file name and let the client deal with it
 
-          if (basePath == 'ui') {
-
-            let file = path2 + '/' + name + '.' + ext;
-
+          if (fileArr.isTemplate === true) {
             /**
              * this allows us to 'push' the contents of the changed file back through the websocket
              * The ui will update itself with the new path/content
              */
             //library['file'](name.replace('ui/', '/')).then((result) => {
-            library['file'](name).then((result) => {
+            library['file'](fileArr.path + '/' + fileArr.fileNameShort).then((result) => {
               broadcast(buildJSON(result));
             });
             
-          } else {
+          } else if (fileArr.isResource === true) {
             broadcast( 
-              buildJSON(path2 + '/' + name + '.' + ext, ext + 'File')
+              buildJSON(fileArr.pathFull, fileArr.ext + 'File')
             );
           }
       }
@@ -250,10 +244,10 @@ var library = {
    * Our private (lol) function to split apart variase file components to return the path 
    * to the file, file name, and extension
    * 
-   * @param flePath accepts path to a file, including the file name.
+   * @param filePath accepts path to a file, including the file name.
    */
   _fileArr (filePath: string) {
-
+    console.log('_fileArr: ' + filePath)
     let result: any = {
       fileName: null,
       fileNameShort: null,
@@ -261,14 +255,22 @@ var library = {
       isTemplate: Boolean,
       isWidget: Boolean,
       isApi: Boolean,
+      isResource: Boolean,
       path: null,
+      pathFirst: String,
       ext: null
     };
+
+    
+    filePath = filePath.replace(/\\/g, "/")
+
+    filePath = (filePath.startsWith('/') == true) ? filePath.slice(1, filePath.length) : filePath
 
     result.isTemplate = false
     result.isWidget = false
     result.isApi = false
-    result.pathFull = filePath;
+    result.isResource = false
+    result.pathFull = '/' + filePath;
 
 
     /**
@@ -289,7 +291,11 @@ var library = {
     // forward slash here as it's a webserver path
     result.fileName = fileArray[fileArrayLength-1];
 
-    // remove the filename.ext so we're just left with the path components
+    /**
+     * remove the filename.ext so we're just left with the path components
+     * 
+     * This means fileArray could be empty if only a filename was passed in
+     */
     fileArray.pop();
 
     /**
@@ -307,24 +313,48 @@ var library = {
       i++
     }
 
-    if (result.isApi === false) {
-      result.isTemplate = true;
-      fileArray.unshift('/ui')
-      result.pathFull = '/ui' + filePath;
-    }
-    // join all the parts seperated by a slash (/) so we combine our full path
-    result.path = fileArray.join('/');
-
     /**
      * this returns all the parts after the first dot (.) incase we have a multi . extenion. We then strip the dots out.
      */
-    result.ext = result.fileName.substr(result.fileName.indexOf('.')+1, 100).replace('.', '');
-
+    result.ext = result.pathFull.substr(result.pathFull.indexOf('.')+1, 100).replace('.', '');
 
     /**
      * returns just the filename with out extension for our re-write rules
      */
     result.fileNameShort = result.fileName.replace('.' + result.ext, '');
+
+    
+     
+    if (['resource'].indexOf(result.ext) >= 0) {
+      result.isResource = true;
+    }
+
+    result.pathFirst = fileArray[0];
+
+    result.path = '/' + fileArray.join('/');
+    switch (fileArray[0]) {
+      case 'resource' :   result.isResource = true;
+                          break;
+      case 'ui'       :   result.isTemplate = true;
+                          return result
+                          break;
+      case 'src'      :   return result  
+    }
+
+    if (fileArray.length === 0) {
+      result.pathFull = null
+      return result
+    }
+    if (result.isApi === false && result.isResource === false) {
+      result.isTemplate = true;
+      //fileArray.unshift('ui')
+      //result.pathFull = ('/ui/' + result.pathFull).replace('//', '/');
+      result.pathFull = result.pathFull.replace('//', '/');
+    }
+    // join all the parts seperated by a slash (/) so we combine our full path
+    result.path = '/' + fileArray.join('/');
+  
+    
 
     return result;
   },
@@ -338,6 +368,23 @@ var library = {
     fs.readFile('resource/script/server/dom.json', 'utf8', function(e, result) {
         return {data: result, key: 'DOM'};
     });
+  },
+
+  async url (url: string) {
+
+    const fileArr = this._fileArr(url)
+
+    /**
+     * requests from the fonrt end will either be looking for an actual file, or something in the ui directory
+     * thing is, thinigs in the ui directory are typically linked with out calling the ui
+     * I.e. /index is actually /ui/index
+     * We look out for specific paths and ignore those, only prepaending whats left with ui
+     */
+    if (['api','resource'].indexOf(fileArr.pathFirst) < 0) {
+      return this.file('/ui' + url)
+    }
+    
+    return this.file(url)
   },
 
   async file (file: string) {
@@ -414,7 +461,7 @@ var library = {
               returnObject.data = result
               resolve({html:returnObject});
             } else if (fileAttributes.isTemplate === true) {
-              returnObject.url = file
+              returnObject.url = file.replace('/ui', '')
               returnObject.data = result
               resolve({html:returnObject});
             }
@@ -450,6 +497,7 @@ function debounce (callback: any, wait: number = 150) {
 /* test code for server side db scripts */
 import * as http from 'http'
 import * as url from 'url'
+import { isBooleanObject } from 'util/types';
 
 const host = 'localhost';
 const port = 8888;

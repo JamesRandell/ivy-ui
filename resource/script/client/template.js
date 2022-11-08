@@ -276,7 +276,7 @@ var template = {
             return h;
         }
         catch (e) {
-            console.warn('Problem with template: ' + e, templateString);
+            console.warn('Problem with template: ' + e, templateString, data);
         }
     },
     _convertObjectToArray: (data = {}) => {

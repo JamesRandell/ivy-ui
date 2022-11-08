@@ -83,7 +83,7 @@ function socketInit() {
             socketInitS.failedCount = 0; // reset the connction counter
             resolve(socketInitS.server);
             dommanipulationinstance.m(uiComponent.connected);
-            socket({ file: "/widget/nav" });
+            socket({ url: "/widget/nav" });
         };
         socketInitS.server.onclose = function (reason) {
             socketInitS.failedCount++;
