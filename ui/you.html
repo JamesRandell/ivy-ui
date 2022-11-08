@@ -2,10 +2,38 @@
     
 
 
-    <form action="/you" method="post">
-        <input type="text" name="name_text" />
-        <input type="password" name="name_password" />
-        <input type="submit" name="name_submit" value="submit" />
-
+    <form class="ui form" action="/you" method="post">
+        <div class="field">
+            <label for="name_text">Name</label>
+            <input type="text" name="name_text" placeholder="First Name" />
+        </div>
+        
+        <div class="field">
+            <label for="name_text">Name</label>
+            <input type="password" name="name_password" />
+        </div>
+     
+        <div class="field">
+            <label for="name_text">Name</label>
+            <textarea name="textarea"></textarea>
+        </div>
+        <div class="field">
+            <label for="name_text">Select Menu</label>
+            <selectmenu name="select">
+                <option value="1">1</option>
+                <option value="2">2</option>
+            </select>
+        </div>
+        <div class="field">
+            <label for="name_text">Select</label>
+            <select name="select">
+                <option value="1">1</option>
+                <option value="2">2</option>
+            </select>
+        </div>
+        <div class="field">
+            <label for="name_text">Name</label>
+            <input type="submit" name="name_submit" value="submit" />
+        </div>
     </form>
 </main>

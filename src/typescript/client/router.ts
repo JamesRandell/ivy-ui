@@ -377,7 +377,7 @@ export default class router implements iprotocol {
         if (pathArrLength === 1) {
             registry.controller = pathArr[0];
 
-            this.go('/' + registry.controller);
+            this.go('/' + registry.controller, true);
             return;
         }
 
@@ -390,7 +390,7 @@ export default class router implements iprotocol {
             registry.controller = pathArr[0];
             registry.action = pathArr[1];
 
-            this.go('/' + registry.controller + '/' + registry.action);
+            this.go('/' + registry.controller + '/' + registry.action, true);
             return;
         }
 
