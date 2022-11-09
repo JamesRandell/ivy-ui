@@ -5,6 +5,7 @@
 import { ClassMapper } from "./ClassMapper.js";
 //@ts-ignore
 import { template } from './template.js';
+import { CustomSelect } from './vanilla-js-dropdown.js';
 let instance = null;
 export default class DOMManipulation {
     constructor() {
@@ -270,6 +271,10 @@ export default class DOMManipulation {
             isWidget = true;
             this.templateType = 'widget';
             console.log('_html is template: widget');
+        }
+        const select = document.getElementsByTagName('select');
+        for (let i = 0; i < select.length; i++) {
+            var t = CustomSelect(select[i]);
         }
         //html = this.sanitizeHTML(html);
         let temp = document.createElement('html');

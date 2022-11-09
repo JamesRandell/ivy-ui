@@ -40,7 +40,7 @@ var broadcast = function (data) {
 };
 const ivyWatch = (eventType, filePath) => {
     if (filePath.includes('\\') !== true) {
-        //return
+        //return 
     }
     //let fileArr = library._fileArr(filePath);
     /**

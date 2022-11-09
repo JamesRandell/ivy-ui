@@ -54,7 +54,7 @@ var broadcast = function(data) {
 const ivyWatch = (eventType: string, filePath: string) => {
   
   if (filePath.includes('\\') !== true) {
-    //return
+    //return 
   }
 
   //let fileArr = library._fileArr(filePath);

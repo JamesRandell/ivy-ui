@@ -12,7 +12,7 @@ import { ClassMapper } from "./ClassMapper.js";
 import { template } from './template.js';
 import { timingSafeEqual } from 'crypto';
 
-
+import { CustomSelect } from './vanilla-js-dropdown.js';
 interface IAttributes {
     class?: string;
     addClass?: string;
@@ -326,7 +326,11 @@ export default class DOMManipulation {
             console.log('_html is template: widget')
         }
         
-
+        const select = document.getElementsByTagName('select')
+        for (let i=0; i<select.length; i++) {
+            var t = CustomSelect(select[i])
+        }
+        
 
         //html = this.sanitizeHTML(html);
         let temp = document.createElement('html');
