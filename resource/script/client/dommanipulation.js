@@ -5,7 +5,7 @@
 import { ClassMapper } from "./ClassMapper.js";
 //@ts-ignore
 import { template } from './template.js';
-import { CustomSelect } from './vanilla-js-dropdown.js';
+import { Select } from './select.js';
 let instance = null;
 export default class DOMManipulation {
     constructor() {
@@ -272,10 +272,6 @@ export default class DOMManipulation {
             this.templateType = 'widget';
             console.log('_html is template: widget');
         }
-        const select = document.getElementsByTagName('select');
-        for (let i = 0; i < select.length; i++) {
-            var t = CustomSelect(select[i]);
-        }
         //html = this.sanitizeHTML(html);
         let temp = document.createElement('html');
         temp.innerHTML = loadedContent;
@@ -287,6 +283,11 @@ export default class DOMManipulation {
          * content.
          */
         const loadedBody = temp.querySelector("body");
+        const select = loadedBody.getElementsByTagName('select');
+        for (let i = 0; i < select.length; i++) {
+            //var t = CustomSelect(select[i]);
+            var y = new Select(select[i]);
+        }
         /**
          * We're dealing with a WIDGET, that is, an HTML fragment.
          * We now need to perform some tests to attempt to replace current

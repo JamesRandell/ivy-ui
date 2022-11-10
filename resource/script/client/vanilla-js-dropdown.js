@@ -58,7 +58,6 @@ export var CustomSelect = function (selectObject) {
     function generateOptions(options) {
         for (var i = 0; i < options.length; i++) {
             var li = document.createElement('div');
-            console.log(li);
             li.innerText = options[i].textContent;
             li.setAttribute('data-value', options[i].value);
             li.setAttribute('data-index', (index++).toString());

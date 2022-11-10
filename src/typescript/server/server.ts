@@ -53,6 +53,10 @@ var broadcast = function(data) {
 
 const ivyWatch = (eventType: string, filePath: string) => {
   
+  if (!filePath) {
+    return
+  }
+
   if (filePath.includes('\\') !== true) {
     //return 
   }

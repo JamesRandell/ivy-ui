@@ -39,6 +39,9 @@ var broadcast = function (data) {
     //wss.send(data); 
 };
 const ivyWatch = (eventType, filePath) => {
+    if (!filePath) {
+        return;
+    }
     if (filePath.includes('\\') !== true) {
         //return 
     }

@@ -13,6 +13,8 @@ import { template } from './template.js';
 import { timingSafeEqual } from 'crypto';
 
 import { CustomSelect } from './vanilla-js-dropdown.js';
+
+import { Select } from './select.js'
 interface IAttributes {
     class?: string;
     addClass?: string;
@@ -326,10 +328,7 @@ export default class DOMManipulation {
             console.log('_html is template: widget')
         }
         
-        const select = document.getElementsByTagName('select')
-        for (let i=0; i<select.length; i++) {
-            var t = CustomSelect(select[i])
-        }
+        
         
 
         //html = this.sanitizeHTML(html);
@@ -337,6 +336,7 @@ export default class DOMManipulation {
         temp.innerHTML = loadedContent;
 
 
+        
         // i'll always have a body because the creation of the html node creates
         // head and body nodes
 
@@ -347,6 +347,13 @@ export default class DOMManipulation {
          */
         const loadedBody = temp.querySelector("body");
         
+        const select = loadedBody.getElementsByTagName('select')
+        for (let i=0; i<select.length; i++) {
+            //var t = CustomSelect(select[i]);
+            var y = new Select(select[i]);
+
+        }
+
         /**
          * We're dealing with a WIDGET, that is, an HTML fragment. 
          * We now need to perform some tests to attempt to replace current 

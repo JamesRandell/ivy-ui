@@ -119,6 +119,7 @@ function socket(arg) {
         if (!arg.hasOwnProperty('payload')) {
             arg = { payload: arg };
         }
+        // 'as any' is a hack to fix a typescript error from saying send doesn't exist on null
         server.send(JSON.stringify(arg));
     }).catch(function (err) {
         console.log(err);
