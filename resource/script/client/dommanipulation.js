@@ -283,11 +283,6 @@ export default class DOMManipulation {
          * content.
          */
         const loadedBody = temp.querySelector("body");
-        const select = loadedBody.getElementsByTagName('select');
-        for (let i = 0; i < select.length; i++) {
-            //var t = CustomSelect(select[i]);
-            var y = new Select(select[i]);
-        }
         /**
          * We're dealing with a WIDGET, that is, an HTML fragment.
          * We now need to perform some tests to attempt to replace current
@@ -375,6 +370,11 @@ export default class DOMManipulation {
                 this.content.appendChild(g[i]);
             }
             this.loading(false);
+            const select = this.content.getElementsByTagName('select');
+            for (let i = 0; i < select.length; i++) {
+                //var t = CustomSelect(select[i]);
+                var y = new Select(select[i]);
+            }
             return;
         }
         /**
@@ -399,6 +399,11 @@ export default class DOMManipulation {
          */
         //router.updateRouter(json.url);
         this.loading(false);
+        const select = this.content.getElementsByTagName('select');
+        for (let i = 0; i < select.length; i++) {
+            //var t = CustomSelect(select[i]);
+            var y = new Select(select[i]);
+        }
     }
     /**
      * Right now this is run when the page loads, and simply adds a few css classes to the current link

@@ -347,12 +347,7 @@ export default class DOMManipulation {
          */
         const loadedBody = temp.querySelector("body");
         
-        const select = loadedBody.getElementsByTagName('select')
-        for (let i=0; i<select.length; i++) {
-            //var t = CustomSelect(select[i]);
-            var y = new Select(select[i]);
-
-        }
+        
 
         /**
          * We're dealing with a WIDGET, that is, an HTML fragment. 
@@ -455,6 +450,13 @@ export default class DOMManipulation {
             }
 
             this.loading(false);
+
+            const select = this.content.getElementsByTagName('select')
+            for (let i=0; i<select.length; i++) {
+                //var t = CustomSelect(select[i]);
+                var y = new Select(select[i]);
+
+            }
             return;
         }
 
@@ -484,6 +486,12 @@ export default class DOMManipulation {
          */
         //router.updateRouter(json.url);
         this.loading(false);
+        const select = this.content.getElementsByTagName('select')
+        for (let i=0; i<select.length; i++) {
+            //var t = CustomSelect(select[i]);
+            var y = new Select(select[i]);
+
+        }
     }
 
     /**
