@@ -3,7 +3,7 @@ class Select {
         this.configClass = {
             main: 'ui fluid selection dropdown',
             title: 'default text',
-            list: 'menu transition hidden',
+            list: 'menu transition',
             option: 'item',
             icon: 'dropdown icon',
             optGroup: 'optgroup',
@@ -105,7 +105,7 @@ class Select {
         console.log(e);
         //e.preventDefault();
         let t = e.target; // || e.srcElement; - uncomment for IE8
-        if (!e.target.classList.contains('selection')) {
+        if (!e.target.classList.contains('selection') && !e.target.classList.contains('icon')) {
             this._close();
             console.log('close2');
             return;
@@ -145,13 +145,16 @@ class Select {
     }
     _toggle() {
         this.e.main.classList.toggle(this.configClass.open);
+        this.e.list.classList.toggle(this.configClass.open);
     }
     _open() {
         this.e.main.classList.add(this.configClass.open);
+        this.e.list.classList.add(this.configClass.open);
         this.e.main.classList.remove('hidden');
     }
     _close() {
         this.e.main.classList.remove(this.configClass.open);
+        this.e.list.classList.remove(this.configClass.open);
     }
 }
 export { Select };

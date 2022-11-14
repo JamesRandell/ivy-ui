@@ -6,7 +6,7 @@ class Select {
 configClass = {
     main: 'ui fluid selection dropdown',
     title: 'default text',
-    list: 'menu transition hidden',
+    list: 'menu transition',
     option: 'item',
     icon: 'dropdown icon',
     optGroup: 'optgroup',
@@ -153,7 +153,7 @@ private _onClick(e) {
     
     let t = e.target; // || e.srcElement; - uncomment for IE8
 
-    if (!e.target.classList.contains('selection')) {
+    if (!e.target.classList.contains('selection') && !e.target.classList.contains('icon')) {
         this._close();
         console.log('close2')
         return
@@ -200,15 +200,18 @@ private _onClick(e) {
 
 private _toggle () {
     this.e.main.classList.toggle(this.configClass.open);
+    this.e.list.classList.toggle(this.configClass.open);
 }
 
 private _open () {
     this.e.main.classList.add(this.configClass.open);
+    this.e.list.classList.add(this.configClass.open);
     this.e.main.classList.remove('hidden');
 }
 
 private _close () {
     this.e.main.classList.remove(this.configClass.open);
+    this.e.list.classList.remove(this.configClass.open);
 }
 
 
