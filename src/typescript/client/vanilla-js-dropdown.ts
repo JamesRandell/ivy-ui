@@ -122,6 +122,7 @@ function onClick(e) {
     toggle();
   }
 
+
   if (t.tagName === 'DIV' && !t.classList.contains(disabledClass)) {
     selectContainer.querySelector('.' + titleClass).innerHTML = t.innerHTML;
     elem.options.selectedIndex = t.getAttribute('data-index');

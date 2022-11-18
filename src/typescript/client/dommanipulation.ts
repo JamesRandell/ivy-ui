@@ -59,6 +59,7 @@ export default class DOMManipulation {
         current: 'current'
     }
 
+    progressiveSelectArray: object = {}
 
     constructor() {
 
@@ -450,13 +451,8 @@ export default class DOMManipulation {
             }
 
             this.loading(false);
-
-            const select = this.content.getElementsByTagName('select')
-            for (let i=0; i<select.length; i++) {
-                //var t = CustomSelect(select[i]);
-                var y = new Select(select[i]);
-
-            }
+            this._progressiveSelect(loadedBody);
+            
             return;
         }
 
@@ -486,12 +482,25 @@ export default class DOMManipulation {
          */
         //router.updateRouter(json.url);
         this.loading(false);
-        const select = this.content.getElementsByTagName('select')
-        for (let i=0; i<select.length; i++) {
-            //var t = CustomSelect(select[i]);
-            var y = new Select(select[i]);
+        this._progressiveSelect(loadedBody);
+    }
 
-        }
+    private _progressiveSelect (html) {
+        const sselect = html.getElementsByTagName('select');
+
+
+
+        console.warn('Called _progressiveSelect')
+        
+
+            const maxi = sselect.length;
+            for (let ii=0; ii<maxi; ii++) {
+                console.log(sselect[ii])
+                var y = new Select(null, sselect[ii].name);
+
+            }
+            
+
     }
 
     /**
@@ -715,6 +724,11 @@ export default class DOMManipulation {
         this._jsFile(filePath);
     }
 
+    public _minjsFile (filePath: string) {
+
+        this._jsFile(filePath);
+    }
+
     private _jsFile (path: string) { 
 
         const moduleName = path.split(/.*[\/|\\]/)[1].split('.')[0];
@@ -741,7 +755,10 @@ export default class DOMManipulation {
     }
 
     public cssFile (filePath: string) {
+        this._cssFile(filePath);
+    }
 
+    public _mincssFile (filePath: string) {
         this._cssFile(filePath);
     }
 

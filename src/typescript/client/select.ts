@@ -14,9 +14,9 @@ configClass = {
     disabled: 'disabled',
     open: 'visible'
 }
-
+binding = {};
 index = 0;
-e: any = {
+private e: any = {
     main: Object,
     button: Object,
     icon: Object,
@@ -26,16 +26,31 @@ e: any = {
     input: Object,
     value: String
 }
-constructor(selectObj: object) {
+constructor(selectObj: object = null, selectName: string = null) {
+    
+    if (!selectName) {
+        selectName = (selectObj as any).name;
+    }
+
+    if (!selectObj) {
+        selectObj = document.querySelector('select[name=' + selectName + ']');
+    }
 
     if ((selectObj as any).offsetParent === null) {
         return;
     }
 
+    /**
+     * check if this is still a select object
+     * 
+     * I encoutered a race condition for mthe calling side where this function was ran twice for the same page.
+     */
+
     this.e.select = selectObj;
 
-    const selectName = (selectObj as any).name;
-    console.log(selectName)
+    
+
+    console.log('After: ' + selectName)
     
     
     this.e.main = document.createElement('div');
@@ -80,35 +95,36 @@ constructor(selectObj: object) {
 
 
     // appending the button and the list
-
-    
     this.e.main.appendChild(this.e.input);
     this.e.main.appendChild(this.e.icon);
     this.e.main.appendChild(this.e.button);
     this.e.main.appendChild(this.e.list);
 
 
-    
-   
-
     // pseudo-select is ready - append it and hide the original
     (selectObj as any).parentNode.insertBefore(this.e.main, selectObj);
     (selectObj as any).style.display = 'none';
     var that = this;
 
-    
 
     /**
      * see if we have created a listener on the body for select events yet
      */
     const checkListener = document.body;
     if (checkListener.getAttribute('data-select') !== 'true') {
-        checkListener.setAttribute('data-select', true);
-        document.addEventListener('click', function(e){
-            that._onClick(e)
-        });
+        checkListener.setAttribute('data-select', 'true');
+        document.addEventListener('click', function(e) {
+            that._onClickOff(e);
+        })
     }
-    document.querySelector('select[name=' + selectName + ']').remove();
+    this.binding = this._onClick.bind(this)
+    this.e.main.addEventListener('click', this.binding, false);
+/*
+    this.e.main.addEventListener('click', function(e){
+        that._onClick(e);
+    });
+ */
+   document.querySelector('select[name=' + selectName + ']').remove();
 
 }
 
@@ -145,23 +161,67 @@ private _generateOptions(options) {
     }
   }
 
+private _onClickOff(e) {
 
+    let t = e.target;
+
+    if (!t.classList.contains('selection') && t.className != this.configClass.icon) {
+
+        /**
+          if (t.classList.contains(this.configClass.option)) {
+            this.e.input.value = t.getAttribute('data-value');
+            this.e.button.textContent = t.innerText;
+            let options = t.parentNode.getElementsByClassName('item');
+            [].forEach.call(options, function(el) {
+                el.classList.remove('selected')
+            });
+            t.classList.add(this.configClass.selected);
+        }
+        */
+        
+        
+        this._close();
+        console.log('close3 clickOff')
+        return
+    }
+
+}
 private _onClick(e) {
     
-    console.log(e);
+
     //e.preventDefault();
     
     let t = e.target; // || e.srcElement; - uncomment for IE8
+    console.log(t);
+    if (t.className == this.configClass.icon) {
+        console.log(t);
+        t = t.closest('div.selection');
+        console.log(t);
+    }
+    if (!t.classList.contains('selection') && t.className != this.configClass.icon) {
 
-    if (!e.target.classList.contains('selection') && !e.target.classList.contains('icon')) {
+        if (t.classList.contains(this.configClass.option)) {
+
+            this.e.input.value = t.getAttribute('data-value');
+            this.e.button.textContent = t.innerText;
+            let options = t.parentNode.getElementsByClassName('item');
+            const selectClass = this.configClass.selected;
+            [].forEach.call(options, function(el) {
+                el.classList.remove(selectClass)
+            });
+            t.classList.add(selectClass);
+        }
+        
+        
         this._close();
-        console.log('close2')
+        console.log('close22')
         return
     }
-    if (this.e.main.classList.contains('selection')) {
-        
-        
 
+
+
+    if (this.e.main.classList.contains('selection') || this.e.main.className == this.configClass.icon) {
+        
         if (this.e.main.classList.contains(this.configClass.open)) {
             this._close();
             console.log('close2')
@@ -180,19 +240,19 @@ private _onClick(e) {
 
 
     //this._open();
-    if (e.tagName === 'DIV' && !e.classList.contains(this.configClass.disabled)) {
+    if (t.tagName === 'DIV' && !t.classList.contains(this.configClass.disabled)) {
         //this.e.main.querySelector('.' + this.configClass.title).innerHTML = e.innerHTML;
-        this.e.select.options.selectedIndex = e.getAttribute('data-index');
+        this.e.select.options.selectedIndex = t.getAttribute('data-index');
 
         //trigger 'change' event
-        var evt = new CustomEvent('change');
+        //var evt = new CustomEvent('change');
         //this.e.select.dispatchEvent(evt);
 
         // highlight the selected
         for (var i = 0; i < this.e.select.options.length; i++) {
         //ul.querySelectorAll('li')[i].classList.remove(selectedClass);
         }
-        e.classList.add(this.configClass.selected);
+        t.classList.add(this.configClass.selected);
 
         //this._close();
     }
@@ -211,6 +271,7 @@ private _open () {
 
 private _close () {
     this.e.main.classList.remove(this.configClass.open);
+    this.e.main.classList.remove(this.configClass.selected);
     this.e.list.classList.remove(this.configClass.open);
 }
 

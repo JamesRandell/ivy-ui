@@ -17,6 +17,7 @@
 .ui.form .field {
     clear: both;
     margin: 0 0 1em;
+    min-height:60.98px
 }
 .ui.form .field:last-child,
 .ui.form .fields:last-child .field {
@@ -109,6 +110,7 @@
 .ui.form input.attached {
     width: auto;
 }
+
 .ui.form select {
     display: block;
     height: auto;
@@ -123,6 +125,7 @@
 }
 .ui.form .field > .selection.dropdown {
     width: 100%;
+    overflow: hidden;
 }
 .ui.form .field > .selection.dropdown > .dropdown.icon {
     float: right;
@@ -1656,6 +1659,7 @@ select.ui.dropdown {
     display: block;
     width: 100%;
     min-width: 0;
+    position: absolute;
 }
 .ui.fluid.dropdown > .dropdown.icon {
     float: right;

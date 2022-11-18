@@ -1,5 +1,5 @@
 class Select {
-    constructor(selectObj) {
+    constructor(selectObj = null, selectName = null) {
         this.configClass = {
             main: 'ui fluid selection dropdown',
             title: 'default text',
@@ -11,6 +11,7 @@ class Select {
             disabled: 'disabled',
             open: 'visible'
         };
+        this.binding = {};
         this.index = 0;
         this.e = {
             main: Object,
@@ -22,12 +23,22 @@ class Select {
             input: Object,
             value: String
         };
+        if (!selectName) {
+            selectName = selectObj.name;
+        }
+        if (!selectObj) {
+            selectObj = document.querySelector('select[name=' + selectName + ']');
+        }
         if (selectObj.offsetParent === null) {
             return;
         }
+        /**
+         * check if this is still a select object
+         *
+         * I encoutered a race condition for mthe calling side where this function was ran twice for the same page.
+         */
         this.e.select = selectObj;
-        const selectName = selectObj.name;
-        console.log(selectName);
+        console.log('After: ' + selectName);
         this.e.main = document.createElement('div');
         this.e.main.className = this.configClass.main;
         this.e.button = document.createElement('div');
@@ -72,11 +83,18 @@ class Select {
          */
         const checkListener = document.body;
         if (checkListener.getAttribute('data-select') !== 'true') {
-            checkListener.setAttribute('data-select', true);
+            checkListener.setAttribute('data-select', 'true');
             document.addEventListener('click', function (e) {
-                that._onClick(e);
+                that._onClickOff(e);
             });
         }
+        this.binding = this._onClick.bind(this);
+        this.e.main.addEventListener('click', this.binding, false);
+        /*
+            this.e.main.addEventListener('click', function(e){
+                that._onClick(e);
+            });
+         */
         document.querySelector('select[name=' + selectName + ']').remove();
     }
     _generateSelectReplacement(selectObj) {
@@ -101,16 +119,50 @@ class Select {
             this.e.list.appendChild(item);
         }
     }
-    _onClick(e) {
-        console.log(e);
-        //e.preventDefault();
-        let t = e.target; // || e.srcElement; - uncomment for IE8
-        if (!e.target.classList.contains('selection') && !e.target.classList.contains('icon')) {
+    _onClickOff(e) {
+        let t = e.target;
+        if (!t.classList.contains('selection') && t.className != this.configClass.icon) {
+            /**
+              if (t.classList.contains(this.configClass.option)) {
+                this.e.input.value = t.getAttribute('data-value');
+                this.e.button.textContent = t.innerText;
+                let options = t.parentNode.getElementsByClassName('item');
+                [].forEach.call(options, function(el) {
+                    el.classList.remove('selected')
+                });
+                t.classList.add(this.configClass.selected);
+            }
+            */
             this._close();
-            console.log('close2');
+            console.log('close3 clickOff');
             return;
         }
-        if (this.e.main.classList.contains('selection')) {
+    }
+    _onClick(e) {
+        //e.preventDefault();
+        let t = e.target; // || e.srcElement; - uncomment for IE8
+        console.log(t);
+        if (t.className == this.configClass.icon) {
+            console.log(t);
+            t = t.closest('div.selection');
+            console.log(t);
+        }
+        if (!t.classList.contains('selection') && t.className != this.configClass.icon) {
+            if (t.classList.contains(this.configClass.option)) {
+                this.e.input.value = t.getAttribute('data-value');
+                this.e.button.textContent = t.innerText;
+                let options = t.parentNode.getElementsByClassName('item');
+                const selectClass = this.configClass.selected;
+                [].forEach.call(options, function (el) {
+                    el.classList.remove(selectClass);
+                });
+                t.classList.add(selectClass);
+            }
+            this._close();
+            console.log('close22');
+            return;
+        }
+        if (this.e.main.classList.contains('selection') || this.e.main.className == this.configClass.icon) {
             if (this.e.main.classList.contains(this.configClass.open)) {
                 this._close();
                 console.log('close2');
@@ -129,17 +181,17 @@ class Select {
             console.log('toggle');
         }
         //this._open();
-        if (e.tagName === 'DIV' && !e.classList.contains(this.configClass.disabled)) {
+        if (t.tagName === 'DIV' && !t.classList.contains(this.configClass.disabled)) {
             //this.e.main.querySelector('.' + this.configClass.title).innerHTML = e.innerHTML;
-            this.e.select.options.selectedIndex = e.getAttribute('data-index');
+            this.e.select.options.selectedIndex = t.getAttribute('data-index');
             //trigger 'change' event
-            var evt = new CustomEvent('change');
+            //var evt = new CustomEvent('change');
             //this.e.select.dispatchEvent(evt);
             // highlight the selected
             for (var i = 0; i < this.e.select.options.length; i++) {
                 //ul.querySelectorAll('li')[i].classList.remove(selectedClass);
             }
-            e.classList.add(this.configClass.selected);
+            t.classList.add(this.configClass.selected);
             //this._close();
         }
     }
@@ -154,6 +206,7 @@ class Select {
     }
     _close() {
         this.e.main.classList.remove(this.configClass.open);
+        this.e.main.classList.remove(this.configClass.selected);
         this.e.list.classList.remove(this.configClass.open);
     }
 }

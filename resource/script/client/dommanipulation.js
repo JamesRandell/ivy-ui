@@ -20,6 +20,7 @@ export default class DOMManipulation {
             active: 'active',
             current: 'current'
         };
+        this.progressiveSelectArray = {};
         console.log('DOM Class started... only one please');
         this._navigateInit();
     }
@@ -370,11 +371,7 @@ export default class DOMManipulation {
                 this.content.appendChild(g[i]);
             }
             this.loading(false);
-            const select = this.content.getElementsByTagName('select');
-            for (let i = 0; i < select.length; i++) {
-                //var t = CustomSelect(select[i]);
-                var y = new Select(select[i]);
-            }
+            this._progressiveSelect(loadedBody);
             return;
         }
         /**
@@ -399,10 +396,15 @@ export default class DOMManipulation {
          */
         //router.updateRouter(json.url);
         this.loading(false);
-        const select = this.content.getElementsByTagName('select');
-        for (let i = 0; i < select.length; i++) {
-            //var t = CustomSelect(select[i]);
-            var y = new Select(select[i]);
+        this._progressiveSelect(loadedBody);
+    }
+    _progressiveSelect(html) {
+        const sselect = html.getElementsByTagName('select');
+        console.warn('Called _progressiveSelect');
+        const maxi = sselect.length;
+        for (let ii = 0; ii < maxi; ii++) {
+            console.log(sselect[ii]);
+            var y = new Select(null, sselect[ii].name);
         }
     }
     /**
@@ -580,6 +582,9 @@ export default class DOMManipulation {
     jsFile(filePath) {
         this._jsFile(filePath);
     }
+    _minjsFile(filePath) {
+        this._jsFile(filePath);
+    }
     _jsFile(path) {
         const moduleName = path.split(/.*[\/|\\]/)[1].split('.')[0];
         // lets see if this already exists
@@ -598,6 +603,9 @@ export default class DOMManipulation {
         this.Reload(this);
     }
     cssFile(filePath) {
+        this._cssFile(filePath);
+    }
+    _mincssFile(filePath) {
         this._cssFile(filePath);
     }
     _cssFile(path) {
