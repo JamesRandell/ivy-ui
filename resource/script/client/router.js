@@ -145,7 +145,8 @@ export default class router {
         }, false);
         document.body.addEventListener("submit", function (event) {
             const { target } = event;
-            console.log(target);
+            const href = target.getAttribute('action');
+            window.dispatchEvent(new CustomEvent('form-submit', { detail: target }));
             event.stopPropagation();
             event.preventDefault();
         }, false);

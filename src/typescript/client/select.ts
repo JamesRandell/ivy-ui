@@ -48,9 +48,7 @@ constructor(selectObj: object = null, selectName: string = null) {
 
     this.e.select = selectObj;
 
-    
 
-    console.log('After: ' + selectName)
     
     
     this.e.main = document.createElement('div');
@@ -179,9 +177,8 @@ private _onClickOff(e) {
         }
         */
         
-        
+
         this._close();
-        console.log('close3 clickOff')
         return
     }
 
@@ -192,11 +189,8 @@ private _onClick(e) {
     //e.preventDefault();
     
     let t = e.target; // || e.srcElement; - uncomment for IE8
-    console.log(t);
     if (t.className == this.configClass.icon) {
-        console.log(t);
         t = t.closest('div.selection');
-        console.log(t);
     }
     if (!t.classList.contains('selection') && t.className != this.configClass.icon) {
 
@@ -214,7 +208,6 @@ private _onClick(e) {
         
         
         this._close();
-        console.log('close22')
         return
     }
 
@@ -224,18 +217,14 @@ private _onClick(e) {
         
         if (this.e.main.classList.contains(this.configClass.open)) {
             this._close();
-            console.log('close2')
         } else {
             this._open();
-            console.log('open')
         }
     } else {
         this._close();
-        console.log('close1')
     }
     if (this.e.main.className === this.configClass.title) {
         this._toggle();
-        console.log('toggle')
     }
 
 

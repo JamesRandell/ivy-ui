@@ -400,10 +400,8 @@ export default class DOMManipulation {
     }
     _progressiveSelect(html) {
         const sselect = html.getElementsByTagName('select');
-        console.warn('Called _progressiveSelect');
         const maxi = sselect.length;
         for (let ii = 0; ii < maxi; ii++) {
-            console.log(sselect[ii]);
             var y = new Select(null, sselect[ii].name);
         }
     }

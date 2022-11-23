@@ -21,7 +21,8 @@ var hook = {
     "dom/pre-pageRequest" : 'Triggered a navigation event (successfull page request)',
     "router/pre-pageRequest" : 'Fired just before we submit a go request to the server',
     "router/post-linkClick" : 'When a user clicks on a a link',
-    "socketRouter/in-payload" : 'After a payload is received'
+    "socketRouter/in-payload" : 'After a payload is received',
+    "router/formsubmit" : 'When a form is submitted'
 };
 
 
@@ -36,11 +37,14 @@ import router from './router.js';
 //@ts-ignore
 import DOMManipulation from './dommanipulation.js';
 
+//@ts-ignore
+import form from './form.js';
 
 //@ts-ignore 
 import svg from './svg.js';
 
-
+const formI = new form();
+window.addEventListener("form-submit", formI.formSubmit, false)
 //@ts-ignore 
 import polyfill from './polyfill.js';
 

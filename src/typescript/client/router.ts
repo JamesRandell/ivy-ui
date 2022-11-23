@@ -198,8 +198,9 @@ export default class router implements iprotocol {
             target: HTMLButtonElement
         }) {
             const { target } = event;
+            const href = target.getAttribute('action')
 
-            console.log(target)
+            window.dispatchEvent(new CustomEvent('form-submit', {detail: target}));
 
             event.stopPropagation();
             event.preventDefault();
