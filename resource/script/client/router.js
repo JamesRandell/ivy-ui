@@ -45,7 +45,7 @@ export default class router {
                     historyMove = true;
                 };
                 if (historyMove === false && that.currentURL != file.pageID) {
-                    rpushState({ pageID: file.pageID }, file.pageID, file.pageID);
+                    rpushState({ pageID: file.pageID, prevURL: window.location.href }, file.pageID, file.pageID);
                 }
             };
         })(window.history);
@@ -138,6 +138,10 @@ export default class router {
                 return;
             }
             let href = obj.getAttribute('href');
+            if (href.includes('#')) {
+                console.log('Hyperlink is an anchor, running...');
+                //return;
+            }
             window.dispatchEvent(new CustomEvent('post-linkClick', { detail: href }));
             event.stopPropagation();
             event.preventDefault();

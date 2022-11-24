@@ -6,6 +6,8 @@ import { ClassMapper } from "./ClassMapper.js";
 //@ts-ignore
 import { template } from './template.js';
 import { Select } from './select.js';
+import { modal } from './modal.js';
+modal;
 let instance = null;
 export default class DOMManipulation {
     constructor() {
@@ -324,6 +326,9 @@ export default class DOMManipulation {
 
                             }
                             */
+                            if (id === 'modal') {
+                                window.document.getElementById('modal').classList.add('open');
+                            }
                             continue;
                         }
                     }

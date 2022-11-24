@@ -15,6 +15,10 @@ import { timingSafeEqual } from 'crypto';
 import { CustomSelect } from './vanilla-js-dropdown.js';
 
 import { Select } from './select.js'
+
+import { modal } from './modal.js'
+modal
+
 interface IAttributes {
     class?: string;
     addClass?: string;
@@ -396,6 +400,10 @@ export default class DOMManipulation {
 
                             }
                             */
+
+                            if (id === 'modal') {
+                                window.document.getElementById('modal').classList.add('open')
+                            }
                             continue;
                         }
                     } catch (error) {
