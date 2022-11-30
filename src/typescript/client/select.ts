@@ -22,6 +22,7 @@ private e: any = {
     icon: Object,
     list: Object,
     optGroup: Object,
+    optionCount: Number,
     select: Object,
     input: Object,
     value: String
@@ -36,6 +37,10 @@ constructor(selectObj: object = null, selectName: string = null) {
         selectObj = document.querySelector('select[name=' + selectName + ']');
     }
 
+    if (!selectObj) {
+        return;
+    }
+
     if ((selectObj as any).offsetParent === null) {
         return;
     }
@@ -43,7 +48,7 @@ constructor(selectObj: object = null, selectName: string = null) {
     /**
      * check if this is still a select object
      * 
-     * I encoutered a race condition for mthe calling side where this function was ran twice for the same page.
+     * I encoutered a race condition form the calling side where this function was ran twice for the same page.
      */
 
     this.e.select = selectObj;
@@ -136,6 +141,7 @@ private _generateOptions(options) {
 
     this.e.value = options[0].value;
     this.e.button.textContent = options[0].textContent;
+    this.e.optionCount = options.length;
 
     for (let i=0; i<options.length; i++) {
       let item: HTMLElement = document.createElement('div');
@@ -157,12 +163,18 @@ private _generateOptions(options) {
   
       this.e.list.appendChild(item);
     }
-  }
+
+    if (this.e.optionCount > 5) {
+        this.e.list.classList.add('scroll');
+    }
+}
 
 private _onClickOff(e) {
 
     let t = e.target;
+    
 
+    
     if (!t.classList.contains('selection') && t.className != this.configClass.icon) {
 
         /**
@@ -192,6 +204,7 @@ private _onClick(e) {
     if (t.className == this.configClass.icon) {
         t = t.closest('div.selection');
     }
+
     if (!t.classList.contains('selection') && t.className != this.configClass.icon) {
 
         if (t.classList.contains(this.configClass.option)) {
@@ -210,6 +223,7 @@ private _onClick(e) {
         this._close();
         return
     }
+
 
 
 
@@ -253,15 +267,36 @@ private _toggle () {
 }
 
 private _open () {
+    this._close();
     this.e.main.classList.add(this.configClass.open);
     this.e.list.classList.add(this.configClass.open);
+
     this.e.main.classList.remove('hidden');
+    
+    this.e.list.style.maxHeight = this.e.main.offsetHeight * this.e.optionCount + 3 + "px";
 }
 
 private _close () {
     this.e.main.classList.remove(this.configClass.open);
     this.e.main.classList.remove(this.configClass.selected);
     this.e.list.classList.remove(this.configClass.open);
+    
+    this.e.list.style.maxHeight = 0;
+
+    let open = this.configClass.open;
+    let selected = this.configClass.selected;
+    [].forEach.call(document.querySelectorAll('.selection.visible .menu.visible'), function(el) {
+        el.classList.remove(open);
+        el.style.maxHeight = 0
+    });
+    
+    [].forEach.call(document.querySelectorAll('.selection.visible'), function(el) {
+        el.classList.remove(open);
+        el.classList.remove(selected);
+    });
+    
+    
+
 }
 
 

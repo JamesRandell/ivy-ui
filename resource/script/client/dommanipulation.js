@@ -300,7 +300,7 @@ export default class DOMManipulation {
                  */
                 let id = g[i].id;
                 if (id) {
-                    console.log('id found \'' + id + '\', starting innerHTML replacement');
+                    console.log('id found \'' + id + '\', trying innerHTML replacement');
                     // we have an id, let try to find it in the existing document
                     try {
                         /**
@@ -335,7 +335,7 @@ export default class DOMManipulation {
                     catch (error) {
                         console.log(error);
                     }
-                    continue;
+                    //continue;
                 }
                 /**
                  * next, lets see if both the TAG and the CLASS matches

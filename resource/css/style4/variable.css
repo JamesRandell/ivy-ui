@@ -1,5 +1,5 @@
 :root {
-    --background: hsl(0, 0%, 95%);
+    --background: hsl(210,40%,96%);
     --dark-bg: hsl(222, 47.4%, 11.2%);
     
     --light-bg: hsl(0, 0%, 80%);
@@ -8,17 +8,21 @@
     --light: hsl(251, 35%, 95%);
     --normal: hsl(0, 0%, 80%);
 
+    --light-border: hsl(214,32%,91%);
     --hover-bg: hsl(251, 81%, 96%);
     --current-bg: hsl(251, 0%, 100%, 0.15);
     --active-bg: hsl(254, 82%, 57%);
     --hover: hsl(0, 0%, 100%);
     --current: hsl(254, 82%, 100%);
     --active: hsl(251, 81%, 96%);
-    --radius-big: 15px;
-    --radius-small: 7px;
+    --radius-big: 1rem;
+    --radius-large: 1rem;
+    --radius-small: 0.5rem;
     --header-color: 30,41,59;
     --blur-color: #ccc;
-    --text-color: #1e293b
+    --text-color: #1e293b;
+
+    --transition-time: 250ms
 }
 
 [class=color-alt] {

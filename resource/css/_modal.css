@@ -14,7 +14,8 @@
   .modal-window:target, .modal-window.open {
     visibility: visible;
     opacity: 1;
-    /*pointer-events: auto;*/
+    pointer-events: auto;
+    
   }
   .modal-window > div {
     width: 400px;
@@ -24,7 +25,8 @@
     transform: translate(-50%, -50%);
     padding: 2em;
     background: white;
-
+    max-height:80%;
+    overflow-y: scroll
   }
   .modal-window header {
     font-weight: bold;

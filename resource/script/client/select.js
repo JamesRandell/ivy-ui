@@ -19,6 +19,7 @@ class Select {
             icon: Object,
             list: Object,
             optGroup: Object,
+            optionCount: Number,
             select: Object,
             input: Object,
             value: String
@@ -29,13 +30,16 @@ class Select {
         if (!selectObj) {
             selectObj = document.querySelector('select[name=' + selectName + ']');
         }
+        if (!selectObj) {
+            return;
+        }
         if (selectObj.offsetParent === null) {
             return;
         }
         /**
          * check if this is still a select object
          *
-         * I encoutered a race condition for mthe calling side where this function was ran twice for the same page.
+         * I encoutered a race condition form the calling side where this function was ran twice for the same page.
          */
         this.e.select = selectObj;
         this.e.main = document.createElement('div');
@@ -101,6 +105,7 @@ class Select {
     _generateOptions(options) {
         this.e.value = options[0].value;
         this.e.button.textContent = options[0].textContent;
+        this.e.optionCount = options.length;
         for (let i = 0; i < options.length; i++) {
             let item = document.createElement('div');
             item.setAttribute('data-value', options[i].value);
@@ -116,6 +121,9 @@ class Select {
                 item.classList.add(this.configClass.disabled);
             }
             this.e.list.appendChild(item);
+        }
+        if (this.e.optionCount > 5) {
+            this.e.list.classList.add('scroll');
         }
     }
     _onClickOff(e) {
@@ -190,14 +198,27 @@ class Select {
         this.e.list.classList.toggle(this.configClass.open);
     }
     _open() {
+        this._close();
         this.e.main.classList.add(this.configClass.open);
         this.e.list.classList.add(this.configClass.open);
         this.e.main.classList.remove('hidden');
+        this.e.list.style.maxHeight = this.e.main.offsetHeight * this.e.optionCount + 3 + "px";
     }
     _close() {
         this.e.main.classList.remove(this.configClass.open);
         this.e.main.classList.remove(this.configClass.selected);
         this.e.list.classList.remove(this.configClass.open);
+        this.e.list.style.maxHeight = 0;
+        let open = this.configClass.open;
+        let selected = this.configClass.selected;
+        [].forEach.call(document.querySelectorAll('.selection.visible .menu.visible'), function (el) {
+            el.classList.remove(open);
+            el.style.maxHeight = 0;
+        });
+        [].forEach.call(document.querySelectorAll('.selection.visible'), function (el) {
+            el.classList.remove(open);
+            el.classList.remove(selected);
+        });
     }
 }
 export { Select };
