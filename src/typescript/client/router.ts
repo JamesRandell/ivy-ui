@@ -36,18 +36,21 @@ export default class router implements iprotocol {
      * server, via which ever protocol we specify in the constructor
      */
     server: any = {};
-
+    serverHTTP: any = {};
+    serverWS: any = {};
 
     currentURL: string = "";
 
 
 
     constructor () {
-        
+        this.serverWS = protocolWS;
+        this.serverHTTP = protocolHTTP;
+
         switch (this.serverType) {
             case 'ws'   :   this.server = protocolWS;
                             break;
-            case 'http'   : this.server = new protocolHTTP();
+            case 'http'   : this.server = protocolHTTP;
                             break;
         }
 
@@ -146,6 +149,12 @@ export default class router implements iprotocol {
                 this.server.go(route(url)[i])
             };
         }
+    }
+
+    public async post (url, data) {
+       
+        return this.serverHTTP.go(url, data);
+        //this.server.go(url, data)
     }
     /**
      * This compliments the 'go' function in that it updates page elements instead of

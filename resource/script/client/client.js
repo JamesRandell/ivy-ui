@@ -26,10 +26,10 @@ import router from './router.js';
 //@ts-ignore
 import DOMManipulation from './dommanipulation.js';
 //@ts-ignore
-import form from './form.js';
+import Form from './form.js';
 //@ts-ignore 
 import svg from './svg.js';
-const formI = new form();
+const formI = Form.getInstance();
 window.addEventListener("form-submit", formI.formSubmit, false);
 //@ts-ignore
 import hotModuleReload from './socketRouter.js';

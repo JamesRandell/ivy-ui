@@ -826,7 +826,7 @@
     min-width: -moz-max-content;
     min-width: max-content;
     
-    max-height: 0;
+   
     overflow: hidden;
     padding: 0 0;
     background: #fff;
@@ -836,9 +836,7 @@
     box-shadow: 0 2px 3px 0 rgba(34, 36, 38, 0.15);
     border: 1px solid rgba(34, 36, 38, 0.15);
     border-radius: 0.28571429rem;
-    transition: opacity 0.1s ease,
-                max-height 300ms 200ms ease-out,
-                height 300ms 200ms ease-out;
+    transition: all var(--transition-time) ease-out;
     z-index: 11;
     will-change: transform, opacity;
 }
@@ -875,9 +873,9 @@
     height: auto;
     text-align: left;
     border-top: none;
-    line-height: 1em;
+    line-height: 0em;
     color: rgba(0, 0, 0, 0.87);
-    padding: 0.78571429rem 1.14285714rem !important;
+    padding: 0 1.14285714rem;
     font-size: 1rem;
     text-transform: none;
     font-weight: 400;
@@ -1024,7 +1022,7 @@
 .ui.selection.dropdown {
     cursor: pointer;
     word-wrap: break-word;
-    line-height: 1em;
+    line-height: 1.21em;
     white-space: normal;
     outline: 0;
     transform: rotateZ(0);
@@ -1085,9 +1083,10 @@ select.ui.dropdown {
     border-radius: 0 0 0.28571429rem 0.28571429rem;
     box-shadow: 0 2px 3px 0 rgba(34, 36, 38, 0.15);
     will-change: transform,opacity;
+    background-color: var(--background)
 }
 .ui.selection.dropdown .menu.scroll {
-    overflow-y: auto;
+    /*overflow-y: auto;*/
 }
 .ui.selection.dropdown .menu:after,
 .ui.selection.dropdown .menu:before {
@@ -1119,10 +1118,11 @@ select.ui.dropdown {
 }
 */
 .ui.selection.dropdown .menu > .item {
-    border-top: 1px solid #fafafa;
-    padding: 0.78571429rem 1.14285714rem !important;
+    border-top: 0px solid #fafafa;
     white-space: normal;
     word-wrap: normal;
+    background-color: #fff;
+    margin-top: 0px;
 }
 .ui.selection.dropdown .menu > .hidden.addition.item {
     display: none;
@@ -1426,6 +1426,14 @@ select.ui.dropdown {
     background: rgba(0, 0, 0, 0.03);
     color: rgba(0, 0, 0, 0.95);
 }
+
+.ui.dropdown.visible .menu.visible .item {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    line-height: 1em;
+    border-top-width: 0px;
+    margin-top: 1px;
+}
 .ui.dropdown > .filtered.text {
     visibility: hidden;
 }
@@ -1666,8 +1674,10 @@ select.ui.dropdown {
 }
 .ui.dropdown > .menu {
     transition: all var(--transition-time) ease;
+}
 
-
+.ui.dropdown > .menu > .item {
+    transition: all var(--transition-time) ease;
 }
 .ui.fluid.dropdown {
     display: block;

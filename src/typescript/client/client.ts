@@ -38,12 +38,12 @@ import router from './router.js';
 import DOMManipulation from './dommanipulation.js';
 
 //@ts-ignore
-import form from './form.js';
+import Form from './form.js';
 
 //@ts-ignore 
 import svg from './svg.js';
 
-const formI = new form();
+const formI = Form.getInstance();
 window.addEventListener("form-submit", formI.formSubmit, false)
 //@ts-ignore 
 import polyfill from './polyfill.js';

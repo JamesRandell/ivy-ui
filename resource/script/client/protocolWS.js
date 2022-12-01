@@ -24,7 +24,7 @@ export default {
         this.build(json);
         return null;
     },
-    go(file) {
+    go(file, data) {
         return __awaiter(this, void 0, void 0, function* () {
             let json = { 'url': file };
             yield this.build(json).then(resolved => {

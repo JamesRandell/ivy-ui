@@ -167,6 +167,10 @@ wss.on('connection', ws => {
                 cmd = keys[i];
                 if (typeof cmd === 'string') {
                     console.log('Running \'' + cmd + '\' with \'' + message.payload[cmd] + '\'');
+                    if (library[cmd] === undefined) {
+                        console.log('"' + cmd + '" not found in server library, ignoring request');
+                        return;
+                    }
                     library[cmd](message.payload[cmd]).then((result) => {
                         ws.send(buildJSON(result));
                     });
@@ -289,7 +293,7 @@ var library = {
         return __awaiter(this, void 0, void 0, function* () {
             const fileArr = this._fileArr(url);
             /**
-             * requests from the fonrt end will either be looking for an actual file, or something in the ui directory
+             * requests from the front end will either be looking for an actual file, or something in the ui directory
              * thing is, thinigs in the ui directory are typically linked with out calling the ui
              * I.e. /index is actually /ui/index
              * We look out for specific paths and ignore those, only prepaending whats left with ui

@@ -3,6 +3,15 @@
  * Expect this to be a simple Express type app, first couple of methods
  * will toally be to read from the URI and make simple updates to it
  */
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 //@ts-ignore
 import protocolWS from "./protocolWS.js";
 //@ts-ignore
@@ -25,13 +34,17 @@ export default class router {
          * server, via which ever protocol we specify in the constructor
          */
         this.server = {};
+        this.serverHTTP = {};
+        this.serverWS = {};
         this.currentURL = "";
+        this.serverWS = protocolWS;
+        this.serverHTTP = protocolHTTP;
         switch (this.serverType) {
             case 'ws':
                 this.server = protocolWS;
                 break;
             case 'http':
-                this.server = new protocolHTTP();
+                this.server = protocolHTTP;
                 break;
         }
         var historyMove = false;
@@ -109,6 +122,12 @@ export default class router {
             }
             ;
         }
+    }
+    post(url, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.serverHTTP.go(url, data);
+            //this.server.go(url, data)
+        });
     }
     /**
      * This compliments the 'go' function in that it updates page elements instead of

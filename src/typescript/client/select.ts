@@ -273,7 +273,7 @@ private _open () {
 
     this.e.main.classList.remove('hidden');
     
-    this.e.list.style.maxHeight = this.e.main.offsetHeight * this.e.optionCount + 3 + "px";
+    //this.e.list.style.maxHeight = this.e.main.offsetHeight * this.e.optionCount + 3 + "px";
 }
 
 private _close () {
@@ -281,13 +281,13 @@ private _close () {
     this.e.main.classList.remove(this.configClass.selected);
     this.e.list.classList.remove(this.configClass.open);
     
-    this.e.list.style.maxHeight = 0;
+    //this.e.list.style.maxHeight = 0;
 
     let open = this.configClass.open;
     let selected = this.configClass.selected;
     [].forEach.call(document.querySelectorAll('.selection.visible .menu.visible'), function(el) {
         el.classList.remove(open);
-        el.style.maxHeight = 0
+        //el.style.maxHeight = 0
     });
     
     [].forEach.call(document.querySelectorAll('.selection.visible'), function(el) {
