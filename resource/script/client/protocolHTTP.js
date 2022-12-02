@@ -51,8 +51,8 @@ export default {
                     json.payload.data = yield response.text();
                 }
                 json.payload.status = response.status;
-                console.log('Data from HTTP request', json.payload);
-                return Promise.resolve(json.payload);
+                console.log('Data from HTTP request', json.payload.data);
+                return Promise.resolve(json.payload.data);
             }
             else {
                 return Promise.reject('** error');
@@ -66,10 +66,10 @@ export default {
      * @returns the checked verb
      */
     checkVerb(verb) {
-        if (!this.verbList.includes(verb)) {
+        if (!this.verbList.includes(verb.toUpperCase())) {
             return this.verbDefault;
         }
-        return verb;
+        return verb.toUpperCase();
     },
     /**
      *

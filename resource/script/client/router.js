@@ -125,7 +125,18 @@ export default class router {
     }
     post(url, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.serverHTTP.go(url, data);
+            const t = DOMManipulation.getInstance();
+            const p = yield this.serverHTTP.go(url, 'post', data);
+            t.loading(true);
+            var file = p.payload.url;
+            window.dispatchEvent(new CustomEvent('pre-pageRequest', { detail: file }));
+            console.warn(file);
+            let y = this.server.go(file);
+            y.then(resolved => {
+                window.dispatchEvent(new CustomEvent('post-navigate', { detail: file }));
+                t.loading(false);
+            });
+            return p;
             //this.server.go(url, data)
         });
     }
