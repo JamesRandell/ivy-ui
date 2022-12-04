@@ -130,7 +130,6 @@ export default class router {
             t.loading(true);
             var file = p.payload.url;
             window.dispatchEvent(new CustomEvent('pre-pageRequest', { detail: file }));
-            console.warn(file);
             let y = this.server.go(file);
             y.then(resolved => {
                 window.dispatchEvent(new CustomEvent('post-navigate', { detail: file }));

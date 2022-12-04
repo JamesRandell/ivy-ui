@@ -22,7 +22,8 @@ var hook = {
     "router/pre-pageRequest" : 'Fired just before we submit a go request to the server',
     "router/post-linkClick" : 'When a user clicks on a a link',
     "socketRouter/in-payload" : 'After a payload is received',
-    "router/formsubmit" : 'When a form is submitted'
+    "socketRouter/fileNotFound" : 'File not found from the server',
+    "router/formsubmit" : 'When a form is submitted',
 };
 
 
@@ -101,6 +102,10 @@ class ivy extends hotModuleReload {
       //socket({file:"/ui/fragment"});
       dommanipulationinstance._navigateCleanUpLinks();
       
+    });
+
+    window.addEventListener("fileNotFound", function(evt) {
+      dommanipulationinstance.fileNotFound(evt.detail)
     });
   }
 }

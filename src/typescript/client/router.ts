@@ -162,7 +162,7 @@ export default class router implements iprotocol {
         
         var file = p.payload.url;
         window.dispatchEvent(new CustomEvent('pre-pageRequest', {detail: file}));
-console.warn(file)
+
         let y = this.server.go(file);
 
         

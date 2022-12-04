@@ -15,7 +15,8 @@ const config_http = {
   port: 8080,
   method: 'GET',
   path: '/',
-  template_directory: '/ui'
+  template_directory: '/ui',
+  headers: {}
 }; 
 
 const key = fs.readFileSync('../ivy-build/cert/server.key', 'utf8');
@@ -257,7 +258,6 @@ var library = {
    * @param filePath accepts path to a file, including the file name.
    */
   _fileArr (filePath: string) {
-    console.log('_fileArr: ' + filePath)
     let result: any = {
       fileName: null,
       fileNameShort: null,
@@ -386,7 +386,7 @@ var library = {
 
     /**
      * requests from the front end will either be looking for an actual file, or something in the ui directory
-     * thing is, thinigs in the ui directory are typically linked with out calling the ui
+     * thing is, things in the ui directory are typically linked with out calling the ui
      * I.e. /index is actually /ui/index
      * We look out for specific paths and ignore those, only prepaending whats left with ui
      */
@@ -424,7 +424,7 @@ var library = {
     config_http.path = fileAttributes.pathFull
 
 
-      console.log(fileAttributes)
+
     /**
      * We use the web server to handle file requests instead of pissing about with building our 
      * own (because you know, I really think nginx can do better than what I can come up with.)
@@ -433,8 +433,14 @@ var library = {
      * rules we may have in place
      */
     return new Promise ((resolve, reject) => {
-      const req = http.request(config_http, res => {
+      config_http.headers = {
+        'Content-Type': 'application/json'
+      };
 
+      const req = http.request(config_http, (res) => {
+
+        console.log(`STATUS: ${res.statusCode}`);
+        console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
         res.setEncoding('utf8');
 
         let returnObject = {
@@ -456,25 +462,33 @@ var library = {
           resolve({html: returnObject });
         }
 
+
         /**
          * returns the file contents
          */
-        res.on('data', result => {
+        res.on('data', (result) => {
 
             /**
              * when the result is pure JSON, send back just a data key, and don't instruct the UI to change the url
              * need to manually parse the result this time
              */
             if (res.headers['content-type'].startsWith('application/json')) {
+              console.log('this is JSON')
               resolve({data:JSON.parse(result)});
             } else if (fileAttributes.isWidget === true) {
+              console.log('isWidget')
               returnObject.data = result
               resolve({html:returnObject});
             } else if (fileAttributes.isTemplate === true) {
+              console.log('isTemplate')
               returnObject.url = file.replace('/ui', '')
               returnObject.data = result
               resolve({html:returnObject});
             }
+        });
+
+        res.on('end', () => {
+          //console.log('No more data in response.');
         });
       });
       

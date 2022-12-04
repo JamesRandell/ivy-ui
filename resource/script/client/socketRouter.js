@@ -38,6 +38,7 @@ export default class socketRouter {
             if (cmd == "html") {
                 if (json.payload.html.statuscode == 404) {
                     console.warn('File not found: ' + json.payload.html.file);
+                    window.dispatchEvent(new CustomEvent('fileNotFound', { detail: json.payload.html.file }));
                     return;
                 }
                 if (json.payload["html"]["url"]) {

@@ -55,7 +55,8 @@ export default class DOMManipulation {
     lastTemplate: string = '';
 
     config = {
-        contentSelector:"main"
+        contentSelector:"main",
+        errorSelector:"error"
     }; // passed from client and set here
 
     cssClasses = {
@@ -795,5 +796,16 @@ export default class DOMManipulation {
     private Reload(updatedModuleInstance: object) {
         let mapper = new ClassMapper(this, updatedModuleInstance);
         let result = mapper.Merge();
+    }
+
+    public fileNotFound (file: string) {
+        console.log(file);
+
+        const errorObj = document.querySelector(this.config.errorSelector);
+        errorObj.textContent = 'File not found:' + file;
+        errorObj.classList.add('visible');
+        setTimeout(function() {
+            errorObj.classList.remove('visible');
+        }, 3000);
     }
 }

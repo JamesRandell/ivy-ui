@@ -1,5 +1,5 @@
 @import "../_modal.css"; /* Using a string */
-@import "footer.css";
+@import "../footer.css";
 
 * {box-sizing: border-box;}
 
@@ -18,7 +18,7 @@ body {
 
     display: grid;
     grid-template-columns: [nav] 280px [content] auto;
-    grid-template-rows: [header] 10px [content] calc(100vh - 10px - 100px) [footer] 2300px;
+    grid-template-rows: [header] 10px [content] calc(100vh - 10px - 100px) [footer] 200px;
 }
 
 body.connected {
@@ -47,6 +47,25 @@ body > footer {
   grid-row-start: footer
 }
 
+
+error {
+  padding: 2rem;
+  position: absolute;
+  left:calc(50% - 10rem);
+
+  width:20rem;
+  border-radius:1rem;
+  top: 2rem;
+  opacity: 0;
+  transition: all 400ms ease;
+  margin-top: -2rem;
+  background-color: red;
+}
+
+error.visible {
+  opacity: 1;
+  margin-top: -1rem
+}
 h1, h2, h3, h4, h5, h6, p {
   text-rendering: optimizeLegibility;
 }
