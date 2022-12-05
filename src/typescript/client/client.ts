@@ -19,10 +19,12 @@ var config = {
 // contains a list of registered hooks
 var hook = {
     "dom/pre-pageRequest" : 'Triggered a navigation event (successfull page request)',
+    "dom/widgetUpdated": 'When a widget is updated in the DOM',
+    "dom/localUpdated": 'When a local is updated in the DOM',
     "router/pre-pageRequest" : 'Fired just before we submit a go request to the server',
     "router/post-linkClick" : 'When a user clicks on a a link',
-    "socketRouter/in-payload" : 'After a payload is received',
-    "socketRouter/fileNotFound" : 'File not found from the server',
+    "payloadProcessor/in-payload" : 'After a payload is received',
+    "payloadProcessor/fileNotFound" : 'File not found from the server',
     "router/formsubmit" : 'When a form is submitted',
 };
 
@@ -50,7 +52,7 @@ window.addEventListener("form-submit", formI.formSubmit, false)
 import polyfill from './polyfill.js';
 
 //@ts-ignore
-import hotModuleReload from './socketRouter.js';
+import hotModuleReload from './payloadProcessor.js';
 
 //@ts-ignore
 import { template } from './template.js';
@@ -107,7 +109,18 @@ class ivy extends hotModuleReload {
     window.addEventListener("fileNotFound", function(evt) {
       dommanipulationinstance.fileNotFound(evt.detail)
     });
+
+    window.addEventListener("widgetUpdated", function(e) {
+      console.log('widget updated', e.detail)
+    });
+
+    window.addEventListener("localUpdated", function(e) {
+      console.log('local updated');
+    });
+
   }
+
+  
 }
 
 

@@ -35,8 +35,10 @@ export default class Form {
 
         const that = Form.getInstance();
         let response = await router.post(url, value);
+        console.info('Form submitted')
         if (response.status == 200) {
-            that.handleServerResult(response)
+            that.handleServerResult(response);
+            console.info('stuff goes here')
         }
         
 

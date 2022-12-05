@@ -6,8 +6,7 @@ import { ClassMapper } from "./ClassMapper.js";
 //@ts-ignore
 import { template } from './template.js';
 import { Select } from './select.js';
-import { modal } from './modal.js';
-modal;
+import Log from './log.js';
 let instance = null;
 export default class DOMManipulation {
     constructor() {
@@ -26,6 +25,7 @@ export default class DOMManipulation {
         this.progressiveSelectArray = {};
         console.log('DOM Class started... only one please');
         this._navigateInit();
+        this.widget = Log.getInstance();
     }
     get body() {
         return document.body || document.getElementsByTagName('body')[0];
@@ -33,6 +33,9 @@ export default class DOMManipulation {
     get content() {
         //return document.getElementsByClassName('content')[0];
         return document.getElementsByTagName('main')[0];
+    }
+    get canvas() {
+        return document.createElement("canvas");
     }
     static getInstance() {
         if (instance === null) {
@@ -315,6 +318,7 @@ export default class DOMManipulation {
                             console.log('Updating widget contents: ' + id + ' with: ' + g[i].innerHTML);
                             // we found it! so lets update its contents
                             pageWidget.innerHTML = g[i].innerHTML;
+                            window.dispatchEvent(new CustomEvent('widgetUpdated', { detail: { class: null, id: id } }));
                             /*
                             let svgArray = loadedBody.querySelectorAll('svg[data-url]');
                             let c = svgArray.length;
@@ -364,6 +368,7 @@ export default class DOMManipulation {
                             //    return
                             //} else {
                             pageWidgetArr[ii].innerHTML = g[i].innerHTML;
+                            window.dispatchEvent(new CustomEvent('widgetUpdated', { detail: { class: classStr, id: null } }));
                             //}
                             continue;
                         }
@@ -403,6 +408,8 @@ export default class DOMManipulation {
         //router.updateRouter(json.url);
         this.loading(false);
         this._progressiveSelect(loadedBody);
+        window.dispatchEvent(new CustomEvent('localUpdated'));
+        this._scrollTo('class', this.config.contentSelector);
     }
     _progressiveSelect(html) {
         const sselect = html.getElementsByTagName('select');
@@ -638,12 +645,33 @@ export default class DOMManipulation {
         let result = mapper.Merge();
     }
     fileNotFound(file) {
-        console.log(file);
-        const errorObj = document.querySelector(this.config.errorSelector);
-        errorObj.textContent = 'File not found:' + file;
-        errorObj.classList.add('visible');
-        setTimeout(function () {
-            errorObj.classList.remove('visible');
-        }, 3000);
+    }
+    _scrollTo(type, classOrId) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    /**
+     * Uses canvas.measureText to compute and return the width of the given text of given font in pixels.
+     *
+     * @param {Object} element The object to look at. This is so we can figure out the font and size.
+     * @param {String} string The text itself.
+     *
+     * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
+     */
+    _getTextWidth(element, text) {
+        // re-use canvas object for better performance
+        const canvas = this.canvas;
+        const context = canvas.getContext("2d");
+        context.font = this._getCanvasFont(element);
+        const metrics = context.measureText(text);
+        return metrics.width;
+    }
+    _getCanvasFont(el = document.body) {
+        const fontWeight = this._getCssStyle(el, 'font-weight') || 'normal';
+        const fontSize = this._getCssStyle(el, 'font-size') || '16px';
+        const fontFamily = this._getCssStyle(el, 'font-family') || 'Times New Roman';
+        return `${fontWeight} ${fontSize} ${fontFamily}`;
+    }
+    _getCssStyle(element, prop) {
+        return window.getComputedStyle(element, null).getPropertyValue(prop);
     }
 }

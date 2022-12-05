@@ -17,7 +17,9 @@ import { CustomSelect } from './vanilla-js-dropdown.js';
 import { Select } from './select.js'
 
 import { modal } from './modal.js'
-modal
+
+import Log from './log.js'
+
 
 interface IAttributes {
     class?: string;
@@ -64,13 +66,20 @@ export default class DOMManipulation {
         current: 'current'
     }
 
+    get canvas() {
+        return document.createElement("canvas");
+    }
     progressiveSelectArray: object = {}
+
+    widget: {}
 
     constructor() {
 
         console.log('DOM Class started... only one please');
 
         this._navigateInit();
+
+        this.widget = Log.getInstance();
     }
 
     public static getInstance() {
@@ -389,6 +398,7 @@ export default class DOMManipulation {
                             console.log('Updating widget contents: ' + id + ' with: ' + g[i].innerHTML)
                             // we found it! so lets update its contents
                             pageWidget.innerHTML = g[i].innerHTML;
+                            window.dispatchEvent(new CustomEvent('widgetUpdated', {detail: {class:null,id:id}}));
                             /*
                             let svgArray = loadedBody.querySelectorAll('svg[data-url]');
                             let c = svgArray.length;
@@ -443,6 +453,7 @@ export default class DOMManipulation {
                             //    return
                             //} else {
                                 pageWidgetArr[ii].innerHTML = g[i].innerHTML;
+                                window.dispatchEvent(new CustomEvent('widgetUpdated', {detail: {class:classStr,id:null}}));
                             //}
 
                             continue;
@@ -457,6 +468,7 @@ export default class DOMManipulation {
                  * lets just replace the content with what we've loaded
                  */
                 this.content.appendChild(g[i]);
+                
             }
 
             this.loading(false);
@@ -492,6 +504,8 @@ export default class DOMManipulation {
         //router.updateRouter(json.url);
         this.loading(false);
         this._progressiveSelect(loadedBody);
+        window.dispatchEvent(new CustomEvent('localUpdated'));
+        this._scrollTo('class', this.config.contentSelector);
     }
 
     private _progressiveSelect (html) {
@@ -799,13 +813,41 @@ export default class DOMManipulation {
     }
 
     public fileNotFound (file: string) {
-        console.log(file);
+        
+    }
 
-        const errorObj = document.querySelector(this.config.errorSelector);
-        errorObj.textContent = 'File not found:' + file;
-        errorObj.classList.add('visible');
-        setTimeout(function() {
-            errorObj.classList.remove('visible');
-        }, 3000);
+    private _scrollTo (type, classOrId) {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+
+    /**
+     * Uses canvas.measureText to compute and return the width of the given text of given font in pixels.
+     * 
+     * @param {Object} element The object to look at. This is so we can figure out the font and size.
+     * @param {String} string The text itself.
+     * 
+     * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
+     */
+    private _getTextWidth(element: any, text: string) {
+
+        // re-use canvas object for better performance
+        const canvas = this.canvas;
+        const context = canvas.getContext("2d");
+        context.font = this._getCanvasFont(element);
+        const metrics = context.measureText(text);
+        return metrics.width;
+    }
+
+    private _getCanvasFont(el = document.body) {
+        const fontWeight = this._getCssStyle(el, 'font-weight') || 'normal';
+        const fontSize = this._getCssStyle(el, 'font-size') || '16px';
+        const fontFamily = this._getCssStyle(el, 'font-family') || 'Times New Roman';
+        
+        return `${fontWeight} ${fontSize} ${fontFamily}`;
+    }
+
+    private _getCssStyle(element, prop) {
+        return window.getComputedStyle(element, null).getPropertyValue(prop);
     }
 }

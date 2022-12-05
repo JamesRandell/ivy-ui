@@ -22,7 +22,13 @@
     --blur-color: #ccc;
     --text-color: #1e293b;
 
-    --transition-time: 200ms
+    --transition-time: 200ms;
+
+    --warn-bg: #fca5a5;
+    --warn: #f87171;
+    --error-bg: #dc2626;
+    --error: #dc2626;
+    --info-bg: #4f46e5;
 }
 
 [class=color-alt] {
