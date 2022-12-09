@@ -1,29 +1,29 @@
 class Select {
+    configClass = {
+        main: 'ui fluid selection dropdown',
+        title: 'default text',
+        list: 'menu transition',
+        option: 'item',
+        icon: 'dropdown icon',
+        optGroup: 'optgroup',
+        selected: 'selected',
+        disabled: 'disabled',
+        open: 'visible'
+    };
+    binding = {};
+    index = 0;
+    e = {
+        main: Object,
+        button: Object,
+        icon: Object,
+        list: Object,
+        optGroup: Object,
+        optionCount: Number,
+        select: Object,
+        input: Object,
+        value: String
+    };
     constructor(selectObj = null, selectName = null) {
-        this.configClass = {
-            main: 'ui fluid selection dropdown',
-            title: 'default text',
-            list: 'menu transition',
-            option: 'item',
-            icon: 'dropdown icon',
-            optGroup: 'optgroup',
-            selected: 'selected',
-            disabled: 'disabled',
-            open: 'visible'
-        };
-        this.binding = {};
-        this.index = 0;
-        this.e = {
-            main: Object,
-            button: Object,
-            icon: Object,
-            list: Object,
-            optGroup: Object,
-            optionCount: Number,
-            select: Object,
-            input: Object,
-            value: String
-        };
         if (!selectName) {
             selectName = selectObj.name;
         }

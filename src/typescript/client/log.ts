@@ -123,7 +123,7 @@ export default class Log {
         }
         status.classList.add('error');
         
-        const msg = '<p style="opacity:0">(1) ' + this.messages[0].text + '</p>';;
+        const msg = '<p style="opacity:0">(1) ' + this.messages[0].text + '</p>';
 
 
         status.innerHTML += msg
@@ -159,8 +159,11 @@ export default class Log {
             return;
         }
         const visibleMsg = status.getElementsByTagName('p')[0];
-        visibleMsg.style.marginTop = '-25px'
-        visibleMsg.style.opacity = '0'
+        
+        if (visibleMsg) {
+            visibleMsg.style.marginTop = '-25px'
+            visibleMsg.style.opacity = '0'
+        }
 
         if (status.getElementsByTagName('p')[1]) {
             
@@ -169,7 +172,9 @@ export default class Log {
         }
 
         setTimeout(function() {
-            visibleMsg.remove();
+            if (visibleMsg) {
+                visibleMsg.remove();
+            }
             that.messages.shift();
             that._closeStatus();
         }, 250);

@@ -17,7 +17,7 @@ import iprotocol from "./interface/iprotocol";
 import DOMManipulation from "./dommanipulation.js";
 
 //@ts-ignore
-import client, { config, registry } from "./client.js";
+import client, { config, registry, socketInit } from "./client.js";
 import { isVoidExpression } from "typescript";
 
 //@ts-ignore
@@ -75,7 +75,7 @@ export default class router implements iprotocol {
         })(window.history);
         
         /**
-         * lets see if the user has landed on a page that isn't the defaul (like /test)
+         * lets see if the user has landed on a page that isn't the default (like /test)
          * we've got a private function just to call the content they want. Yes it is 
          * a double call because we're using re-write rules and a spa, but, the initial
          * call should still be light weight
@@ -372,7 +372,7 @@ export default class router implements iprotocol {
      */
     private _landingCall () {
 
-
+        const that = this;
         let path = window.location.pathname.replace(/^\/|\/$/g, '');
 
         /**
@@ -382,8 +382,11 @@ export default class router implements iprotocol {
          * to the server for the index page. This accounts for url with and without index as a page call
          */
         if (path == '' || path == 'index') {
-            this.go('/index', true);   
-            return;
+            
+            socketInit().then(function(s){
+                that.go('/index', true);   
+                return;
+            })
         }
         
         let pathArr = path.split('/'),
@@ -409,8 +412,12 @@ export default class router implements iprotocol {
         if (pathArrLength === 1) {
             registry.controller = pathArr[0];
 
-            this.go('/' + registry.controller, true);
-            return;
+            //socketInit().then(function(s){
+                console.log('_landingCall 1 param')
+                this.go('/' + registry.controller, true);
+                return;
+            //})
+            
         }
 
         /**
@@ -422,8 +429,10 @@ export default class router implements iprotocol {
             registry.controller = pathArr[0];
             registry.action = pathArr[1];
 
-            this.go('/' + registry.controller + '/' + registry.action, true);
-            return;
+            socketInit().then(function(s){
+                that.go('/' + registry.controller + '/' + registry.action, true);
+                return;
+            })
         }
 
         /**

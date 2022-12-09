@@ -3,15 +3,6 @@
  * Expect this to be a simple Express type app, first couple of methods
  * will toally be to read from the URI and make simple updates to it
  */
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 //@ts-ignore
 import protocolWS from "./protocolWS.js";
 //@ts-ignore
@@ -19,24 +10,24 @@ import protocolHTTP from "./protocolHTTP.js";
 //@ts-ignore
 import DOMManipulation from "./dommanipulation.js";
 //@ts-ignore
-import { config, registry } from "./client.js";
+import { config, registry, socketInit } from "./client.js";
 //@ts-ignore
 import { route } from "./route.js";
 export default class router {
+    /**
+     * configure some sort of variable to select if we're going to send an
+     * HTTP request or a WS one - you know, for 'fun'
+     */
+    serverType = 'ws';
+    /**
+     * Holds the class that deals with sending and receiving data to the
+     * server, via which ever protocol we specify in the constructor
+     */
+    server = {};
+    serverHTTP = {};
+    serverWS = {};
+    currentURL = "";
     constructor() {
-        /**
-         * configure some sort of variable to select if we're going to send an
-         * HTTP request or a WS one - you know, for 'fun'
-         */
-        this.serverType = 'ws';
-        /**
-         * Holds the class that deals with sending and receiving data to the
-         * server, via which ever protocol we specify in the constructor
-         */
-        this.server = {};
-        this.serverHTTP = {};
-        this.serverWS = {};
-        this.currentURL = "";
         this.serverWS = protocolWS;
         this.serverHTTP = protocolHTTP;
         switch (this.serverType) {
@@ -63,7 +54,7 @@ export default class router {
             };
         })(window.history);
         /**
-         * lets see if the user has landed on a page that isn't the defaul (like /test)
+         * lets see if the user has landed on a page that isn't the default (like /test)
          * we've got a private function just to call the content they want. Yes it is
          * a double call because we're using re-write rules and a spa, but, the initial
          * call should still be light weight
@@ -123,21 +114,19 @@ export default class router {
             ;
         }
     }
-    post(url, data) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const t = DOMManipulation.getInstance();
-            const p = yield this.serverHTTP.go(url, 'post', data);
-            t.loading(true);
-            var file = p.payload.url;
-            window.dispatchEvent(new CustomEvent('pre-pageRequest', { detail: file }));
-            let y = this.server.go(file);
-            y.then(resolved => {
-                window.dispatchEvent(new CustomEvent('post-navigate', { detail: file }));
-                t.loading(false);
-            });
-            return p;
-            //this.server.go(url, data)
+    async post(url, data) {
+        const t = DOMManipulation.getInstance();
+        const p = await this.serverHTTP.go(url, 'post', data);
+        t.loading(true);
+        var file = p.payload.url;
+        window.dispatchEvent(new CustomEvent('pre-pageRequest', { detail: file }));
+        let y = this.server.go(file);
+        y.then(resolved => {
+            window.dispatchEvent(new CustomEvent('post-navigate', { detail: file }));
+            t.loading(false);
         });
+        return p;
+        //this.server.go(url, data)
     }
     /**
      * This compliments the 'go' function in that it updates page elements instead of
@@ -295,6 +284,7 @@ export default class router {
      * @returns void
      */
     _landingCall() {
+        const that = this;
         let path = window.location.pathname.replace(/^\/|\/$/g, '');
         /**
          * it's fine! the user hasn't landed on any specific page, so just exit here
@@ -303,8 +293,10 @@ export default class router {
          * to the server for the index page. This accounts for url with and without index as a page call
          */
         if (path == '' || path == 'index') {
-            this.go('/index', true);
-            return;
+            socketInit().then(function (s) {
+                that.go('/index', true);
+                return;
+            });
         }
         let pathArr = path.split('/'), i = 0;
         registry.id = null,
@@ -322,8 +314,11 @@ export default class router {
          */
         if (pathArrLength === 1) {
             registry.controller = pathArr[0];
+            //socketInit().then(function(s){
+            console.log('_landingCall 1 param');
             this.go('/' + registry.controller, true);
             return;
+            //})
         }
         /**
          * TWO parameters, so we assume this the name of the
@@ -333,8 +328,10 @@ export default class router {
         if (pathArrLength === 2) {
             registry.controller = pathArr[0];
             registry.action = pathArr[1];
-            this.go('/' + registry.controller + '/' + registry.action, true);
-            return;
+            socketInit().then(function (s) {
+                that.go('/' + registry.controller + '/' + registry.action, true);
+                return;
+            });
         }
         /**
          * THREE parameters, so we assume this the name of the

@@ -371,7 +371,8 @@ export default class DOMManipulation {
          */
         if (isWidget === true) {
 
-            let g = loadedBody.querySelectorAll('body > *');
+
+            let g = loadedBody.querySelectorAll('body > *');            
             let gLength = g.length;
 
 
@@ -436,7 +437,7 @@ export default class DOMManipulation {
                     console.log('class found \'' + classStr + '\', starting innerHTML replacement')
                     // we'll use the first class found. Now we need to make sure the tag name
                     // matches
-                    let pageWidgetArr = this.body.querySelectorAll('[class='+classStr+']');
+                    let pageWidgetArr = this.body.querySelectorAll('.'+classStr);
                     let pageWidgetLength = pageWidgetArr.length
 
                     loopCurrent: for (let ii=0; ii<pageWidgetLength; ii++) { 

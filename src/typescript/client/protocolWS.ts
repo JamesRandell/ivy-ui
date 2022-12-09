@@ -19,6 +19,7 @@ export default {
     },
 
     async go (file: string, data: object) {
+        console.log('protocolWS::go')
         let json = {'url':file};
         await this.build(json).then(resolved => {
             return true;
@@ -31,12 +32,29 @@ export default {
             'key'   : ''
         };
 
-        function socket (arg) {
-            socketInit().then(function(server) {
-                server.send(JSON.stringify(arg));
-            }).catch(function(err) {
-                console.log("Can't load page. Is the connection open?");
-            });
+        async function socket (arg) {
+            const loop = setInterval(async function(){
+                try {
+                    let server = await socketInit()
+                    server.send(JSON.stringify(arg));
+                    clearInterval(loop)
+                } catch (e) {
+                    
+                }
+            },5)
+            
+            
+            /*const y = socketInit().then(function(e){
+                try {
+                    console.log('Called from protocolWS inside try')
+                    e.send(JSON.stringify(arg));
+                    console.log('Called from protocolWS after send')
+                } catch (w) {
+                    console.log("Can't load page. Is the connection open?");
+                    console.log(w)
+                };
+            });*/
+            
         }
 
         return Promise.resolve(socket(payload));

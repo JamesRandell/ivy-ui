@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { WebSocketServer } from 'ws';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -148,7 +139,7 @@ wss.on('connection', ws => {
         try {
             message = JSON.parse(message);
         }
-        catch (_a) {
+        catch {
             console.log('Received string. Stopping processing: %s', message);
             return;
         }
@@ -289,108 +280,104 @@ var library = {
             return { data: result, key: 'DOM' };
         });
     },
-    url(url) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const fileArr = this._fileArr(url);
-            /**
-             * requests from the front end will either be looking for an actual file, or something in the ui directory
-             * thing is, things in the ui directory are typically linked with out calling the ui
-             * I.e. /index is actually /ui/index
-             * We look out for specific paths and ignore those, only prepaending whats left with ui
-             */
-            if (['api', 'resource'].indexOf(fileArr.pathFirst) < 0) {
-                return this.file('/ui' + url);
-            }
-            return this.file(url);
-        });
+    async url(url) {
+        const fileArr = this._fileArr(url);
+        /**
+         * requests from the front end will either be looking for an actual file, or something in the ui directory
+         * thing is, things in the ui directory are typically linked with out calling the ui
+         * I.e. /index is actually /ui/index
+         * We look out for specific paths and ignore those, only prepaending whats left with ui
+         */
+        if (['api', 'resource'].indexOf(fileArr.pathFirst) < 0) {
+            return this.file('/ui' + url);
+        }
+        return this.file(url);
     },
-    file(file) {
-        return __awaiter(this, void 0, void 0, function* () {
-            /**
-             * basic check to see if the path a string
-             */
-            if (typeof file !== 'string') {
-                console.warn('Filepath is not a string, cancelling call to file');
-                return;
-            }
-            const fileAttributes = this._fileArr(file);
-            /**
-             * we can use the _fileArr private function to find out the first path part of the url
-             * we can do different things if it matches specific directories
-             *
-             * we do some funky stuff with the file. BEar in mind that the file that's being requested
-             * may not be the true path of where the source is.
-             * For example, in this project, I keep all my templates in a /ui folder. However, on the
-             * front end, they don't reference that, and it's down to this server to prefix those requests
-             * with /ui.
-             * This means the file is actually different, and we want to return the right one back to the
-             * front end for the router to function correctly (change the url etc)
-             */
-            config_http.path = fileAttributes.pathFull;
-            /**
-             * We use the web server to handle file requests instead of pissing about with building our
-             * own (because you know, I really think nginx can do better than what I can come up with.)
-             *
-             * We make an HTTP call, but we also tinker with the file url returns to account for re-write
-             * rules we may have in place
-             */
-            return new Promise((resolve, reject) => {
-                config_http.headers = {
-                    'Content-Type': 'application/json'
+    async file(file) {
+        /**
+         * basic check to see if the path a string
+         */
+        if (typeof file !== 'string') {
+            console.warn('Filepath is not a string, cancelling call to file');
+            return;
+        }
+        const fileAttributes = this._fileArr(file);
+        /**
+         * we can use the _fileArr private function to find out the first path part of the url
+         * we can do different things if it matches specific directories
+         *
+         * we do some funky stuff with the file. BEar in mind that the file that's being requested
+         * may not be the true path of where the source is.
+         * For example, in this project, I keep all my templates in a /ui folder. However, on the
+         * front end, they don't reference that, and it's down to this server to prefix those requests
+         * with /ui.
+         * This means the file is actually different, and we want to return the right one back to the
+         * front end for the router to function correctly (change the url etc)
+         */
+        config_http.path = fileAttributes.pathFull;
+        /**
+         * We use the web server to handle file requests instead of pissing about with building our
+         * own (because you know, I really think nginx can do better than what I can come up with.)
+         *
+         * We make an HTTP call, but we also tinker with the file url returns to account for re-write
+         * rules we may have in place
+         */
+        return new Promise((resolve, reject) => {
+            config_http.headers = {
+                'Content-Type': 'application/json'
+            };
+            const req = http.request(config_http, (res) => {
+                console.log(`STATUS: ${res.statusCode}`);
+                console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
+                res.setEncoding('utf8');
+                let returnObject = {
+                    data: null,
+                    file: null,
+                    fileSrc: null,
+                    statuscode: null,
+                    url: null
                 };
-                const req = http.request(config_http, (res) => {
-                    console.log(`STATUS: ${res.statusCode}`);
-                    console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
-                    res.setEncoding('utf8');
-                    let returnObject = {
-                        data: null,
-                        file: null,
-                        fileSrc: null,
-                        statuscode: null,
-                        url: null
-                    };
-                    returnObject.statuscode = res.statusCode;
-                    returnObject.file = file;
-                    returnObject.fileSrc = config_http.path;
+                returnObject.statuscode = res.statusCode;
+                returnObject.file = file;
+                returnObject.fileSrc = config_http.path;
+                /**
+                 * Takes care of any errors like a 404
+                 */
+                if (res.statusCode < 200 || res.statusCode >= 300) {
+                    resolve({ html: returnObject });
+                }
+                /**
+                 * returns the file contents
+                 */
+                res.on('data', (result) => {
                     /**
-                     * Takes care of any errors like a 404
+                     * when the result is pure JSON, send back just a data key, and don't instruct the UI to change the url
+                     * need to manually parse the result this time
                      */
-                    if (res.statusCode < 200 || res.statusCode >= 300) {
+                    if (res.headers['content-type'].startsWith('application/json')) {
+                        console.log('this is JSON');
+                        resolve({ data: JSON.parse(result) });
+                    }
+                    else if (fileAttributes.isWidget === true) {
+                        console.log('isWidget');
+                        returnObject.data = result;
                         resolve({ html: returnObject });
                     }
-                    /**
-                     * returns the file contents
-                     */
-                    res.on('data', (result) => {
-                        /**
-                         * when the result is pure JSON, send back just a data key, and don't instruct the UI to change the url
-                         * need to manually parse the result this time
-                         */
-                        if (res.headers['content-type'].startsWith('application/json')) {
-                            console.log('this is JSON');
-                            resolve({ data: JSON.parse(result) });
-                        }
-                        else if (fileAttributes.isWidget === true) {
-                            console.log('isWidget');
-                            returnObject.data = result;
-                            resolve({ html: returnObject });
-                        }
-                        else if (fileAttributes.isTemplate === true) {
-                            console.log('isTemplate');
-                            returnObject.url = file.replace('/ui', '');
-                            returnObject.data = result;
-                            resolve({ html: returnObject });
-                        }
-                    });
-                    res.on('end', () => {
-                        //console.log('No more data in response.');
-                    });
+                    else if (fileAttributes.isTemplate === true) {
+                        console.log('isTemplate');
+                        returnObject.url = file.replace('/ui', '');
+                        returnObject.data = result;
+                        resolve({ html: returnObject });
+                    }
                 });
-                req.on('error', err => {
-                    console.error(err);
+                res.on('end', () => {
+                    //console.log('No more data in response.');
                 });
-                req.end();
             });
+            req.on('error', err => {
+                console.error(err);
+            });
+            req.end();
         });
     }
 };

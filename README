@@ -19,10 +19,17 @@ sudo docker run -it --rm -d -p 8080:80 --name web -v /mnt/c/Users/James/Code/Ivy
 docker run -it --rm -d -p 8080:80 --name web -v /Users/x2010149/Sites/ivy-project-2020/ivy-ui:/usr/share/nginx/html nginx
 docker run -it --rm -d -p 8080:80 --name web -v /Users/jamesrandell/Sites/ivy-project-2020/ivy-ui:/usr/share/nginx/html nginx
 
+
+
+
 Node Server
 // check out the package.json for what 'dev' is
 npm install
 npm run dev
+
+
+//update the typescript transpiler
+npm install -g typescript@latest
 
 // the typescript transpiler
 npx tsc -w

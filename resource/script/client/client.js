@@ -35,7 +35,7 @@ import svg from './svg.js';
 const formI = Form.getInstance();
 window.addEventListener("form-submit", formI.formSubmit, false);
 //@ts-ignore
-import hotModuleReload from './payloadProcessor.js';
+import payloadProcessor from './payloadProcessor.js';
 var data = {
     "db": {
         "datacenter": "datacenter1",
@@ -53,8 +53,9 @@ var data = {
 };
 //const v = template.parse(html, data, );
 var dommanipulationinstance;
-var ivyui;
-class ivy extends hotModuleReload {
+var ivy;
+var routerInstance;
+class Ivy extends payloadProcessor {
     constructor() {
         super();
         dommanipulationinstance = DOMManipulation.getInstance();
@@ -80,23 +81,32 @@ class ivy extends hotModuleReload {
 }
 // so we get rid of TS type casting errors in the below function
 var socketInitS = { server: null, failedCount: 0 };
-function socketInit() {
+export const socketInit = async () => {
     /**
      * 0	CONNECTING	Socket has been created. The connection is not yet open.
      * 1	OPEN	The connection is open and ready to communicate.
      * 2	CLOSING	The connection is in the process of closing.
      * 3	CLOSED	The connection is closed or couldn't be opened.
      */
+    /*const a = await auth0Client.isAuthenticated();
+  
+    console.log(auth0Client)
+    
+    if (a !== true) {
+      return
+    }*/
     if (socketInitS.server && socketInitS.server.readyState < 2) {
         //console.log("reusing the socket connection [state = " + socketInitS.server.readyState + "]");
         return Promise.resolve(socketInitS.server);
     }
-    return new Promise(function (resolve, reject) {
+    return await new Promise(function (resolve, reject) {
         socketInitS.server = new WebSocket('ws://localhost:8082');
         socketInitS.server.onopen = function () {
+            console.log('SOCKET ERVER OPEN');
             socketInitS.failedCount = 0; // reset the connction counter
             resolve(socketInitS.server);
-            dommanipulationinstance.m(uiComponent.connected);
+            const result = dommanipulationinstance;
+            result.m(uiComponent.connected);
             socket({ url: "/widget/nav" });
         };
         socketInitS.server.onclose = function (reason) {
@@ -110,10 +120,10 @@ function socketInit() {
             dommanipulationinstance.m(uiComponent.disconnected);
             reject(socketInitS.server);
         };
-        socketInitS.server.onmessage = function (data) {
+        socketInitS.server.onmessage = async function (data) {
             const result = JSON.parse(data.data);
             console.log('msg received');
-            ivyui.message(result);
+            const g = await ivy.message(result);
             const svgInstance = new svg(dommanipulationinstance);
         };
         function check() {
@@ -126,7 +136,7 @@ function socketInit() {
     }).catch((e) => {
         //console.error("Could not connect to socket server");
     });
-}
+};
 function socket(arg) {
     socketInit().then(function (server) {
         /**
@@ -257,8 +267,109 @@ uiComponent.disconnected = {
         status: ""
     }
 };
-document.addEventListener("DOMContentLoaded", () => {
-    ivyui = new ivy();
+const dom = new Promise((resolve) => document.addEventListener('DOMContentLoaded', resolve));
+//Auth0Client, createAuth0Client
+//with async/await
+let auth0Client;
+const client = async () => {
+    auth0Client = await auth0.createAuth0Client({
+        domain: 'dev-6mab7ukqbwl72vhr.uk.auth0.com',
+        clientId: 'D1DWUcrpiBD8AUXJ4XpvdqJK4rjibnoO',
+    });
+};
+/*
+        let auth0Client = null;
+        let auth0: any = {}
+        const fetchAuthConfig = () => fetch("/ui/auth_config.json")
+        const configureClient = async () => {
+          
+        
+          const response = await fetchAuthConfig();
+          const config = await response.json();
+        
+          auth0Client = await auth0.createAuth0Client({
+            domain: config.domain,
+            clientId: config.clientId
+          });
+        
+          const isAuthenticated = await auth0Client.isAuthenticated();
+          //await auth0Client.loginWithPopup()
+        }
+        await configureClient();
+        */
+const updateUI = async () => {
+    const isAuthenticated = await auth0Client.isAuthenticated();
+    const btnLogin = document.getElementById("btn-login");
+    const btnLogout = document.getElementById("btn-logout");
+};
+const login = async () => {
+    await auth0Client.loginWithRedirect({
+        authorizationParams: {
+            redirect_uri: 'http://localhost:8080'
+        }
+    });
+};
+const logout = () => {
+    auth0Client.logout({
+        logoutParams: {
+            returnTo: window.location.origin
+        }
+    });
+};
+document.body.addEventListener('click', function (e) {
+    const button = e.target;
+    console.warn(e.target);
+    if (button.id == 'login') {
+        login();
+    }
+    if (button.id == 'logout') {
+        logout();
+    }
 });
-var routerInstance = new router();
-export { registry, socketInit, socket, routerInstance as router, config, hook };
+await client();
+dom.then(() => {
+    c();
+});
+async function c() {
+    //async function dom<T>(value: T): Promise<T> {
+    ivy = new Ivy();
+    const isAuthenticated = await auth0Client.isAuthenticated();
+    const query = window.location.search;
+    if (isAuthenticated === true) {
+        userAuthenticated();
+    }
+    else {
+        if (window.location.pathname != '/login' && !query.includes("code=")) {
+            window.location.pathname = '/login';
+        }
+    }
+    //await updateUI();
+    //const isAuthenticated = await auth0Client.isAuthenticated();
+    // console.log(await auth0Client.getTokenSilently());
+    //if (isAuthenticated) {
+    // show the gated content
+    //console.log(await auth0Client.getUser());
+    //return
+    // }
+    // NEW - check for the code and state parameters
+    if (query.includes("code=") && query.includes("state=")) {
+        // Process the login state
+        await auth0Client.handleRedirectCallback();
+        const isAuthenticated = await auth0Client.isAuthenticated();
+        if (isAuthenticated === true) {
+            userAuthenticated();
+        }
+        //updateUI();
+        // Use replaceState to redirect the user away and remove the querystring parameters
+        window.history.replaceState({}, document.title, "/");
+    }
+    else {
+    }
+    routerInstance = new router();
+}
+async function userAuthenticated() {
+    document.getElementsByTagName('body')[0].classList.remove('guest');
+    console.warn(await auth0Client.isAuthenticated());
+    console.warn(await auth0Client.getUser());
+}
+export { registry, routerInstance as router, socket, config, hook };

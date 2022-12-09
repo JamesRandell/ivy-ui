@@ -1,6 +1,8 @@
 export class ClassMapper {
+    Original;
+    New;
+    SimplePropertyNames = ["string", "number", "boolean"];
     constructor(original, newItem) {
-        this.SimplePropertyNames = ["string", "number", "boolean"];
         this.Original = original;
         this.New = newItem;
     }

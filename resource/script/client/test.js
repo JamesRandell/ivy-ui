@@ -1,4 +1,6 @@
 export default class test {
+    FirstName;
+    LastName;
     constructor() {
         this.FirstName = "";
         this.LastName = "";

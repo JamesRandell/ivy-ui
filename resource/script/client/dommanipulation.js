@@ -9,24 +9,9 @@ import { Select } from './select.js';
 import Log from './log.js';
 let instance = null;
 export default class DOMManipulation {
-    constructor() {
-        this.head = document.head || document.getElementsByTagName('head')[0];
-        this.templateType = 'global';
-        this.DOMData = {};
-        this.lastTemplate = '';
-        this.config = {
-            contentSelector: "main",
-            errorSelector: "error"
-        }; // passed from client and set here
-        this.cssClasses = {
-            active: 'active',
-            current: 'current'
-        };
-        this.progressiveSelectArray = {};
-        console.log('DOM Class started... only one please');
-        this._navigateInit();
-        this.widget = Log.getInstance();
-    }
+    dom;
+    head = document.head || document.getElementsByTagName('head')[0];
+    templateType = 'global';
     get body() {
         return document.body || document.getElementsByTagName('body')[0];
     }
@@ -34,8 +19,25 @@ export default class DOMManipulation {
         //return document.getElementsByClassName('content')[0];
         return document.getElementsByTagName('main')[0];
     }
+    DOMData = {};
+    lastTemplate = '';
+    config = {
+        contentSelector: "main",
+        errorSelector: "error"
+    }; // passed from client and set here
+    cssClasses = {
+        active: 'active',
+        current: 'current'
+    };
     get canvas() {
         return document.createElement("canvas");
+    }
+    progressiveSelectArray = {};
+    widget;
+    constructor() {
+        console.log('DOM Class started... only one please');
+        this._navigateInit();
+        this.widget = Log.getInstance();
     }
     static getInstance() {
         if (instance === null) {
@@ -353,7 +355,7 @@ export default class DOMManipulation {
                     console.log('class found \'' + classStr + '\', starting innerHTML replacement');
                     // we'll use the first class found. Now we need to make sure the tag name
                     // matches
-                    let pageWidgetArr = this.body.querySelectorAll('[class=' + classStr + ']');
+                    let pageWidgetArr = this.body.querySelectorAll('.' + classStr);
                     let pageWidgetLength = pageWidgetArr.length;
                     loopCurrent: for (let ii = 0; ii < pageWidgetLength; ii++) {
                         if (pageWidgetArr[ii] && "nodeName" in pageWidgetArr[ii] && pageWidgetArr[ii].nodeName == nodeStr) {

@@ -6,14 +6,13 @@
 let instance = null;
 var c = {};
 export default class Log {
-    constructor() {
-        this.messages = [];
-        this.minTime = 3000;
-        this.timer = 0;
-        this._loop();
-    }
+    methodNames;
+    messages = [];
     get canvas() {
         return document.createElement("canvas");
+    }
+    constructor() {
+        this._loop();
     }
     static getInstance() {
         if (instance === null) {
@@ -65,6 +64,8 @@ export default class Log {
     _log_log(arg) {
         this._status();
     }
+    minTime = 3000;
+    timer = 0;
     _status() {
         const messageLength = this.messages.length;
         this.timer = Date.now();
@@ -82,7 +83,6 @@ export default class Log {
         }
         status.classList.add('error');
         const msg = '<p style="opacity:0">(1) ' + this.messages[0].text + '</p>';
-        ;
         status.innerHTML += msg;
         const visibleMsg = status.getElementsByTagName('p')[0];
         visibleMsg.style.opacity = '1';
@@ -107,14 +107,18 @@ export default class Log {
             return;
         }
         const visibleMsg = status.getElementsByTagName('p')[0];
-        visibleMsg.style.marginTop = '-25px';
-        visibleMsg.style.opacity = '0';
+        if (visibleMsg) {
+            visibleMsg.style.marginTop = '-25px';
+            visibleMsg.style.opacity = '0';
+        }
         if (status.getElementsByTagName('p')[1]) {
             status.getElementsByTagName('p')[1].style.opacity = '1';
             status.getElementsByTagName('p')[1].innerHTML = status.getElementsByTagName('p')[1].innerHTML.replace(/\s*\(.*?\)\s*/g, '(' + (messageLength - 1) + ') ');
         }
         setTimeout(function () {
-            visibleMsg.remove();
+            if (visibleMsg) {
+                visibleMsg.remove();
+            }
             that.messages.shift();
             that._closeStatus();
         }, 250);

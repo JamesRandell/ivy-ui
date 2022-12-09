@@ -13,7 +13,7 @@ html, body {
 
 body {
     background-color: white;
-    font-size: .875rem;
+    font-size: .8rem;
     font-weight:300;
 
     display: grid;
@@ -47,6 +47,22 @@ body > footer {
   grid-row-start: footer
 }
 
+
+body.guest {
+  grid-template-columns: [left] 50% [content] 50%;
+  grid-template-rows: [content] 100%;
+  background-color: var(--dark-bg)
+}
+body.guest > * {
+  display: none
+}
+body.guest > main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  display: block;
+  background-color: #fff !important
+}
 
 error {
   padding: 2rem;
@@ -83,7 +99,7 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
   font-size: 2rem;
   font-weight: 800;
-  line-height: 1.25rem;
+  line-height: 3rem;
   margin-top: 2rem
 }
 h2 {
@@ -114,10 +130,16 @@ h6 {
   
 }
 p {
-  font-size: .875rem;
+  
+  line-height: 1rem;
   font-weight: 400;
   font-feature-settings: "salt";
   color: var(--text-color)
+}
+
+.status > p {
+  font-size:0.825rem;
+  line-height: 1.5rem
 }
 em {
   font-weight: 700;
