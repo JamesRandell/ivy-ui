@@ -68,17 +68,23 @@ class Ivy extends payloadProcessor {
         });
         window.addEventListener("post-navigate", function (evt) {
             //socket({file:"/ui/fragment"});
+            router.updateRouter(evt.detail);
             dommanipulationinstance._navigateCleanUpLinks();
+            console.log(':: post-navigate', evt.detail);
         });
         window.addEventListener("fileNotFound", function (evt) {
             dommanipulationinstance.fileNotFound(evt.detail);
         });
         window.addEventListener("widgetUpdated", function (e) {
-            console.log('widget updated', e.detail);
+            if (e.detail.file == '/ui/widget/nav') {
+                console.log('fixing links after loading nav');
+                dommanipulationinstance._navigateCleanUpLinks(true);
+            }
+            console.table(e.detail);
+            console.log(':: widget updated');
         });
         window.addEventListener("localUpdated", function (e) {
-            console.log('local updated');
-            //alert('localupdated')
+            console.log(':: local updated');
         });
     }
 }

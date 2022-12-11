@@ -346,15 +346,10 @@ export default class DOMManipulation {
             isWidget = false;
             this.templateType = 'global'
             console.log('_html is template: global');
-            router.updateRouter(json.url);
-            this._navigateCleanUpLinks()
         } else if (loadedContent.startsWith('<' + this.config.contentSelector) === true) {
             isWidget = false;
             this.templateType = 'local'
             console.log('_html is template: local');
-            router.updateRouter(json.url);
-            this._navigateCleanUpLinks()
-            
         } else {
             isWidget = true;
             this.templateType = 'widget'
@@ -418,7 +413,7 @@ export default class DOMManipulation {
                             console.log('Updating widget contents: ' + id + ' with: ' + g[i].innerHTML)
                             // we found it! so lets update its contents
                             pageWidget.innerHTML = g[i].innerHTML;
-                            window.dispatchEvent(new CustomEvent('widgetUpdated', {detail: {class:null,id:id}}));
+                            window.dispatchEvent(new CustomEvent('widgetUpdated', {detail: {file:json.file,class:null,id:id}}));
                             /*
                             let svgArray = loadedBody.querySelectorAll('svg[data-url]');
                             let c = svgArray.length;
@@ -473,7 +468,7 @@ export default class DOMManipulation {
                             //    return
                             //} else {
                                 pageWidgetArr[ii].innerHTML = g[i].innerHTML;
-                                window.dispatchEvent(new CustomEvent('widgetUpdated', {detail: {class:classStr,id:null}}));
+                                window.dispatchEvent(new CustomEvent('widgetUpdated', {detail: {file:json.file,class:classStr,id:null}}));
                             //}
 
                             continue;
@@ -554,11 +549,11 @@ export default class DOMManipulation {
      * 
      * @param CurrentFile the URL that the user is currently on... RIGHT NOW!
      */
-    public _navigateCleanUpLinks (currentURL: string = null) {
+    public _navigateCleanUpLinks (force: Boolean = false, currentURL: string = null) {
         
-        console.log(' -- ' + this.templateType)
+        console.log('_navigateCleanUpLinks: ' + currentURL + ' - ' + this.templateType)
         
-        if (this.templateType == 'widget') {
+        if (this.templateType == 'widget' && force === false) {
             console.log('_navigateCleanUpLinks returning...')
            return
         }
@@ -567,13 +562,14 @@ export default class DOMManipulation {
             var currentURL = window.location.pathname.replace(/^|\/$/g, '');
         }
 
+        console.log('_navigateCleanUpLinks: ' + currentURL)
+
         let elementWithOldURLArr = this.body.querySelectorAll('a[class='+this.cssClasses.current+']');
         let oldCount = elementWithOldURLArr.length;
         let elementWithCurrentURLArr = this.body.querySelectorAll('a[href=\''+currentURL+'\']');
         let currentCount = elementWithCurrentURLArr.length;
         
 
-        
         
         /**
          * Now we add the class to the current file
