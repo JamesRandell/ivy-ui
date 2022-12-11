@@ -198,12 +198,14 @@ export default class router {
     static updateRouter(file) {
         //let path = window.location.pathname.replace(/^\/|\/$/g, '');
         let path = file;
+        if (!path)
+            return;
+        if (path == '')
+            return;
         history.pushState({ pageID: file }, file, file);
         /**
          * it's fine! the user hasn't landed on any specific page, so just exist here
          */
-        if (path == '')
-            return;
         let pathArr = path.split('/'), i = 0;
         registry.id = null,
             registry.args = {};

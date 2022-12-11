@@ -271,13 +271,16 @@ export default class router implements iprotocol {
         //let path = window.location.pathname.replace(/^\/|\/$/g, '');
         let path = file
 
+        if (!path) return
+        if (path == '') return;
+
         history.pushState({pageID: file}, file,  file);
         /**
          * it's fine! the user hasn't landed on any specific page, so just exist here
          */
-        if (path == '') return;
-
+         
         
+
         let pathArr = path.split('/'),
             i: number = 0;
         

@@ -79,7 +79,7 @@ export default class DOMManipulation {
 
         this._navigateInit();
 
-        this.widget = Log.getInstance();
+        //this.widget = 
     }
 
     public static getInstance() {
@@ -235,7 +235,16 @@ export default class DOMManipulation {
         }
 
         if(attributes.hasOwnProperty('class')) {
-            e.setAttribute('class', attributes.class);
+            if (Array.isArray(attributes.class)) {
+                let l = attributes.class.length
+                for (let i=0; i<=l; i++) {console.table(22,attributes.class[i])
+                    e.classList.add(attributes.class[i])
+                }
+            } else {
+                //e.setAttribute('class', attributes.class);
+                e.classList.add(attributes.class)
+            }
+            
         }
 
         if(attributes.hasOwnProperty('addClass')) {
@@ -335,12 +344,22 @@ export default class DOMManipulation {
             return
         } else if (loadedContent.startsWith('<!DOCTYPE') === true) {
             isWidget = false;
+            this.templateType = 'global'
+            console.log('_html is template: global');
+            router.updateRouter(json.url);
+            this._navigateCleanUpLinks()
+        } else if (loadedContent.startsWith('<' + this.config.contentSelector) === true) {
+            isWidget = false;
             this.templateType = 'local'
-            console.log('_html is template: local')
+            console.log('_html is template: local');
+            router.updateRouter(json.url);
+            this._navigateCleanUpLinks()
+            
         } else {
             isWidget = true;
             this.templateType = 'widget'
-            console.log('_html is template: widget')
+            console.log('_html is template: widget');
+            
         }
         
         

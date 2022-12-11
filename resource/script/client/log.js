@@ -8,6 +8,8 @@ var c = {};
 export default class Log {
     methodNames;
     messages = [];
+    status = document.getElementById('status');
+    baseWidth = 48;
     get canvas() {
         return document.createElement("canvas");
     }
@@ -48,72 +50,83 @@ export default class Log {
                 type: 'info',
                 text: arguments[0]
             });
-            that._log_info(arguments);
+            //that._log_info(arguments)
             ogInfo.apply(console, arguments);
         };
     }
     _log_error(arg) {
-        this._status();
+        this._status(arg);
     }
     _log_warn(arg) {
-        this._status();
+        this._status(arg);
     }
     _log_info(arg) {
-        this._status();
+        this._status(arg);
     }
     _log_log(arg) {
-        this._status();
+        this._status(arg);
     }
     minTime = 3000;
     timer = 0;
-    _status() {
+    _status(arg) {
         const messageLength = this.messages.length;
         this.timer = Date.now();
         if (messageLength === 0) {
             this._close();
             return;
         }
-        const status = document.getElementById('status');
-        if (!status) {
+        if (!this.status) {
             return;
         }
-        var baseWidth = 48;
-        if (status.classList.contains('error') === false) {
-            baseWidth = parseFloat(getComputedStyle(status).width);
+        if (this.status.classList.contains('error') === false) {
+            //this.baseWidth = parseFloat(getComputedStyle(this.status).width);
         }
-        status.classList.add('error');
-        const msg = '<p style="opacity:0">(1) ' + this.messages[0].text + '</p>';
-        status.innerHTML += msg;
-        const visibleMsg = status.getElementsByTagName('p')[0];
+        this.status.classList.add('error');
+        const msg = '<p style="opacity:0">(1) ' + arg[0] + '</p>';
+        if (messageLength === 1) {
+            this.status.innerHTML = '';
+        }
+        this.status.innerHTML += msg;
+        const visibleMsg = this.status.getElementsByTagName('p')[0];
         visibleMsg.style.opacity = '1';
-        const y = status.innerHTML;
-        status.innerHTML = y.replace(/\s*\(.*?\)\s*/g, '(' + messageLength + ') ');
-        const width = this._getTextWidth(status, visibleMsg.textContent) + 35;
-        status.style.width = baseWidth + width + 'px';
+        const y = this.status.innerHTML;
+        this.status.innerHTML = y.replace(/\s*\(.*?\)\s*/g, '(' + messageLength + ') ');
+        const width = this._getTextWidth(this.status, visibleMsg.textContent) + 35;
+        this.status.style.width = this.baseWidth + width + 'px';
         const that = this;
         setTimeout(function () {
             that._close();
-        }, this.messages.length * this.minTime);
+        }, messageLength * this.minTime);
     }
     _cycle() {
     }
     _close() {
-        const status = document.getElementById('status');
-        const oldWidth = parseFloat(getComputedStyle(status).width);
+        const oldWidth = parseFloat(getComputedStyle(this.status).width);
         const that = this;
         const messageLength = this.messages.length;
         if (messageLength === 0) {
             this._closeStatus();
             return;
         }
-        const visibleMsg = status.getElementsByTagName('p')[0];
+        const visibleMsg = this.status.getElementsByTagName('p')[0];
         if (visibleMsg) {
             visibleMsg.style.marginTop = '-25px';
             visibleMsg.style.opacity = '0';
         }
-        if (status.getElementsByTagName('p')[1]) {
-            status.getElementsByTagName('p')[1].style.opacity = '1';
-            status.getElementsByTagName('p')[1].innerHTML = status.getElementsByTagName('p')[1].innerHTML.replace(/\s*\(.*?\)\s*/g, '(' + (messageLength - 1) + ') ');
+        let msg = '';
+        // get width of second element if it exists
+        if (this.status.getElementsByTagName('p').length > 1) {
+            msg = this.status.getElementsByTagName('p')[1];
+        }
+        else {
+            msg = this.status.getElementsByTagName('p')[0];
+        }
+        const width = this._getTextWidth(this.status, msg.textContent) + 35;
+        // this.baseWidth = parseFloat(getComputedStyle(this.status).width);
+        this.status.style.width = (this.baseWidth + width) + 'px';
+        if (this.status.getElementsByTagName('p')[1]) {
+            this.status.getElementsByTagName('p')[1].style.opacity = '1';
+            this.status.getElementsByTagName('p')[1].innerHTML = this.status.getElementsByTagName('p')[1].innerHTML.replace(/\s*\(.*?\)\s*/g, '(' + (messageLength - 1) + ') ');
         }
         setTimeout(function () {
             if (visibleMsg) {
@@ -124,11 +137,10 @@ export default class Log {
         }, 250);
     }
     _closeStatus() {
-        const status = document.getElementById('status');
         if (this.messages.length === 0) {
-            status.classList.remove('error');
-            status.textContent = '';
-            status.style.width = '48px';
+            this.status.classList.remove('error');
+            this.status.textContent = '';
+            this.status.style.width = this.baseWidth + 'px';
             return;
         }
     }

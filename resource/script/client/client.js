@@ -36,6 +36,7 @@ const formI = Form.getInstance();
 window.addEventListener("form-submit", formI.formSubmit, false);
 //@ts-ignore
 import payloadProcessor from './payloadProcessor.js';
+import Log from './log.js';
 var data = {
     "db": {
         "datacenter": "datacenter1",
@@ -60,6 +61,7 @@ class Ivy extends payloadProcessor {
         super();
         dommanipulationinstance = DOMManipulation.getInstance();
         dommanipulationinstance.m(uiComponent.createStatusElement);
+        Log.getInstance();
         socketInit().then(function (server) {
             //server.send(JSON.stringify({payload:{file:"/ui/fragment"}}));
             //console.log('f')
@@ -76,6 +78,7 @@ class Ivy extends payloadProcessor {
         });
         window.addEventListener("localUpdated", function (e) {
             console.log('local updated');
+            //alert('localupdated')
         });
     }
 }
@@ -102,7 +105,6 @@ export const socketInit = async () => {
     return await new Promise(function (resolve, reject) {
         socketInitS.server = new WebSocket('ws://localhost:8082');
         socketInitS.server.onopen = function () {
-            console.log('SOCKET ERVER OPEN');
             socketInitS.failedCount = 0; // reset the connction counter
             resolve(socketInitS.server);
             const result = dommanipulationinstance;
@@ -122,7 +124,6 @@ export const socketInit = async () => {
         };
         socketInitS.server.onmessage = async function (data) {
             const result = JSON.parse(data.data);
-            console.log('msg received');
             const g = await ivy.message(result);
             const svgInstance = new svg(dommanipulationinstance);
         };
@@ -202,17 +203,14 @@ uiComponent.createStatusElement = {
         "node": {
             "div": [
                 {
-                    "attr": {
-                        "class": "status",
-                        "id": "status"
+                    attr: {
+                        addClass: ["status"],
+                        id: "status"
                     },
                     "verb": "add"
                 }
             ]
         }
-    },
-    "data": {
-        "status": "DOM Loaded"
     }
 };
 uiComponent.connected = {
@@ -221,7 +219,7 @@ uiComponent.connected = {
             div: [
                 {
                     attr: {
-                        class: "connected pulse status",
+                        addClass: ["connected", "pulse", "status"],
                         id: "status"
                     },
                     verb: "update"
@@ -236,9 +234,6 @@ uiComponent.connected = {
                 }
             ],
         }
-    },
-    data: {
-        status: ""
     }
 };
 uiComponent.disconnected = {
@@ -262,9 +257,6 @@ uiComponent.disconnected = {
                 }
             ]
         }
-    },
-    data: {
-        status: ""
     }
 };
 const dom = new Promise((resolve) => document.addEventListener('DOMContentLoaded', resolve));
@@ -318,7 +310,6 @@ const logout = () => {
 };
 document.body.addEventListener('click', function (e) {
     const button = e.target;
-    console.warn(e.target);
     if (button.id == 'login') {
         login();
     }
@@ -328,6 +319,7 @@ document.body.addEventListener('click', function (e) {
 });
 await client();
 dom.then(() => {
+    console.log('DOM Loaded');
     c();
 });
 async function c() {

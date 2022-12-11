@@ -2,11 +2,12 @@
  * payload gets caled a lot which then cals what ever functions it needs to
  */
 //@ts-ignore
+import router from './router.js';
+//@ts-ignore
 import { ClassMapper } from "./ClassMapper.js";
 //@ts-ignore
 import { template } from './template.js';
 import { Select } from './select.js';
-import Log from './log.js';
 let instance = null;
 export default class DOMManipulation {
     dom;
@@ -37,7 +38,7 @@ export default class DOMManipulation {
     constructor() {
         console.log('DOM Class started... only one please');
         this._navigateInit();
-        this.widget = Log.getInstance();
+        //this.widget = 
     }
     static getInstance() {
         if (instance === null) {
@@ -180,7 +181,17 @@ export default class DOMManipulation {
             e.setAttribute('id', attributes.id);
         }
         if (attributes.hasOwnProperty('class')) {
-            e.setAttribute('class', attributes.class);
+            if (Array.isArray(attributes.class)) {
+                let l = attributes.class.length;
+                for (let i = 0; i <= l; i++) {
+                    console.table(22, attributes.class[i]);
+                    e.classList.add(attributes.class[i]);
+                }
+            }
+            else {
+                //e.setAttribute('class', attributes.class);
+                e.classList.add(attributes.class);
+            }
         }
         if (attributes.hasOwnProperty('addClass')) {
             e.classList.add(attributes.class);
@@ -273,8 +284,17 @@ export default class DOMManipulation {
         }
         else if (loadedContent.startsWith('<!DOCTYPE') === true) {
             isWidget = false;
+            this.templateType = 'global';
+            console.log('_html is template: global');
+            router.updateRouter(json.url);
+            this._navigateCleanUpLinks();
+        }
+        else if (loadedContent.startsWith('<' + this.config.contentSelector) === true) {
+            isWidget = false;
             this.templateType = 'local';
             console.log('_html is template: local');
+            router.updateRouter(json.url);
+            this._navigateCleanUpLinks();
         }
         else {
             isWidget = true;

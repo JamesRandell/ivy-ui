@@ -4,7 +4,6 @@
 import DOMManipulation from "./dommanipulation.js";
 //@ts-ignore 
 import * as adhoc from './adhoc/index.js';
-import router from './router.js';
 export default class payloadProcessor {
     message(json) {
         if (!json.hasOwnProperty('payload')) {
@@ -42,7 +41,6 @@ export default class payloadProcessor {
                     return;
                 }
                 if (json.payload["html"]["url"]) {
-                    router.updateRouter(json.payload["html"]["url"]);
                     //console.table(registry.updateRouter())
                 }
             }

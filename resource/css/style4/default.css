@@ -10,19 +10,22 @@ html {
 html, body {
     min-height: 100vh;
 }
-
+html {
+  background-color: var(--background);
+}
 body {
-    background-color: white;
+    background-color: var(--background);
     font-size: .8rem;
     font-weight:300;
-
-    display: grid;
+   
+    display: none;
     grid-template-columns: [nav] 280px [content] auto;
     grid-template-rows: [header] 10px [content] calc(100vh - 10px - 100px) [footer] 200px;
 }
 
 body.connected {
-    background-color: var(--background)
+    background-color: var(--background);
+    display: grid
 }
 
 body > header {
@@ -60,7 +63,7 @@ body.guest > main {
   display: flex;
   align-items: center;
   justify-content: center;
-  display: block;
+
   background-color: #fff !important
 }
 
@@ -131,7 +134,7 @@ h6 {
 }
 p {
   
-  line-height: 1rem;
+  line-height: 1.2rem;
   font-weight: 400;
   font-feature-settings: "salt";
   color: var(--text-color)
@@ -182,7 +185,9 @@ em {
   padding-left:1rem;
   border-radius: 1.5rem 1.5rem 0 1.5rem;
   box-shadow: 0 0 5px var(--blur-color);
-  transition: all 250ms ease;
+  transition: margin 250ms ease;
+  transition: opacity 250ms ease;
+  transition: width 250ms ease;
   will-change: transform;
   color:#fff;
   white-space: nowrap;
@@ -452,3 +457,10 @@ body.loading main.content > * {
     }
   }
   /** END of bars3 */
+
+
+  .nomargin { margin: 0 }
+
+  .center { 
+    text-align: center;
+  }

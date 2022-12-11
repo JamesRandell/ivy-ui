@@ -63,7 +63,7 @@ export default class payloadProcessor {
                     return
                 }
                 if (json.payload["html"]["url"]) {
-                    router.updateRouter(json.payload["html"]["url"]);
+                    
                     
                     //console.table(registry.updateRouter())
                 }

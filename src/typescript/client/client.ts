@@ -57,6 +57,8 @@ import payloadProcessor from './payloadProcessor.js';
 //@ts-ignore
 import { template } from './template.js';
 import { textChangeRangeIsUnchanged } from "typescript";
+import Log from './log.js'
+
 
 
 var data = {
@@ -95,7 +97,7 @@ class Ivy extends payloadProcessor {
 
     
     dommanipulationinstance.m(uiComponent.createStatusElement);
-    
+    Log.getInstance();
 
     socketInit().then(function(server){
       //server.send(JSON.stringify({payload:{file:"/ui/fragment"}}));
@@ -118,6 +120,7 @@ class Ivy extends payloadProcessor {
 
     window.addEventListener("localUpdated", function(e) {
       console.log('local updated');
+      //alert('localupdated')
     });
 
   }
@@ -151,7 +154,6 @@ export const socketInit = async () => {
 
     
     socketInitS.server.onopen = function() {
-      console.log('SOCKET ERVER OPEN')
       socketInitS.failedCount = 0; // reset the connction counter
 
       resolve(socketInitS.server);
@@ -178,7 +180,6 @@ export const socketInit = async () => {
 
     socketInitS.server.onmessage = async function(data){
       const result = JSON.parse(data.data);
-      console.log('msg received')
      
       const g = await ivy.message(result);
       const svgInstance = new svg(dommanipulationinstance);
@@ -272,17 +273,14 @@ uiComponent.createStatusElement = {
                   "node":{
                     "div":[
                       {
-                        "attr": {
-                          "class": "status",
-                          "id": "status"
+                        attr: {
+                          addClass: ["status"],
+                          id: "status"
                         },
                         "verb":"add"
                       }
                     ]
                   }
-                },
-                "data": {
-                    "status": "DOM Loaded"
                 }
             };
 
@@ -292,7 +290,7 @@ uiComponent.connected = {
                 div:[
                   {
                     attr: {
-                      class: "connected pulse status",
+                      addClass: ["connected","pulse","status"],
                       id: "status"
                     },
                     verb:"update"
@@ -307,9 +305,6 @@ uiComponent.connected = {
                     }
                   ],
               }
-            },
-            data: {
-                status: ""
             }
         };
     
@@ -334,9 +329,6 @@ uiComponent.disconnected = {
                     }
                   ]
                 }
-            },
-            data: {
-                status: ""
             }
         };        
         
@@ -407,7 +399,7 @@ const client = async () => {
 
         document.body.addEventListener('click', function(e){
           const button = e.target as Element;
-          console.warn(e.target)
+
           if (button.id == 'login') {
             login();
           }
@@ -423,7 +415,7 @@ const client = async () => {
         await client()
 
 dom.then(() => {
-  
+  console.log('DOM Loaded')
   c();
 })
 
