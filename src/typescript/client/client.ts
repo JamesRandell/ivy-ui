@@ -107,8 +107,8 @@ class Ivy extends payloadProcessor {
     window.addEventListener("post-navigate", function(evt){
       //socket({file:"/ui/fragment"});
       
-      router.updateRouter(evt.detail);
-      dommanipulationinstance._navigateCleanUpLinks();
+      //router.updateRouter(evt.detail);
+      //dommanipulationinstance._navigateCleanUpLinks();
       console.log(':: post-navigate', evt.detail)
     });
 

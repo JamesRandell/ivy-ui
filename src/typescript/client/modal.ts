@@ -4,23 +4,39 @@
  * When a user clicks the 'close' button, or the background, we change the URL to what ever it was before the 
  * modal was opened, and adjust the class list 
  */
-function modalF() {
+ class Modal {
 
+    constructor () {
 
-    document.body.addEventListener("click", function(event: Event & {
-        target: HTMLButtonElement
-    }) {
+        const modalNode = window.document.getElementById('modal');
 
-        const { target } = event;
-
-        if (target.id === 'close' || target.id === 'modal') {
-            window.document.getElementById('modal').classList.remove('open');
-
-            console.log(window.history.state.prevURL);
-            window.history.pushState({pageID: window.history.state.prevURL}, window.history.state.prevURL, window.history.state.prevURL);
+        if (modalNode == null) {
+            const modalObj = document.createElement('modal');
+            modalObj.id = 'modal'
+            modalObj.classList.add('modal')
+            document.getElementsByTagName('body')[0].appendChild(modalObj)
         }
 
-    })
-}
+        this.modalF()
+    }
+    public modalF() {
 
-export const modal = modalF();
+
+        document.body.addEventListener("click", function(event: Event & {
+            target: HTMLButtonElement
+        }) {
+
+            const { target } = event;
+
+            if (target.id === 'close' || target.id === 'modal') {
+                window.document.getElementById('modal').classList.remove('open');
+
+                console.log(window.history.state.prevURL);
+                window.history.pushState({pageID: window.history.state.prevURL}, window.history.state.prevURL, window.history.state.prevURL);
+            }
+
+        })
+    }
+ }
+export { Modal }; 
+//export const modal = modalF();

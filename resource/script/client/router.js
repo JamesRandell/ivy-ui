@@ -206,6 +206,7 @@ export default class router {
         /**
          * it's fine! the user hasn't landed on any specific page, so just exist here
          */
+        console.log(':: Updating router: ' + path);
         let pathArr = path.split('/'), i = 0;
         registry.id = null,
             registry.args = {};

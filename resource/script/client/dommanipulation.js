@@ -2,10 +2,13 @@
  * payload gets caled a lot which then cals what ever functions it needs to
  */
 //@ts-ignore
+import router from './router.js';
+//@ts-ignore
 import { ClassMapper } from "./ClassMapper.js";
 //@ts-ignore
 import { template } from './template.js';
 import { Select } from './select.js';
+import { Modal } from './modal.js';
 let instance = null;
 export default class DOMManipulation {
     dom;
@@ -36,6 +39,7 @@ export default class DOMManipulation {
     constructor() {
         console.log('DOM Class started... only one please');
         this._navigateInit();
+        new Modal();
         //this.widget = 
     }
     static getInstance() {
@@ -264,7 +268,8 @@ export default class DOMManipulation {
          * we need a way to find out if what's in loadedContent is a complete HTML page,
          * or a bit of one. We handle these differently
          *
-         * A LOCAL template is one with complete html structure
+         * A GLOBAL template is with a compelte html structure
+         * A LOCAL template is one with the main content selector present
          * A WIDGET template is one with just HTML fragments (div etc)
          * All loadedContent will either have HTML tags or it won't. Most will
          *
@@ -277,17 +282,23 @@ export default class DOMManipulation {
          * template
          */
         if (loadedContent == null) {
-            console.warn('dommanipulation::_html: Unable to parse json data into html');
+            if (json.url)
+                router.updateRouter(json.url);
+            //console.warn('dommanipulation::_html: Unable to parse json data into html')
             return;
         }
         else if (loadedContent.startsWith('<!DOCTYPE') === true) {
             isWidget = false;
             this.templateType = 'global';
+            router.updateRouter(json.url);
+            this._navigateCleanUpLinks(json.url);
             console.log('_html is template: global');
         }
         else if (loadedContent.startsWith('<' + this.config.contentSelector) === true) {
             isWidget = false;
             this.templateType = 'local';
+            router.updateRouter(json.url);
+            this._navigateCleanUpLinks(json.url);
             console.log('_html is template: local');
         }
         else {
@@ -448,7 +459,6 @@ export default class DOMManipulation {
      * @param CurrentFile the URL that the user is currently on... RIGHT NOW!
      */
     _navigateCleanUpLinks(force = false, currentURL = null) {
-        console.log('_navigateCleanUpLinks: ' + currentURL + ' - ' + this.templateType);
         if (this.templateType == 'widget' && force === false) {
             console.log('_navigateCleanUpLinks returning...');
             return;

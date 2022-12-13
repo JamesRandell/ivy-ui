@@ -19,7 +19,6 @@ export default {
     },
 
     async go (file: string, data: object) {
-        console.log('protocolWS::go')
         let json = {'url':file};
         await this.build(json).then(resolved => {
             return true;

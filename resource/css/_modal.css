@@ -1,4 +1,4 @@
-.modal-window {
+.modal {
     position: fixed;
     background-color: rgba(0, 0, 0, 0.80);
     top: 0;
@@ -11,13 +11,13 @@
     pointer-events: none;
     transition: all 0.3s;
   }
-  .modal-window:target, .modal-window.open {
+  .modal:target, .modal.open {
     visibility: visible;
     opacity: 1;
     pointer-events: auto;
     
   }
-  .modal-window > div {
+  .modal > div {
     width: 400px;
     position: absolute;
     top: 50%;
@@ -28,10 +28,10 @@
     max-height:80%;
     overflow-y: scroll
   }
-  .modal-window header {
+  .modal header {
     font-weight: bold;
   }
-  .modal-window h1 {
+  .modal h1 {
     font-size: 150%;
     margin: 0 0 15px;
   }
@@ -64,11 +64,11 @@
     height: 100vh;
   }
   
-  .modal-window > div {
+  .modal > div {
     border-radius: 0.6rem;
   }
   
-  .modal-window div:not(:last-of-type) {
+  .modal div:not(:last-of-type) {
     margin-bottom: 15px;
   }
   

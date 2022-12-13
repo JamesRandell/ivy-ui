@@ -16,7 +16,7 @@ import { CustomSelect } from './vanilla-js-dropdown.js';
 
 import { Select } from './select.js'
 
-import { modal } from './modal.js'
+import { Modal } from './modal.js'
 
 import Log from './log.js'
 
@@ -79,6 +79,7 @@ export default class DOMManipulation {
 
         this._navigateInit();
 
+        new Modal()
         //this.widget = 
     }
 
@@ -87,6 +88,7 @@ export default class DOMManipulation {
           instance = new DOMManipulation();
         }
 
+        
         return instance;
     }
 
@@ -319,6 +321,7 @@ export default class DOMManipulation {
         //this.DOMData = json
         let parsedTemplate = template.parse(loadedContent, this.DOMData);
         this.lastTemplate = loadedContent
+
         loadedContent = template.compile(parsedTemplate, this.DOMData);
         
         
@@ -326,7 +329,8 @@ export default class DOMManipulation {
          * we need a way to find out if what's in loadedContent is a complete HTML page, 
          * or a bit of one. We handle these differently
          * 
-         * A LOCAL template is one with complete html structure
+         * A GLOBAL template is with a compelte html structure
+         * A LOCAL template is one with the main content selector present
          * A WIDGET template is one with just HTML fragments (div etc)
          * All loadedContent will either have HTML tags or it won't. Most will
          * 
@@ -339,16 +343,22 @@ export default class DOMManipulation {
          * Check if the loadedContent starts with a DOCTYPE. If it does - this is a GLOBAL/LOCAL
          * template
          */
+
         if (loadedContent == null) {
-            console.warn('dommanipulation::_html: Unable to parse json data into html')
+            if (json.url) router.updateRouter(json.url);
+            //console.warn('dommanipulation::_html: Unable to parse json data into html')
             return
         } else if (loadedContent.startsWith('<!DOCTYPE') === true) {
             isWidget = false;
             this.templateType = 'global'
+            router.updateRouter(json.url);
+            this._navigateCleanUpLinks(json.url)
             console.log('_html is template: global');
         } else if (loadedContent.startsWith('<' + this.config.contentSelector) === true) {
             isWidget = false;
             this.templateType = 'local'
+            router.updateRouter(json.url);
+            this._navigateCleanUpLinks(json.url)
             console.log('_html is template: local');
         } else {
             isWidget = true;
@@ -520,6 +530,7 @@ export default class DOMManipulation {
         this.loading(false);
         this._progressiveSelect(loadedBody);
         window.dispatchEvent(new CustomEvent('localUpdated'));
+        
         this._scrollTo('class', this.config.contentSelector);
     }
 
@@ -550,8 +561,6 @@ export default class DOMManipulation {
      * @param CurrentFile the URL that the user is currently on... RIGHT NOW!
      */
     public _navigateCleanUpLinks (force: Boolean = false, currentURL: string = null) {
-        
-        console.log('_navigateCleanUpLinks: ' + currentURL + ' - ' + this.templateType)
         
         if (this.templateType == 'widget' && force === false) {
             console.log('_navigateCleanUpLinks returning...')

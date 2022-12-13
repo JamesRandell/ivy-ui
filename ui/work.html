@@ -1,11 +1,15 @@
 <main class="content">
-    main content
+    <p>main content</p>
 
+    {{#each main}}
+    {{key|uppercase}}:{{value}}<br>
+    {{/each}}
     <p>This is some CASSANDRA content</p>
-    Datacenter: {{db.datacenter}}<br>
+    <p>Datacenter: {{db.datacenter}}<br>
         {{#each db.host}}
         {{#each}}
-        <p>---{{key|uppercase}}:{{value}}</p>
+        ---{{key|uppercase}}:{{value}}
         {{/each}}
         {{/each}}
+    </p>
 </main>

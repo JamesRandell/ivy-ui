@@ -279,7 +279,7 @@ export default class router implements iprotocol {
          * it's fine! the user hasn't landed on any specific page, so just exist here
          */
          
-        
+        console.log(':: Updating router: ' + path)
 
         let pathArr = path.split('/'),
             i: number = 0;
