@@ -327,6 +327,7 @@ var library = {
                 'Content-Type': 'application/json'
             };
             const req = http.request(config_http, (res) => {
+                let data = [];
                 console.log(`STATUS: ${res.statusCode}`);
                 console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
                 res.setEncoding('utf8');
@@ -349,14 +350,36 @@ var library = {
                 /**
                  * returns the file contents
                  */
-                res.on('data', (result) => {
+
+                
+                //res.on('data', (chunk) => {
+                //    data.push(chunk);
                     /**
                      * when the result is pure JSON, send back just a data key, and don't instruct the UI to change the url
                      * need to manually parse the result this time
                      */
+                //});
+                
+
+                res.on('readable', function() {
+                    let chunk = this.read() || '';
+
+                    data += chunk;
+
+                });
+
+
+                res.on('end', () => {
+                    let result = data;//Buffer.byteLength(data);
                     if (res.headers['content-type'].startsWith('application/json')) {
                         console.log('this is JSON');
-                        resolve({ data: JSON.parse(result) });
+                        try {
+                            resolve({ data: JSON.parse(result) });
+                        }
+                        catch (e) {
+                            console.log(result);
+                            console.log('Failed: ', e);
+                        }
                     }
                     else if (fileAttributes.isWidget === true) {
                         console.log('isWidget');
@@ -369,9 +392,6 @@ var library = {
                         returnObject.data = result;
                         resolve({ html: returnObject });
                     }
-                });
-                res.on('end', () => {
-                    //console.log('No more data in response.');
                 });
             });
             req.on('error', err => {

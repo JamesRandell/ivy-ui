@@ -11,25 +11,55 @@ html, body {
     min-height: 100vh;
 }
 html {
-  background-color: var(--background);
+  background-color: #fff
 }
 body {
-    background-color: var(--background);
     font-size: .8rem;
     font-weight:300;
-   
-    display: none;
-    grid-template-columns: [nav] 280px [content] auto;
-    grid-template-rows: [header] 10px [content] calc(100vh - 10px - 100px) [footer] 200px;
+    display: grid;
+    grid-template-columns: [content] 100%;
+    grid-template-rows: [content] 100%;
+    background-color: var(--background);
+
 }
 
 body.connected {
+  align-items: inherit;
+  justify-content: inherit;
+  grid-template-columns: [left] 50% [content] 50%;
+  grid-template-rows: [content] 100%;
+  background-color: var(--dark-bg);
+}
+body.connected.loggedin {
+    grid-template-columns: [nav] 280px [content] auto;
+    grid-template-rows: [header] 10px [content] calc(100vh - 10px - 100px) [footer] 200px;
     background-color: var(--background);
-    display: grid
+}
+body > header,
+body > nav,
+body > main,
+body > footer {
+  display: none
+}
+
+body.connected.loggedin > header,
+body.connected.loggedin > nav,
+body.connected.loggedin > main,
+body.connected.loggedin > footer {
+  display: block
+}
+
+body.connected.loggedin > main {
+  display: flex
+}
+
+
+body.connected.loggedin {
+    background-color: var(--background);
+
 }
 
 body > header {
-  /*flex: 0 0 100%*/
   grid-column: nav / content;
   grid-row: header
 }
@@ -39,6 +69,8 @@ body > nav {
   grid-row-start: content;
   grid-row-end: end;
 }
+
+
 body > main {
   /* grow the content to the remainder of the space (works with padding!) */
   grid-column-start: content;
@@ -50,21 +82,18 @@ body > footer {
   grid-row-start: footer
 }
 
-
-body.guest {
-  grid-template-columns: [left] 50% [content] 50%;
-  grid-template-rows: [content] 100%;
-  background-color: var(--dark-bg)
-}
-body.guest > * {
+/*
+body > * {
   display: none
 }
-body.guest > main {
+*/
+
+body.connected > main {
   display: flex;
   align-items: center;
-  justify-content: center;
-
-  background-color: #fff !important
+}
+body.connected.loggedin > main {
+  align-items: inherit;
 }
 
 error {
@@ -173,17 +202,15 @@ em {
  the flashy loading web socket connection indicator
  **/
 .status {
-  position:fixed;
   background-color: #fff;
   width:3rem;
   height: 3rem; 
-  bottom:0px;
-  right:0px;
+  align-self: center;
   padding-top: 0.66rem;
   text-align:left;
   line-height: 1.5rem;
   padding-left:1rem;
-  border-radius: 1.5rem 1.5rem 0 1.5rem;
+  border-radius: 1.5rem;
   box-shadow: 0 0 5px var(--blur-color);
   transition: margin 250ms ease;
   transition: opacity 250ms ease;
@@ -191,6 +218,31 @@ em {
   will-change: transform;
   color:#fff;
   white-space: nowrap;
+}
+
+body .status {
+  margin-left: auto;
+  margin-right: auto;
+}
+body.connected .status {
+    position:fixed;
+    background-color: #fff;
+    width:3rem;
+    height: 3rem; 
+    bottom:0px;
+    right:0px;
+    padding-top: 0.66rem;
+    text-align:left;
+    line-height: 1.5rem;
+    padding-left:1rem;
+    border-radius: 1.5rem 1.5rem 0 1.5rem;
+    box-shadow: 0 0 5px var(--blur-color);
+    transition: margin 250ms ease;
+    transition: opacity 250ms ease;
+    transition: width 250ms ease;
+    will-change: transform;
+    color:#fff;
+    white-space: nowrap;
 }
 
 .status.error {
@@ -290,21 +342,30 @@ body.loading main.content > * {
     }
 }
 
-.pulse {
+
+body.connected .pulse {
     display: block;
   }
   
 .pulse:before, .pulse:after {
     content: '';
-    border: 0.1rem solid green;
     border-radius: 50%;
     width: 1.5rem;
     height: 1.5rem;
     position: absolute;
     right: 0.65rem;
     top: 10px;
-  }
+}
 
+.pulse.connected:before,
+.pulse.connected:after {
+  border: 0.1rem solid green;
+}
+
+.pulse.disconnected:before,
+.pulse.disconnected:after {
+  border: 0.1rem solid red;
+}
 .pulse:before {
     -webkit-transform: scale(1, 1);
         -ms-transform: scale(1, 1);

@@ -10,6 +10,17 @@ export default class Log {
     messages = [];
     status = document.getElementById('status');
     baseWidth = 48;
+    /**
+     * This displays the count of how many messages are queued up to display. It's what's in the parethesis
+     */
+    count = true;
+    /**
+     * Displays the last message only, doesn't bother queuing anything
+     */
+    last = false;
+    minTime = 3000;
+    timer = 0;
+    timerLoop;
     get canvas() {
         return document.createElement("canvas");
     }
@@ -66,8 +77,6 @@ export default class Log {
     _log_log(arg) {
         this._status(arg);
     }
-    minTime = 3000;
-    timer = 0;
     _status(arg) {
         const messageLength = this.messages.length;
         this.timer = Date.now();
@@ -82,7 +91,14 @@ export default class Log {
             //this.baseWidth = parseFloat(getComputedStyle(this.status).width);
         }
         this.status.classList.add('error');
-        const msg = '<p style="opacity:0">(1) ' + arg[0] + '</p>';
+        let countMsg = '';
+        if (this.count === true) {
+            countMsg = '(' + messageLength + ') ';
+        }
+        else {
+            countMsg = '';
+        }
+        const msg = '<p style="opacity:0">' + countMsg + arg[0] + '</p>';
         if (messageLength === 1) {
             this.status.innerHTML = '';
         }
@@ -90,13 +106,27 @@ export default class Log {
         const visibleMsg = this.status.getElementsByTagName('p')[0];
         visibleMsg.style.opacity = '1';
         const y = this.status.innerHTML;
-        this.status.innerHTML = y.replace(/\s*\(.*?\)\s*/g, '(' + messageLength + ') ');
+        this.status.innerHTML = y.replace(/\s*\(.*?\)\s*/g, countMsg);
         const width = this._getTextWidth(this.status, visibleMsg.textContent) + 35;
         this.status.style.width = this.baseWidth + width + 'px';
         const that = this;
+        const timerCount = (this.last === true) ? 3250 : messageLength * this.minTime;
+        // cant get this bit working quite right
+        /**
+         *
+        clearTimeout(this.timerLoop);
+        if (this.last == true && messageLength > 1) {
+            clearTimeout(this.timerLoop);
+            that._close();
+        } else {
+            this.timerLoop = setTimeout(function() {
+                that._close();
+            }, timerCount);
+        }
+        **/
         setTimeout(function () {
             that._close();
-        }, messageLength * this.minTime);
+        }, timerCount);
     }
     _cycle() {
     }

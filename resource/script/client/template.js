@@ -65,17 +65,22 @@ var template = {
                         //remove the brackets
                         let a = t.replace("{{", "").replace("}}", "").trim();
                         let tempArrayName = '0';
+                        // if our #each command doesnt specify a key, so loop everything
                         if (a == "#each") {
+                            dataRef = data;
+                            tempArrayName = '';
                         }
                         else {
                             tempArrayName = t.split(" ").pop().replace("}}", "").trim();
                         }
                         let oldArrayName = arrayName;
                         let oldArrayNameLength = arrayNameLength;
-                        tempRefDataCounter = tempArrayName.split(".").map((item) => {
-                            arrayName.push(item);
-                        }).length;
-                        arrayNameLength = arrayName.length;
+                        if (tempArrayName.length > 0) {
+                            tempRefDataCounter = tempArrayName.split(".").map((item) => {
+                                arrayName.push(item);
+                            }).length;
+                        }
+                        arrayNameLength++; // = arrayName.length;
                         let i = 0;
                         for (const name of arrayName) {
                             if (i === 0 && data[name]) {
@@ -97,26 +102,34 @@ var template = {
                         //    dataRefLength = 0;
                         //    dataRefType = "absent";
                         //}
+                        console.error(arrayNameLength);
+                        tempLoopVar = "v".repeat(arrayNameLength - 1);
                         switch (dataRefType) {
                             case "array":
                                 tempArrayName = `data["${arrayName.join('"]["')}"]`;
-                                tempLoopVar = "i".repeat(arrayNameLength);
-                                fnStr += `\$\{${tempArrayName}.map((item, ${tempLoopVar}) => \``;
+                                fnStr += `\$\{${tempArrayName}.map((k, ${tempLoopVar}) => \``;
                                 break;
                             case "object":
                                 // we need to get the arrayName before this current loop
                                 tempArrayName = `data["${oldArrayName.join('"]["')}"]`;
-                                tempLoopVar = "i".repeat(arrayNameLength);
-                                let keys = '"' + oldArrayName.filter(element => isNaN(parseInt(element))).join('"]["');
+                                var tempVarData = tempLoopVar;
+                                var tempVarK = 'k'.repeat(arrayNameLength);
+                                var tempVarV = 'v'.repeat(arrayNameLength);
+                                let keys = '["' + oldArrayName.filter(element => isNaN(parseInt(element))).join('"]["');
                                 keys = keys + '"]';
-                                if (oldArrayNameLength > 0) {
-                                    keys += '[' + "i".repeat(oldArrayNameLength) + ']';
+                                console.log('keys', keys);
+                                if (arrayNameLength == 1) {
+                                    keys = '';
+                                    tempVarData = 'data';
                                 }
-                                fnStr += `\$\{Object.entries(data[${keys}).map((item, ${tempLoopVar}) => \``;
-                                //fnStr += `\$\{Object.entries(data[${keys}).forEach(([item, ${tempLoopVar}]) => \``;
+                                if (oldArrayNameLength > 0) {
+                                    keys += '[' + "v".repeat(oldArrayNameLength) + ']';
+                                }
+                                const d = `${tempLoopVar}`;
+                                fnStr += `\$\{Object.entries(${tempVarData}).map(([${tempVarK}, ${tempVarV}]) => \``;
                                 break;
                             default:
-                                fnStr += `\$\{[].map((item, ${tempLoopVar}) => \``;
+                                fnStr += `\$\{[].map((k, ${tempLoopVar}) => \``;
                         }
                     }
                 }
@@ -182,6 +195,12 @@ var template = {
                             case "lowercase":
                                 outputCommand = '.toLowerCase()';
                                 break;
+                            case "upper":
+                                outputCommand = '.toUpperCase()';
+                                break;
+                            case "lower":
+                                outputCommand = '.toLowerCase()';
+                                break;
                         }
                     }
                     if (arrayName.length > 0) {
@@ -219,7 +238,25 @@ var template = {
                     }
                     else {
                         // append it to fnStr
-                        fnStr += `\$\{data["${t.replace(/\./g, '"]["').split(/{{|}}/).filter(Boolean)[0].trim()}"]\}`;
+                        let vvv = 'data';
+                        let kkk = 'data';
+                        let vv = '';
+                        let kk = '';
+                        if (tempRefDataCounter > 0) {
+                            vvv = 'v'.repeat(tempRefDataCounter + 1);
+                            kkk = 'k'.repeat(tempRefDataCounter + 1);
+                            vv = 'v'.repeat(tempRefDataCounter);
+                            kk = 'k'.repeat(tempRefDataCounter);
+                        }
+                        if (t == "{{key}}") {
+                            fnStr += `\$\{${kkk}${outputCommand}\}`;
+                        }
+                        else if (t == "{{value}}") {
+                            fnStr += `\$\{${vvv}${outputCommand}\}`;
+                        }
+                        else {
+                            fnStr += `\$\{${vvv}["${t.replace(/\./g, '"]["').split(/{{|}}/).filter(Boolean)[0].trim()}"]${outputCommand}\}`;
+                        }
                     }
                 }
                 //console.log('array:' + arrayName.length + ', data: ' + dataRefLength + ', type: ' + dataRefType);
@@ -248,7 +285,9 @@ var template = {
         return fnStr;
     },
     compile: (templateString, data = {}) => {
-        data = template._convertObjectToArray(data);
+        //data = template._convertObjectToArray(data);
+        console.error('data', data);
+        console.error('templateString', templateString);
         // update all the keys, change spaces to a hypen -
         const loop = (data) => {
             var result = {};

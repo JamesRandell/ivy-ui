@@ -84,7 +84,7 @@ var data = {
 var dommanipulationinstance: any;    
 var ivy: any;
 var routerInstance: any;
-
+var log: any
 
 class Ivy extends payloadProcessor {
 
@@ -97,7 +97,8 @@ class Ivy extends payloadProcessor {
 
     
     dommanipulationinstance.m(uiComponent.createStatusElement);
-    Log.getInstance();
+    log = Log.getInstance();
+    
 
     socketInit().then(function(server){
       //server.send(JSON.stringify({payload:{file:"/ui/fragment"}}));
@@ -157,7 +158,9 @@ export const socketInit = async () => {
 
   return await new Promise(function(resolve, reject) {
     socketInitS.server = new WebSocket('ws://localhost:8082');
-
+    log.count = false;
+    log.last = true;
+    console.warn('Connecting: attempt ' + socketInitS.failedCount)
     
     socketInitS.server.onopen = function() {
       socketInitS.failedCount = 0; // reset the connction counter
@@ -167,7 +170,10 @@ export const socketInit = async () => {
       const result = dommanipulationinstance;
 
       result.m(uiComponent.connected);
-
+      
+      console.warn('Connected!');
+      log.count = true;
+      log.last = false;
       socket({url:"/widget/nav"});
     };
 
@@ -176,7 +182,7 @@ export const socketInit = async () => {
       dommanipulationinstance.m(uiComponent.disconnected);
       reject(socketInitS.server);
       //setTimeout(check, config.poll*socketInitS.failedCount);
-      setTimeout(check, config.poll);
+      setTimeout(check, config.poll+1000);
     };
 
     socketInitS.server.onerror = function(err) {
@@ -246,7 +252,8 @@ var uiComponent = {
   btn:{},
   createStatusElement:{},
   connected:{},
-  disconnected:{}
+  disconnected:{},
+  loggedin: {}
 };
 uiComponent.btn = {
             "ui":{
@@ -275,15 +282,15 @@ uiComponent.btn = {
         };
 
 uiComponent.createStatusElement = {
-                "ui":{
-                  "node":{
-                    "div":[
+                ui:{
+                  node:{
+                    div:[
                       {
                         attr: {
-                          addClass: ["status"],
+                          class: ["disconnected","pulse","status"],
                           id: "status"
                         },
-                        "verb":"add"
+                        verb:"add"
                       }
                     ]
                   }
@@ -297,6 +304,7 @@ uiComponent.connected = {
                   {
                     attr: {
                       addClass: ["connected","pulse","status"],
+                      removeClass: ["disconnected"],
                       id: "status"
                     },
                     verb:"update"
@@ -320,7 +328,8 @@ uiComponent.disconnected = {
                 div:[
                 {
                     attr: {
-                      class: "disconnected pulse status",
+                      addClass: ["disconnected","pulse","status"],
+                      removeClass: ["connected"],
                       id: "status"
                     },
                     verb:"update"
@@ -337,7 +346,20 @@ uiComponent.disconnected = {
                 }
             }
         };        
-        
+uiComponent.loggedin = {
+  ui:{
+    node:{
+      body:[
+          {
+            attr: {
+              addClass: "loggedin",
+            },
+            verb:"update"
+          }
+        ],
+    }
+  }
+};
         
         
 const dom = new Promise((resolve) => document.addEventListener('DOMContentLoaded', resolve));
@@ -483,11 +505,11 @@ async function c ()  {
 
 
 async function userAuthenticated() {
-  document.getElementsByTagName('body')[0].classList.remove('guest')
+  dommanipulationinstance.m(uiComponent.loggedin);
   
  
-  console.warn(await auth0Client.isAuthenticated())
-  console.warn( await auth0Client.getUser())
+  console.log(await auth0Client.isAuthenticated())
+  console.log(await auth0Client.getUser())
 }
 
 

@@ -48,6 +48,9 @@ export default class DOMManipulation {
         }
         return instance;
     }
+    manipulate(json) {
+        this.m(json);
+    }
     /**
      *
      * @param json Expects a payload with instructions to build DOM/HTML elements
@@ -185,21 +188,35 @@ export default class DOMManipulation {
         if (attributes.hasOwnProperty('class')) {
             if (Array.isArray(attributes.class)) {
                 let l = attributes.class.length;
-                for (let i = 0; i <= l; i++) {
-                    console.table(22, attributes.class[i]);
+                for (let i = 0; i < l; i++) {
                     e.classList.add(attributes.class[i]);
                 }
             }
             else {
-                //e.setAttribute('class', attributes.class);
                 e.classList.add(attributes.class);
             }
         }
         if (attributes.hasOwnProperty('addClass')) {
-            e.classList.add(attributes.class);
+            if (Array.isArray(attributes.class)) {
+                let l = attributes.class.length;
+                for (let i = 0; i < l; i++) {
+                    e.classList.add(attributes.class[i]);
+                }
+            }
+            else {
+                e.classList.add(attributes.class);
+            }
         }
         if (attributes.hasOwnProperty('removeClass')) {
-            e.classList.remove(attributes.class);
+            if (Array.isArray(attributes.class)) {
+                let l = attributes.class.length;
+                for (let i = 0; i < l; i++) {
+                    e.classList.remove(attributes.class[i]);
+                }
+            }
+            else {
+                e.classList.remove(attributes.class);
+            }
         }
         this.body.appendChild(e);
     }
@@ -261,7 +278,10 @@ export default class DOMManipulation {
          * template engine. Parses the string then compiles it with what ever is in this.DOMData
          */
         //this.DOMData = json
+        console.log('DOMData', this.DOMData);
+        console.log('loadedContent', loadedContent);
         let parsedTemplate = template.parse(loadedContent, this.DOMData);
+        console.log('parsedTemplate', parsedTemplate);
         this.lastTemplate = loadedContent;
         loadedContent = template.compile(parsedTemplate, this.DOMData);
         /**
@@ -291,14 +311,14 @@ export default class DOMManipulation {
             isWidget = false;
             this.templateType = 'global';
             router.updateRouter(json.url);
-            this._navigateCleanUpLinks(json.url);
+            this._navigateCleanUpLinks(false, json.url);
             console.log('_html is template: global');
         }
         else if (loadedContent.startsWith('<' + this.config.contentSelector) === true) {
             isWidget = false;
             this.templateType = 'local';
             router.updateRouter(json.url);
-            this._navigateCleanUpLinks(json.url);
+            this._navigateCleanUpLinks(false, json.url);
             console.log('_html is template: local');
         }
         else {

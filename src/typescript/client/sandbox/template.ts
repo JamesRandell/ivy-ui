@@ -41,7 +41,7 @@ var data = {
 }
 
 const fileName = "resource/template/widget/cassandra.html";
-const v = template.parse(html, data, fileName);
+//const v = template.parse(html, data, fileName);
 
 
 
@@ -56,8 +56,8 @@ const person = {
 
 
 const q = document.querySelector('footer');
-console.log(q)
-q.innerHTML = template.compile(v, data);
+
+//q.innerHTML = template.compile(v, data);
 
 /*
 

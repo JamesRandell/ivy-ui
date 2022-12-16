@@ -56,12 +56,13 @@ var data = {
 var dommanipulationinstance;
 var ivy;
 var routerInstance;
+var log;
 class Ivy extends payloadProcessor {
     constructor() {
         super();
         dommanipulationinstance = DOMManipulation.getInstance();
         dommanipulationinstance.m(uiComponent.createStatusElement);
-        Log.getInstance();
+        log = Log.getInstance();
         socketInit().then(function (server) {
             //server.send(JSON.stringify({payload:{file:"/ui/fragment"}}));
             //console.log('f')
@@ -110,11 +111,17 @@ export const socketInit = async () => {
     }
     return await new Promise(function (resolve, reject) {
         socketInitS.server = new WebSocket('ws://localhost:8082');
+        log.count = false;
+        log.last = true;
+        console.warn('Connecting: attempt ' + socketInitS.failedCount);
         socketInitS.server.onopen = function () {
             socketInitS.failedCount = 0; // reset the connction counter
             resolve(socketInitS.server);
             const result = dommanipulationinstance;
             result.m(uiComponent.connected);
+            console.warn('Connected!');
+            log.count = true;
+            log.last = false;
             socket({ url: "/widget/nav" });
         };
         socketInitS.server.onclose = function (reason) {
@@ -122,7 +129,7 @@ export const socketInit = async () => {
             dommanipulationinstance.m(uiComponent.disconnected);
             reject(socketInitS.server);
             //setTimeout(check, config.poll*socketInitS.failedCount);
-            setTimeout(check, config.poll);
+            setTimeout(check, config.poll + 1000);
         };
         socketInitS.server.onerror = function (err) {
             dommanipulationinstance.m(uiComponent.disconnected);
@@ -177,7 +184,8 @@ var uiComponent = {
     btn: {},
     createStatusElement: {},
     connected: {},
-    disconnected: {}
+    disconnected: {},
+    loggedin: {}
 };
 uiComponent.btn = {
     "ui": {
@@ -205,15 +213,15 @@ uiComponent.btn = {
     }
 };
 uiComponent.createStatusElement = {
-    "ui": {
-        "node": {
-            "div": [
+    ui: {
+        node: {
+            div: [
                 {
                     attr: {
-                        addClass: ["status"],
+                        class: ["disconnected", "pulse", "status"],
                         id: "status"
                     },
-                    "verb": "add"
+                    verb: "add"
                 }
             ]
         }
@@ -226,6 +234,7 @@ uiComponent.connected = {
                 {
                     attr: {
                         addClass: ["connected", "pulse", "status"],
+                        removeClass: ["disconnected"],
                         id: "status"
                     },
                     verb: "update"
@@ -248,7 +257,8 @@ uiComponent.disconnected = {
             div: [
                 {
                     attr: {
-                        class: "disconnected pulse status",
+                        addClass: ["disconnected", "pulse", "status"],
+                        removeClass: ["connected"],
                         id: "status"
                     },
                     verb: "update"
@@ -262,6 +272,20 @@ uiComponent.disconnected = {
                     verb: "update"
                 }
             ]
+        }
+    }
+};
+uiComponent.loggedin = {
+    ui: {
+        node: {
+            body: [
+                {
+                    attr: {
+                        addClass: "loggedin",
+                    },
+                    verb: "update"
+                }
+            ],
         }
     }
 };
@@ -366,8 +390,8 @@ async function c() {
     routerInstance = new router();
 }
 async function userAuthenticated() {
-    document.getElementsByTagName('body')[0].classList.remove('guest');
-    console.warn(await auth0Client.isAuthenticated());
-    console.warn(await auth0Client.getUser());
+    dommanipulationinstance.m(uiComponent.loggedin);
+    console.log(await auth0Client.isAuthenticated());
+    console.log(await auth0Client.getUser());
 }
 export { registry, routerInstance as router, socket, config, hook };

@@ -438,6 +438,7 @@ var library = {
       };
 
       const req = http.request(config_http, (res) => {
+      let data = [];
 
         console.log(`STATUS: ${res.statusCode}`);
         console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
@@ -466,29 +467,35 @@ var library = {
         /**
          * returns the file contents
          */
-        res.on('data', (result) => {
-
+        res.on('data', (chunk) => {
+            data.push(chunk);
             /**
              * when the result is pure JSON, send back just a data key, and don't instruct the UI to change the url
              * need to manually parse the result this time
              */
-            if (res.headers['content-type'].startsWith('application/json')) {
-              console.log('this is JSON')
-              resolve({data:JSON.parse(result)});
-            } else if (fileAttributes.isWidget === true) {
-              console.log('isWidget')
-              returnObject.data = result
-              resolve({html:returnObject});
-            } else if (fileAttributes.isTemplate === true) {
-              console.log('isTemplate')
-              returnObject.url = file.replace('/ui', '')
-              returnObject.data = result
-              resolve({html:returnObject});
-            }
+            
         });
 
         res.on('end', () => {
-          //console.log('No more data in response.');
+          let result = data.join()
+          if (res.headers['content-type'].startsWith('application/json')) {
+            console.log('this is JSON')
+            try {
+              resolve({data:JSON.parse(result)});
+            } catch (e) {
+              console.log(result)
+              console.log('Failed: ', e);
+            }
+          } else if (fileAttributes.isWidget === true) {
+            console.log('isWidget')
+            returnObject.data = result
+            resolve({html:returnObject});
+          } else if (fileAttributes.isTemplate === true) {
+            console.log('isTemplate')
+            returnObject.url = file.replace('/ui', '')
+            returnObject.data = result
+            resolve({html:returnObject});
+          }
         });
       });
       
