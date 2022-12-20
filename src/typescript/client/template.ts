@@ -1,7 +1,7 @@
 var template = {
 
 
-    parse: (templateString: string, data: object) => {
+    parse: (templateString: string) => { //, data: object) => {
 
         let result = /{{(.*?)}}/g.exec(templateString);
         const arr = [];
@@ -23,11 +23,251 @@ var template = {
 
         if (templateString) arr.push(templateString);
 
-        return template._compileToString(arr, data);
+        return template._compileToString(arr); //, data);
 
     },
 
-    _compileToString: (templateArray: any, data: object = {}) => {
+    /**
+     * increments and decrements a counter every time we enter and exit a loop (#each command)
+     */
+    loopDepth: 0,
+        
+    /**
+     * Stores the loop stack. If we enter two loops for example, we will have 2 items in this array. We store the key here
+     */
+    loopArray: [],
+
+    
+    /**
+     * 
+     * @param templateArray Array of broken up string parts that make up the template. Each word, or section is it's own array entry
+     * @param data          Data to apply to the template
+     * @returns 
+     */
+    _compileToString: (templateArray: any) => { //}, data: object = {}) => {
+        let fnStr = '';
+
+        /**
+         * As we loop through the template looking for {{...}}, some of these may be commands, such as 
+         * #EACH or #LOOP. 
+         * When we find these, we need to store the name of the array and use it to build up the inner 
+         * values
+         */
+
+
+
+        /**
+         * Updated variable names to make it easier to figure out what holds what
+         * This can be quite verbose!
+         */
+
+        
+        
+
+
+
+
+        /**
+         * Hold a command string. Helper functions, such as lowercase or uppercase: {{uppercase|value}}
+         */
+        var helperCommand:string = "";
+
+
+
+        templateArray.flatMap(string => {
+
+            helperCommand = ''
+            // checking to see if it is an interpolation
+            if (string.startsWith("{{") && string.endsWith("}}")) {
+
+                var stringTrim: string = string.replace("{{", "").replace("}}", "").trim();
+                var args: any[] = [];
+                var fn: string = null;
+                var command: string = stringTrim.split(" ")[0];
+                var commandPrefix: string = '';
+
+
+                /**
+                 * see if there is a function on the end of this command split by a pipe (|) (command|function)
+                 */
+                if (stringTrim.indexOf('|') > 0) {
+                    let tempArray = stringTrim.split("|");
+                    command = tempArray[0].split(" ")[0];
+                    stringTrim = tempArray[0]
+                    fn = tempArray[1];
+                }
+
+                let tempArray = stringTrim.split(" ")
+                if (tempArray.length > 1) {
+                    args.push(tempArray[1])
+                }
+                
+
+                /**
+                 * see if this is a path
+                 */
+                if (stringTrim.indexOf('.') > 0) {
+                    let tempArray = stringTrim.split(".");
+                    //command = tempArray[0]
+                    //tempArray.shift();
+                   // args = tempArray;
+
+                }
+
+
+                /**
+                 * we use pipes for special functions. It takes the form of command|function.
+                 * Split out those pipes as well
+                 */
+                if (fn) {
+                    args.push(fn)
+                } else {
+                    // the last element is always the name of a function to call, so if there isn't one, make sure we use null or it'll mess up
+                    args.push(null)
+                }
+
+
+                /**
+                 * test if this is a start or end command
+                 * remove the special car with slice before we call the function too
+                 */
+                if (command.indexOf("#") >= 0) {
+                    commandPrefix = 'start_'
+                    command = command.substring(1)
+                } else if (command.indexOf("/") >= 0) {
+                    commandPrefix = 'end_'
+                    command = command.substring(1)
+                }
+
+                let tempString:string = ''
+                try {
+                    tempString = template['_command_'+commandPrefix+command](args);
+                } catch(e) {
+                    /**
+                     * there is no template function, so fall back on to guessing it's a manuall key name
+                     */
+                    args.unshift(command);
+                    console.log('No command: _command_' + commandPrefix+command)
+                    tempString = template._keyOrValue(args);
+                }
+
+                if (tempString) {
+                    fnStr += tempString
+                }
+            } else {
+                fnStr += string
+            }
+        });
+
+        return fnStr;
+    },
+
+
+    /**
+     * 
+     * @param args If empty then it's a basic loop. If it has an item in it then that's the name of the array we need to loop
+     */
+    _command_start_each: (args) => {
+        template.loopDepth++
+        let fn:any = ''
+
+        const currentLoopName = template._getCurrentLoopName();
+        const currentKeyName = template._getCurrentLoopKey();
+        const currentValueName = template._getCurrentLoopValue();
+
+
+        /**
+         * the last argument will always be the name of a function. If it's null, then discard it
+         */
+        if (args[0] === null) {
+            fn = args.pop();
+        }
+
+        console.log(args, typeof(args[0]))
+        /**
+         * If empty, then just create the standard loop over the initial data array
+         */
+        if (args.length === 0) {
+            return `\$\{Object.entries(${currentLoopName}).map(([${currentKeyName}, ${currentValueName}]) => \``;
+        }
+
+        if (typeof(args[0]) == 'string') {
+            return `\$\{Object.entries(${currentLoopName}.slice(${args[0]}, 1)).map(([${currentKeyName}, ${currentValueName}]) => \``;
+        }
+        /**
+         * if it has one item, then this is the name of the array we need to loop over
+         */
+        return `\$\{Object.entries(${currentLoopName}.${args[0]}).map(([${currentKeyName}, ${currentValueName}]) => \``;
+        
+
+    },
+
+    _command_end_each: (cmd) => {
+        template.loopDepth--
+
+        return `\`.trim()).join('')\}`;
+    },
+
+    _command_key: (fn: string) => {
+        const currentLoopName = template._getCurrentLoopName();
+        const currentKeyName = template._getCurrentLoopKey();
+        
+        return `\$\{${currentKeyName}\}`;
+    },
+
+    _command_value: (fn: string) => {
+        const currentLoopName = template._getCurrentLoopName();
+        const currentValueName = template._getCurrentLoopValue();
+        
+        return `\$\{${currentValueName}\}`;
+    },
+
+    _keyOrValue: (args: string[]) => {
+        let currentValueName = template._getCurrentLoopValue();
+
+        if (currentValueName == '') {
+            currentValueName = 'data';
+        }
+
+
+        /**
+         * last element in args will be the function to perform
+         */
+        const fn = args.pop();
+
+
+        const path = args[0].split(".");
+
+        const arrString = path.map(a => {
+            return '[\''+a+'\']'
+        }).join('');
+        return `\$\{${currentValueName}${arrString}\}`;
+    },
+
+    _getCurrentLoopName: () => {
+        var loopName = 'data';
+
+        if (template.loopDepth === 1) return loopName;
+
+        return 'v'.repeat(template.loopDepth-1);
+
+    },
+
+    _getCurrentLoopKey: () => {
+        return 'k'.repeat(template.loopDepth);
+    },
+
+    _getCurrentLoopValue: () => {
+        return 'v'.repeat(template.loopDepth);
+    },
+
+    /**
+     * 
+     * @param templateArray Array of broken up string parts that make up the template. Each word, or section is it's own array entry
+     * @param data          Data to apply to the template
+     * @returns 
+     */
+    _compileToStringOld: (templateArray: any, data: object = {}) => {
         let fnStr = ``;
 
         /**
@@ -48,8 +288,13 @@ var template = {
         var dataRef: string[] = [];
         var dataRefLength = 0;
         var dataRefType:string = "";
+        var dataCurrent:object = data;
+        var eachKey:string = '';
 
-        /**
+
+        
+        
+         /**
          * I use this to tell me how many 'i' in my for loops to use.
          * 
          * Use case. I have 2 nested loops. In my auto code, i use 'i' for the top level iterator, and 'ii' for the 2nd on (etc)
@@ -58,14 +303,17 @@ var template = {
         var tempLoopVar = ''
         var tempRefDataCounter = 1;
 
-        var outputCommand = "";
+        /**
+         * adds helper functions, such as lowercase or uppercase: {{uppercase|value}}
+         */
+        var outputCommand:string = "";
 
         var noData: boolean = false; // indicates to any #each loops if there is data. If there isn't then don't both building the loop
 
 
         templateArray.map(t => {
 
-      
+            outputCommand = ''
             // checking to see if it is an interpolation
             if (t.startsWith("{{") && t.endsWith("}}")) {
                 
@@ -96,9 +344,18 @@ var template = {
                         // if our #each command doesnt specify a key, so loop everything
                         if (a == "#each") {
                             dataRef = data
+
+                           /* try {
+                                dataCurrent = dataCurrent[Object.keys(dataCurrent)[0]]
+                            } catch(e) {
+                                dataCurrent = data
+                            }*/
                             tempArrayName = ''
+                            
                         } else {
                             tempArrayName = t.split(" ").pop().replace("}}", "").trim();
+                            //dataCurrent = dataCurrent[tempArrayName]
+                            eachKey = tempArrayName
                         }
 
                         let oldArrayName = arrayName;
@@ -109,31 +366,29 @@ var template = {
                                 arrayName.push( item );
                             }).length;
                         }
+
                         arrayNameLength++// = arrayName.length;
 
                         let i = 0;
-
-                        for (const name of arrayName) {                            
+                        
+                        for (const name of arrayName) {
                             if (i === 0 && data[name]) {
                                 dataRef = data[name];
                             } else if (dataRef[name]) {
                                 dataRef = dataRef[name];
                             } else {
                                 noData = true;
-                                return;
+                                //return;
                             }
 
                             i++;
                         }
 
-                        //try {
-                            dataRefLength = (dataRef.length) ? dataRef.length : Object.keys(dataRef).length;
-                            dataRefType = (dataRef.length) ? "array" : "object"
-                        //} catch {
-                        //    dataRefLength = 0;
-                        //    dataRefType = "absent";
-                        //}
-          console.error(arrayNameLength)
+                        
+                        dataRefLength = (dataRef.length) ? dataRef.length : Object.keys(dataRef).length;
+                        dataRefType = (dataRef.length) ? "array" : "object"
+
+
                         tempLoopVar = "v".repeat(arrayNameLength-1);
 
                         switch (dataRefType) {
@@ -152,7 +407,6 @@ var template = {
 
                                 let keys = '["' + oldArrayName.filter( element=> isNaN(parseInt(element)) ).join('"]["');
                                 keys = keys + '"]';
-console.log('keys',keys)
 
                                 if (arrayNameLength == 1) {
                                     keys = '';
@@ -160,6 +414,9 @@ console.log('keys',keys)
                                 }
                                 if (oldArrayNameLength > 0) {
                                     keys += '[' + "v".repeat(oldArrayNameLength) + ']';
+                                }
+                                if (tempArrayName.length > 0) {
+                                    tempVarData += '["' + eachKey + '"]'
                                 }
                                 
                                 const d = `${tempLoopVar}`
@@ -182,12 +439,15 @@ console.log('keys',keys)
                         return;
                     }
 
+                    arrayNameLength--
+
                     /**
                      * this is the end of a command
                      * check the arrayString arrary for our... array (BAD naming James)
                      */
                     let tempArrayName = arrayName.join('|');
 
+                    
                     if (arrayString[tempArrayName]) {
                         
                         // loop through our data array, and append to the main string a duplicate of 
@@ -204,6 +464,7 @@ console.log('keys',keys)
 
                     for (let i=0; i<=tempRefDataCounter; i++) {
                         arrayName.pop();
+                        //dataCurrent = Object.keys(dataCurrent)
                     }
                     
                     let o = 0;
@@ -229,7 +490,6 @@ console.log('keys',keys)
                     //noData = false;
                     //fnStr += `\`.trim())\}`;
                 } else {
-                    
                     if (noData === true) return;
 
                     /**
@@ -238,9 +498,9 @@ console.log('keys',keys)
                      */
                     if (t.indexOf("|") > 0){
                         let temp = t.replace("{{", "").replace("}}", "").trim().split("|");
-                        t = '{{'+temp[0]+'}}';
+                        t = '{{'+temp[1]+'}}';
 
-                        switch (temp[1]) {
+                        switch (temp[0]) {
                             case "uppercase" :  outputCommand = '.toUpperCase()';
                                                 break;
                             case "lowercase" :  outputCommand = '.toLowerCase()';
@@ -251,7 +511,7 @@ console.log('keys',keys)
                                                 break;
                         } 
 
-
+                        
                     }
                     if (arrayName.length > 0) {
 
@@ -281,12 +541,13 @@ console.log('keys',keys)
                         } else if (t == "{{value}}") {
                             keys += '][' + "i".repeat(arrayNameLength) + '';
                             //fnStr += `\$\{Object.values(data[${keys}])\}`;
+                            
                             fnStr += `\$\{item[1]\}`;
                         } else {
-                            fnStr += `\$\{data[${keys}]["${t.split(/{{|}}/).filter(Boolean)[0].trim()}"]\}`;
+                           // console.warn(`\$\{Object.values(data[${keys}])\}`)
+                            fnStr += `\$\{data[${keys}]["${t.split(/{{|}}/).filter(Boolean)[0].trim()}"]\ || ''}`;
                         }
                         
-                        //console.warn(arrayString);
                     } else {
                         // append it to fnStr
                        
@@ -302,17 +563,19 @@ console.log('keys',keys)
                         }
 
                         if (t == "{{key}}") {
+                            
                             fnStr += `\$\{${kkk}${outputCommand}\}`;
                         } else if  (t == "{{value}}") {
                             fnStr += `\$\{${vvv}${outputCommand}\}`;
                         } else {
-                            fnStr += `\$\{${vvv}["${t.replace(/\./g, '"]["').split(/{{|}}/).filter(Boolean)[0].trim()}"]${outputCommand}\}`;
+                            console.log(111)
+                            console.log(arrayString)
+                            fnStr += `\$\{(${vvv}["${t.replace(/\./g, '"]["').split(/{{|}}/).filter(Boolean)[0].trim()}"]) ? ${vvv}["${t.replace(/\./g, '"]["').split(/{{|}}/).filter(Boolean)[0].trim()}"]${outputCommand}\ : ''}`;
                         }
                         
                     }
                 }
 
-                //console.log('array:' + arrayName.length + ', data: ' + dataRefLength + ', type: ' + dataRefType);
             } else {
 
                 if (noData === true) return
@@ -341,8 +604,6 @@ console.log('keys',keys)
 
         //data = template._convertObjectToArray(data);
 
-console.error('data',data)
-console.error('templateString',templateString)
         // update all the keys, change spaces to a hypen -
         const loop = (data) => {
             var result: object = {}
@@ -362,8 +623,6 @@ console.error('templateString',templateString)
         }
 
         try {
-            
-            //console.log(templateString);
             let h =  new Function("const data = this; return `"+ templateString +"`;").apply(data);
 /*
             localStorage.setItem('testObject', JSON.stringify(testObject));
@@ -375,7 +634,8 @@ console.log('retrievedObject: ', JSON.parse(retrievedObject));
 */
             return h;
         } catch (e) {
-            console.warn('Problem with template: ' + e, templateString, data);
+            console.error('Problem with template: ' + e.message);
+            console.error('Problem with template: ' + e, templateString, data);
         }
     },
 

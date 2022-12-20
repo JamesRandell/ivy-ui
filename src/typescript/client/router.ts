@@ -185,6 +185,13 @@ export default class router implements iprotocol {
         this.server.request(cmd, data);
     }
 
+    public load (cmd: string, data: object = []) {
+        this.request(cmd, data);
+    }
+
+    public get (cmd: string, data: object = []) {
+        this.request(cmd, data);
+    }
     /**
      * Intercepts hyperlink clicks and events in an attempt to load pages via a background process
      * and display the page inline

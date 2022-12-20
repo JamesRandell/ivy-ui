@@ -122,12 +122,18 @@ class Ivy extends payloadProcessor {
         console.log('fixing links after loading nav')
         dommanipulationinstance._navigateCleanUpLinks(true);
       }
-      console.table(e.detail)
+
       console.log(':: widget updated')
     });
 
     window.addEventListener("localUpdated", function(e) {
       console.log(':: local updated');
+    });
+
+    window.addEventListener("click", function(e) {
+      if (e.target.id == 'reload_api') {
+        routerInstance.go('/api/angel/personal/calendar');
+      }
     });
 
   }

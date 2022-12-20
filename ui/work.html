@@ -1,13 +1,36 @@
 <main class="content">
-    <p>main content</p>
+    <section><p>main content</p>
+    <button id="reload_api">Reload API</button>
     <br>
     <br>
+    <p>{{2022-04-02.date.dayLong}}<br><br</p>
+    <table>
+        <thead>
+            <th>Date</th>
+            <th>Day Long</th>
+            {{#each|1}}
+            <th>{{key}}</th>
+            {{/each}}
+        </thead>
+        <tbody>
+            {{#each}}
+            <tr>
+                <td>{{key}}</td>
+                <td>{{date.dayLong}}</td>
+
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
     <p>{{#each}}
+        <p>date.dayLong: {{key}}:{{date.dayLong}}</p>
         {{#each}}
-            {{key}}:{{dayLong|upper}}
-            -{{value}}
-        {{/each}}<br>
+            {{key}}:{{dayLong|uppercase}}<br><br>
+        {{/each}}<br><br>
+        {{#each date}}
+            {{key}} = {{value}}<br>
+        {{/each}}
     {{/each}}</p>
 
-
+</section>
 </main>

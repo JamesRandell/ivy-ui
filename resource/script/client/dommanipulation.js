@@ -278,10 +278,9 @@ export default class DOMManipulation {
          * template engine. Parses the string then compiles it with what ever is in this.DOMData
          */
         //this.DOMData = json
-        console.log('DOMData', this.DOMData);
-        console.log('loadedContent', loadedContent);
-        let parsedTemplate = template.parse(loadedContent, this.DOMData);
-        console.log('parsedTemplate', parsedTemplate);
+        //console.log('DOMData',this.DOMData)
+        //console.log('loadedContent',loadedContent)
+        let parsedTemplate = template.parse(loadedContent); //, this.DOMData);
         this.lastTemplate = loadedContent;
         loadedContent = template.compile(parsedTemplate, this.DOMData);
         /**

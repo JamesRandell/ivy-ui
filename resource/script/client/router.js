@@ -138,6 +138,12 @@ export default class router {
     request(cmd, data = []) {
         this.server.request(cmd, data);
     }
+    load(cmd, data = []) {
+        this.request(cmd, data);
+    }
+    get(cmd, data = []) {
+        this.request(cmd, data);
+    }
     /**
      * Intercepts hyperlink clicks and events in an attempt to load pages via a background process
      * and display the page inline
