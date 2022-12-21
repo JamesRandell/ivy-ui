@@ -6,31 +6,18 @@
     <p>{{2022-04-02.date.dayLong}}<br><br</p>
     <table>
         <thead>
-            <th>Date</th>
-            <th>Day Long</th>
-            {{#each|1}}
+            {{#each date|1}}
             <th>{{key}}</th>
             {{/each}}
         </thead>
         <tbody>
             {{#each}}
             <tr>
-                <td>{{key}}</td>
-                <td>{{date.dayLong}}</td>
-
+                {{#each date}}<td>{{value}}</td>{{/each}}
             </tr>
             {{/each}}
         </tbody>
     </table>
-    <p>{{#each}}
-        <p>date.dayLong: {{key}}:{{date.dayLong}}</p>
-        {{#each}}
-            {{key}}:{{dayLong|uppercase}}<br><br>
-        {{/each}}<br><br>
-        {{#each date}}
-            {{key}} = {{value}}<br>
-        {{/each}}
-    {{/each}}</p>
 
 </section>
 </main>

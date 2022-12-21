@@ -86,7 +86,6 @@ var template = {
                 var command: string = stringTrim.split(" ")[0];
                 var commandPrefix: string = '';
 
-
                 /**
                  * see if there is a function on the end of this command split by a pipe (|) (command|function)
                  */
@@ -101,31 +100,6 @@ var template = {
                 if (tempArray.length > 1) {
                     args.push(tempArray[1])
                 }
-                
-
-                /**
-                 * see if this is a path
-                 */
-                if (stringTrim.indexOf('.') > 0) {
-                    let tempArray = stringTrim.split(".");
-                    //command = tempArray[0]
-                    //tempArray.shift();
-                   // args = tempArray;
-
-                }
-
-
-                /**
-                 * we use pipes for special functions. It takes the form of command|function.
-                 * Split out those pipes as well
-                 */
-                if (fn) {
-                    args.push(fn)
-                } else {
-                    // the last element is always the name of a function to call, so if there isn't one, make sure we use null or it'll mess up
-                    args.push(null)
-                }
-
 
                 /**
                  * test if this is a start or end command
@@ -141,14 +115,14 @@ var template = {
 
                 let tempString:string = ''
                 try {
-                    tempString = template['_command_'+commandPrefix+command](args);
+                    tempString = template['_command_'+commandPrefix+command](args, fn);
                 } catch(e) {
                     /**
                      * there is no template function, so fall back on to guessing it's a manuall key name
                      */
                     args.unshift(command);
-                    console.log('No command: _command_' + commandPrefix+command)
-                    tempString = template._keyOrValue(args);
+                    console.log('No command: _command_' + commandPrefix+command, fn)
+                    tempString = template._keyOrValue(args, fn);
                 }
 
                 if (tempString) {
@@ -167,62 +141,59 @@ var template = {
      * 
      * @param args If empty then it's a basic loop. If it has an item in it then that's the name of the array we need to loop
      */
-    _command_start_each: (args) => {
+    _command_start_each: (args: string[] = [], fn: any = null) => {
         template.loopDepth++
-        let fn:any = ''
-
-        const currentLoopName = template._getCurrentLoopName();
+        var currentLoopName = template._getCurrentLoopName();
         const currentKeyName = template._getCurrentLoopKey();
         const currentValueName = template._getCurrentLoopValue();
-
 
         /**
          * the last argument will always be the name of a function. If it's null, then discard it
          */
-        if (args[0] === null) {
-            fn = args.pop();
+        if (fn !== null) {
+            try {
+                fn*2;
+                currentLoopName =  `Object.values(${currentLoopName})[${fn}]`;
+            } catch(e) {
+                // do nothing
+            }
         }
 
-        console.log(args, typeof(args[0]))
         /**
          * If empty, then just create the standard loop over the initial data array
+         * This means there was no path to an item passed in
          */
         if (args.length === 0) {
             return `\$\{Object.entries(${currentLoopName}).map(([${currentKeyName}, ${currentValueName}]) => \``;
         }
 
-        if (typeof(args[0]) == 'string') {
-            return `\$\{Object.entries(${currentLoopName}.slice(${args[0]}, 1)).map(([${currentKeyName}, ${currentValueName}]) => \``;
-        }
         /**
          * if it has one item, then this is the name of the array we need to loop over
          */
         return `\$\{Object.entries(${currentLoopName}.${args[0]}).map(([${currentKeyName}, ${currentValueName}]) => \``;
-        
-
     },
 
-    _command_end_each: (cmd) => {
+    _command_end_each: (cmd: string[] = [], fn: any = null) => {
         template.loopDepth--
 
         return `\`.trim()).join('')\}`;
     },
 
-    _command_key: (fn: string) => {
+    _command_key: (fn: any) => {
         const currentLoopName = template._getCurrentLoopName();
         const currentKeyName = template._getCurrentLoopKey();
         
         return `\$\{${currentKeyName}\}`;
     },
 
-    _command_value: (fn: string) => {
+    _command_value: (fn: any) => {
         const currentLoopName = template._getCurrentLoopName();
         const currentValueName = template._getCurrentLoopValue();
         
         return `\$\{${currentValueName}\}`;
     },
 
-    _keyOrValue: (args: string[]) => {
+    _keyOrValue: (args: string[] = [], fn: any = null) => {
         let currentValueName = template._getCurrentLoopValue();
 
         if (currentValueName == '') {
@@ -233,7 +204,7 @@ var template = {
         /**
          * last element in args will be the function to perform
          */
-        const fn = args.pop();
+
 
 
         const path = args[0].split(".");
