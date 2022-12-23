@@ -52,8 +52,10 @@ export default class Log {
         return instance;
     }
 
-
-
+    public msg (string) {
+        this._status(string)
+    }
+    
     private _loop() {
         const that = this;
         const methodNames = ['log','warn','error','status','info'];

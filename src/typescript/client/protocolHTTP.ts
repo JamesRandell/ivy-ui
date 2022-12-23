@@ -53,7 +53,7 @@ export default {
             
             json.payload.status = response.status
 
-            console.log('Data from HTTP request',json.payload.data)
+            console.log('Data from HTTP request: ',json.payload.data)
             
             return Promise.resolve(json.payload.data);
         } else {

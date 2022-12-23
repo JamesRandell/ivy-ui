@@ -477,7 +477,7 @@ var library = {
         });
 
         res.on('end', () => {
-          let result = data.join()
+          let result = data.join('')
           if (res.headers['content-type'].startsWith('application/json')) {
             console.log('this is JSON')
             try {

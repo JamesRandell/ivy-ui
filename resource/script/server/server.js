@@ -350,27 +350,15 @@ var library = {
                 /**
                  * returns the file contents
                  */
-
-                
-                //res.on('data', (chunk) => {
-                //    data.push(chunk);
+                res.on('data', (chunk) => {
+                    data.push(chunk);
                     /**
                      * when the result is pure JSON, send back just a data key, and don't instruct the UI to change the url
                      * need to manually parse the result this time
                      */
-                //});
-                
-
-                res.on('readable', function() {
-                    let chunk = this.read() || '';
-
-                    data += chunk;
-
                 });
-
-
                 res.on('end', () => {
-                    let result = data;//Buffer.byteLength(data);
+                    let result = data.join('');
                     if (res.headers['content-type'].startsWith('application/json')) {
                         console.log('this is JSON');
                         try {

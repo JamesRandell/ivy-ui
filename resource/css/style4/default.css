@@ -1,5 +1,6 @@
 @import "../_modal.css"; /* Using a string */
 @import "footer.css";
+@import "_table.css";
 
 * {box-sizing: border-box;}
 

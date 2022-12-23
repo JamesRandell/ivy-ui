@@ -1,9 +1,7 @@
 <main class="content">
-    <section><p>main content</p>
+    <section>
     <button id="reload_api">Reload API</button>
     <br>
-    <br>
-    <p>{{2022-04-02.date.dayLong}}<br><br</p>
     <table>
         <thead>
             {{#each date|1}}
@@ -13,7 +11,9 @@
         <tbody>
             {{#each}}
             <tr>
-                {{#each date}}<td>{{value}}</td>{{/each}}
+                {{#each date}}
+                <td class="editable" contenteditable="true" data-post="/api/angel/personal/work" >{{value}}</td>
+                {{/each}}
             </tr>
             {{/each}}
         </tbody>

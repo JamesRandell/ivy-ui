@@ -156,10 +156,15 @@ export default class router implements iprotocol {
         const t = DOMManipulation.getInstance();
         const p = await this.serverHTTP.go(url, 'post', data);
 
-
+console.log(url, p)
         t.loading(true);
-
-        
+        try {
+            JSON.parse(p)
+        } catch(e) {
+            console.log('Incomming POST result is not JSON, ignoring')
+            return false;
+        }
+console.log(123)
         var file = p.payload.url;
         window.dispatchEvent(new CustomEvent('pre-pageRequest', {detail: file}));
 

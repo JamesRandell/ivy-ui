@@ -20,6 +20,7 @@ var hook = {
     "payloadProcessor/in-payload": 'After a payload is received',
     "payloadProcessor/fileNotFound": 'File not found from the server',
     "router/formsubmit": 'When a form is submitted',
+    "client/elementClick": 'When any element is clicked on'
 };
 //@ts-ignore
 import BaseModule from './BaseModule.js';
@@ -37,6 +38,8 @@ window.addEventListener("form-submit", formI.formSubmit, false);
 //@ts-ignore
 import payloadProcessor from './payloadProcessor.js';
 import Log from './log.js';
+import editInPlace from './adhoc/editInPlace.js';
+new editInPlace();
 var data = {
     "db": {
         "datacenter": "datacenter1",
@@ -74,6 +77,7 @@ class Ivy extends payloadProcessor {
             console.log(':: post-navigate', evt.detail);
         });
         window.addEventListener("fileNotFound", function (evt) {
+            console.log('fileNotFound');
             dommanipulationinstance.fileNotFound(evt.detail);
         });
         window.addEventListener("widgetUpdated", function (e) {

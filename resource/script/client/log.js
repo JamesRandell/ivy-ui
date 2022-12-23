@@ -33,6 +33,9 @@ export default class Log {
         }
         return instance;
     }
+    msg(string) {
+        this._status(string);
+    }
     _loop() {
         const that = this;
         const methodNames = ['log', 'warn', 'error', 'status', 'info'];
