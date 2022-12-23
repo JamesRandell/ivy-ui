@@ -572,6 +572,12 @@ export default class DOMManipulation {
     }
     ;
     loading(state = true) {
+        if (state === true) {
+            this._updateNode('body', { addClass: 'loading' });
+        }
+        else {
+            this._updateNode('body', { removeClass: 'loading' });
+        }
     }
     /**
      *
