@@ -37,7 +37,10 @@ export default class editInPlace {
         }
         let response = await router.post(url, value);
         console.info('Form submitted');
+        console.log(response);
+        console.log(response.status);
         if (response.status == 200) {
+            log.msg('good to go!');
             console.info('stuff goes here');
         }
     }

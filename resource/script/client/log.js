@@ -34,7 +34,11 @@ export default class Log {
         return instance;
     }
     msg(string) {
-        this._status(string);
+        this.messages.push({
+            type: 'warn',
+            text: string
+        });
+        this._status();
     }
     _loop() {
         const that = this;
@@ -48,7 +52,7 @@ export default class Log {
                 type: 'error',
                 text: arguments[0]
             });
-            that._log_error(arguments);
+            that._log_error();
             ogError.apply(console, arguments);
         };
         console['warn'] = function () {
@@ -56,7 +60,7 @@ export default class Log {
                 type: 'warn',
                 text: arguments[0]
             });
-            that._log_warn(arguments);
+            that._log_warn();
             ogWarn.apply(console, arguments);
         };
         console['info'] = function () {
@@ -68,19 +72,19 @@ export default class Log {
             ogInfo.apply(console, arguments);
         };
     }
-    _log_error(arg) {
-        this._status(arg);
+    _log_error() {
+        this._status();
     }
-    _log_warn(arg) {
-        this._status(arg);
+    _log_warn() {
+        this._status();
     }
-    _log_info(arg) {
-        this._status(arg);
+    _log_info() {
+        this._status();
     }
-    _log_log(arg) {
-        this._status(arg);
+    _log_log() {
+        this._status();
     }
-    _status(arg) {
+    _status() {
         const messageLength = this.messages.length;
         this.timer = Date.now();
         if (messageLength === 0) {

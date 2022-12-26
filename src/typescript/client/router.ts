@@ -157,22 +157,39 @@ export default class router implements iprotocol {
         const p = await this.serverHTTP.go(url, 'post', data);
 
 console.log(url, p)
-        t.loading(true);
+
         try {
             JSON.parse(p)
         } catch(e) {
             console.log('Incomming POST result is not JSON, ignoring')
-            return false;
+            let result = {
+                'msg' : 'Incomming POST result is not JSON, ignoring',
+                'error': true,
+                'status': 200
+            }
+            return result;
         }
 console.log(123)
-        var file = p.payload.url;
-        window.dispatchEvent(new CustomEvent('pre-pageRequest', {detail: file}));
 
-        let y = this.server.go(file);
+        let returnURL: string = ''
+
+        try {
+            returnURL = p.payload.url;
+        } catch(e) {
+
+        }
+
+        if (p.length > 0) {
+            t.loading(true);
+        }
+
+        window.dispatchEvent(new CustomEvent('pre-pageRequest', {detail: returnURL}));
+
+        let y = this.server.go(returnURL);
 
         
         y.then(resolved => {
-            window.dispatchEvent(new CustomEvent('post-navigate', {detail: file}));
+            window.dispatchEvent(new CustomEvent('post-navigate', {detail: returnURL}));
             t.loading(false);
         });
         return p;
