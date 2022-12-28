@@ -125,9 +125,8 @@ function buildJSON(data, key = null) {
     }
     else {
         result = {
-            'payload': {
-                [key]: data
-            }
+            'payload': data,
+            'key': key
         };
     }
     return JSON.stringify(result);
@@ -164,7 +163,12 @@ wss.on('connection', ws => {
                         return;
                     }
                     library[cmd](message.payload[cmd]).then((result) => {
-                        ws.send(buildJSON(result));
+                        if (message.hasOwnProperty('key')) {
+                            ws.send(buildJSON(result, message.key));
+                        }
+                        else {
+                            ws.send(buildJSON(result));
+                        }
                     });
                 }
                 i += 1;

@@ -157,7 +157,7 @@ const filePush = (file: string) => {
  */
 function buildJSON (data: any, key: string = null) {
   var result: object = {};
-  
+
   /**
    * check if 'data' is already JSON, if not then stringify
    */
@@ -179,9 +179,9 @@ function buildJSON (data: any, key: string = null) {
   } else {
     
     result = {
-      'payload': {
-        [key]: data
-      }
+      'payload': data,
+      'key': key
+
     };
     
   }
@@ -234,7 +234,11 @@ wss.on('connection', ws => {
           
 
           library[ cmd ]( message.payload[cmd]).then((result) => {
-            ws.send(buildJSON(result));
+            if (message.hasOwnProperty('key')) {
+              ws.send(buildJSON(result, message.key));
+            } else {
+              ws.send(buildJSON(result));
+            }
           });
         }
 

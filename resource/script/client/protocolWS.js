@@ -10,22 +10,30 @@
 import { socketInit } from './client.js';
 export default {
     //url: Constants.API_URL,
-    request(cmd, data = []) {
-        let json = { 'cmd': cmd };
+    /**request (cmd: string, data: object = []) {
+        let json = {'cmd':cmd};
         this.build(json);
-        return null;
-    },
-    async go(file, data) {
-        let json = { 'url': file };
+        return null
+    },*/
+    async request(file, data) {
+        let key = '';
+        let json = {};
+        try {
+            key = data.key;
+        }
+        catch (e) { }
+        if (key === '') {
+            json = { payload: { 'url': file } };
+        }
+        else {
+            json = { payload: { 'url': file }, key: key };
+        }
         await this.build(json).then(resolved => {
             return true;
         });
     },
     async build(json) {
-        const payload = {
-            'payload': json,
-            'key': ''
-        };
+        const payload = json;
         async function socket(arg) {
             const loop = setInterval(async function () {
                 try {

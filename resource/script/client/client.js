@@ -92,7 +92,7 @@ class Ivy extends payloadProcessor {
         });
         window.addEventListener("click", function (e) {
             if (e.target.id == 'reload_api') {
-                routerInstance.go('/api/angel/personal/calendar');
+                routerInstance.get('/api/angel/personal/calendar', { key: 'calendar' });
             }
         });
     }

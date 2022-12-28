@@ -6,7 +6,7 @@
  */
 
 //@ts-ignore
-import iprotocol from "/resource/script/client/interface/iprotocol.js";
+import { Iprotocol } from "/resource/script/client/interface/iprotocol.js";
 
 //export default class protocolWS implements iprotocol {
 export default {
@@ -23,7 +23,7 @@ export default {
      * @param data JSON payload to send in the request (usually comes with a POST for example)
      * @returns Promise
      */
-    async go (file: string, verb: string, data: object) {
+    async request (file: string, verb: string, data: object) {
 
         verb = this.checkVerb(verb);
 

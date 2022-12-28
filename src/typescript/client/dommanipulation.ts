@@ -42,6 +42,7 @@ export default class DOMManipulation {
     }
 
     DOMData: object = {};
+    DOMDataKey: string = null;
 
     lastTemplate: string = '';
 
@@ -142,8 +143,12 @@ export default class DOMManipulation {
      * @param json 
      */
     private _data (json: object) {
-        const id = this._getKey(json);
+        let id = this._getKey(json);
 
+        if (this.DOMDataKey != null) {
+            id = this.DOMDataKey
+        }
+console.log(888,id)
         try {
             var e = document.getElementById(id);
             e.innerText = json[id];
@@ -159,6 +164,7 @@ export default class DOMManipulation {
              * - this is all a bit pants
              */
             this.DOMData = json
+
             this._html({data:this.lastTemplate})
         }
     }
@@ -325,14 +331,16 @@ export default class DOMManipulation {
          * template engine. Parses the string then compiles it with what ever is in this.DOMData
          */
         //this.DOMData = json
-        //console.log('DOMData',this.DOMData)
+        console.log('DOMData',this.DOMData)
+        console.log('DOMDataKey',this.DOMDataKey)
+        console.log('DOMJSON',json)
         //console.log('loadedContent',loadedContent)
         let parsedTemplate = template.parse(loadedContent);//, this.DOMData);
 
         this.lastTemplate = loadedContent
 
-        loadedContent = template.compile(parsedTemplate, this.DOMData);
-        
+        loadedContent = template.compile(parsedTemplate, this.DOMData, this.DOMDataKey);
+
         
         /**
          * we need a way to find out if what's in loadedContent is a complete HTML page, 
@@ -355,6 +363,7 @@ export default class DOMManipulation {
 
         if (loadedContent == null) {
             if (json.url) router.updateRouter(json.url);
+            this._navigateCleanUpLinks(true)
             //console.warn('dommanipulation::_html: Unable to parse json data into html')
             return
         } else if (loadedContent.startsWith('<!DOCTYPE') === true) {
@@ -572,7 +581,6 @@ export default class DOMManipulation {
     public _navigateCleanUpLinks (force: Boolean = false, currentURL: string = null) {
         
         if (this.templateType == 'widget' && force === false) {
-            console.log('_navigateCleanUpLinks returning...')
            return
         }
 
@@ -580,15 +588,12 @@ export default class DOMManipulation {
             var currentURL = window.location.pathname.replace(/^|\/$/g, '');
         }
 
-        console.log('_navigateCleanUpLinks: ' + currentURL)
-
-        let elementWithOldURLArr = this.body.querySelectorAll('a[class='+this.cssClasses.current+']');
+        let elementWithOldURLArr = this.body.querySelectorAll('a[class='+this.cssClasses.current+']:not([href=\''+currentURL+'\'])');
         let oldCount = elementWithOldURLArr.length;
         let elementWithCurrentURLArr = this.body.querySelectorAll('a[href=\''+currentURL+'\']');
         let currentCount = elementWithCurrentURLArr.length;
         
 
-        
         /**
          * Now we add the class to the current file
          */

@@ -17,7 +17,7 @@ export default {
      * @param data JSON payload to send in the request (usually comes with a POST for example)
      * @returns Promise
      */
-    async go(file, verb, data) {
+    async request(file, verb, data) {
         verb = this.checkVerb(verb);
         let json = { 'payload': { 'data': {}, 'type': {}, status: null } };
         const response = await fetch(file, {

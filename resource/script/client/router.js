@@ -96,7 +96,7 @@ export default class router {
         }
         t.loading(true);
         window.dispatchEvent(new CustomEvent('pre-pageRequest', { detail: file }));
-        let y = this.server.go(file);
+        let y = this.server.request(file);
         y.then(resolved => {
             window.dispatchEvent(new CustomEvent('post-navigate', { detail: file }));
             t.loading(false);
@@ -109,15 +109,26 @@ export default class router {
     goRoute(url) {
         if (route(url)) {
             for (let i = 0; i < route(url).length; i++) {
-                this.server.go(route(url)[i]);
+                if (typeof route(url)[i] === 'object') {
+                    try {
+                        if (route(url)[i]['key'].length > 0) {
+                            this.request(route(url)[i]['url'], { key: route(url)[i]['key'] });
+                        }
+                    }
+                    catch (e) {
+                        this.request(route(url)[i]['url']);
+                    }
+                }
+                else {
+                    this.request(route(url)[i]);
+                }
             }
             ;
         }
     }
     async post(url, data) {
         const t = DOMManipulation.getInstance();
-        const p = await this.serverHTTP.go(url, 'post', data);
-        console.log(url, p);
+        const p = await this.serverHTTP.request(url, 'post', data);
         try {
             JSON.parse(p);
         }
@@ -130,7 +141,6 @@ export default class router {
             };
             return result;
         }
-        console.log(123);
         let returnURL = '';
         try {
             returnURL = p.payload.url;
@@ -141,13 +151,13 @@ export default class router {
             t.loading(true);
         }
         window.dispatchEvent(new CustomEvent('pre-pageRequest', { detail: returnURL }));
-        let y = this.server.go(returnURL);
+        let y = this.server.request(returnURL);
         y.then(resolved => {
             window.dispatchEvent(new CustomEvent('post-navigate', { detail: returnURL }));
             t.loading(false);
         });
         return p;
-        //this.server.go(url, data)
+        //this.server.request(url, data)
     }
     /**
      * This compliments the 'go' function in that it updates page elements instead of
@@ -160,10 +170,15 @@ export default class router {
         this.server.request(cmd, data);
     }
     load(cmd, data = []) {
-        this.request(cmd, data);
+        this.server.request(cmd, data);
     }
+    /**
+     *
+     * @param cmd {string} Command to run
+     * @param data {object} Extra arguments
+     */
     get(cmd, data = []) {
-        this.request(cmd, data);
+        this.server.request(cmd, data);
     }
     /**
      * Intercepts hyperlink clicks and events in an attempt to load pages via a background process

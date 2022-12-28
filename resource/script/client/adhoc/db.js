@@ -13,8 +13,13 @@ const db = {
 window.removeEventListener("in-payload", test);
 window.addEventListener("in-payload", test);
 function test(evt) {
-    if ("db" in evt.detail) { }
-    else {
+    try {
+        if ("db" in evt.detail) { }
+        else {
+            return;
+        }
+    }
+    catch (e) {
         return;
     }
     if (registry.action != "interface")

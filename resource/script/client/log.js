@@ -10,6 +10,7 @@ export default class Log {
     messages = [];
     status = document.getElementById('status');
     baseWidth = 48;
+    cssClass = 'log-msg';
     /**
      * This displays the count of how many messages are queued up to display. It's what's in the parethesis
      */
@@ -34,11 +35,14 @@ export default class Log {
         return instance;
     }
     msg(string) {
+        const ogLog = console['log'];
         this.messages.push({
             type: 'warn',
             text: string
         });
-        this._status();
+        let arr = [string];
+        this._log_error(arr);
+        ogLog.apply(console, arr);
     }
     _loop() {
         const that = this;
@@ -52,7 +56,7 @@ export default class Log {
                 type: 'error',
                 text: arguments[0]
             });
-            that._log_error();
+            that._log_error(arguments);
             ogError.apply(console, arguments);
         };
         console['warn'] = function () {
@@ -60,7 +64,7 @@ export default class Log {
                 type: 'warn',
                 text: arguments[0]
             });
-            that._log_warn();
+            that._log_warn(arguments);
             ogWarn.apply(console, arguments);
         };
         console['info'] = function () {
@@ -68,23 +72,23 @@ export default class Log {
                 type: 'info',
                 text: arguments[0]
             });
-            //that._log_info(arguments)
+            that._log_info(arguments);
             ogInfo.apply(console, arguments);
         };
     }
-    _log_error() {
-        this._status();
+    _log_error(arg) {
+        this._status(arg);
     }
-    _log_warn() {
-        this._status();
+    _log_warn(arg) {
+        this._status(arg);
     }
-    _log_info() {
-        this._status();
+    _log_info(arg) {
+        this._status(arg);
     }
-    _log_log() {
-        this._status();
+    _log_log(arg) {
+        this._status(arg);
     }
-    _status() {
+    _status(arg) {
         const messageLength = this.messages.length;
         this.timer = Date.now();
         if (messageLength === 0) {
@@ -92,12 +96,18 @@ export default class Log {
             return;
         }
         if (!this.status) {
-            return;
+            try {
+                this.status = document.getElementById('status');
+            }
+            catch (e) {
+                return;
+            }
         }
-        if (this.status.classList.contains('error') === false) {
+        if (this.status.classList.contains(this.cssClass) === false) {
             //this.baseWidth = parseFloat(getComputedStyle(this.status).width);
+            this.status.classList.add(this.cssClass + '-' + this.messages[0].type);
         }
-        this.status.classList.add('error');
+        this.status.classList.add(this.cssClass);
         let countMsg = '';
         if (this.count === true) {
             countMsg = '(' + messageLength + ') ';
@@ -141,6 +151,7 @@ export default class Log {
         const oldWidth = parseFloat(getComputedStyle(this.status).width);
         const that = this;
         const messageLength = this.messages.length;
+        console.log(this.messages);
         if (messageLength === 0) {
             this._closeStatus();
             return;
@@ -158,6 +169,8 @@ export default class Log {
         else {
             msg = this.status.getElementsByTagName('p')[0];
         }
+        this.status.classList.remove(this.cssClass + '-error', this.cssClass + '-warn', this.cssClass + '-info');
+        this.status.classList.add(this.cssClass + '-' + this.messages[0].type);
         const width = this._getTextWidth(this.status, msg.textContent) + 35;
         // this.baseWidth = parseFloat(getComputedStyle(this.status).width);
         this.status.style.width = (this.baseWidth + width) + 'px';
@@ -169,13 +182,17 @@ export default class Log {
             if (visibleMsg) {
                 visibleMsg.remove();
             }
+            try {
+                that.status.classList.remove(that.cssClass + '-' + that.messages[0].type);
+            }
+            catch (e) { }
             that.messages.shift();
             that._closeStatus();
         }, 250);
     }
     _closeStatus() {
         if (this.messages.length === 0) {
-            this.status.classList.remove('error');
+            this.status.classList.remove(this.cssClass);
             this.status.textContent = '';
             this.status.style.width = this.baseWidth + 'px';
             return;

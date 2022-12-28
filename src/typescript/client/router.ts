@@ -129,7 +129,7 @@ export default class router implements iprotocol {
 
         window.dispatchEvent(new CustomEvent('pre-pageRequest', {detail: file}));
 
-        let y = this.server.go(file);
+        let y = this.server.request(file);
 
         
         y.then(resolved => {
@@ -146,7 +146,19 @@ export default class router implements iprotocol {
     private goRoute (url) {
         if (route(url)) {
             for(let i=0;i<route(url).length;i++) {
-                this.server.go(route(url)[i])
+                if (typeof route(url)[i] === 'object') {
+                    try {
+                        if (route(url)[i]['key'].length > 0) {
+                            this.request(route(url)[i]['url'], {key:route(url)[i]['key']})  
+                        } 
+                        
+                    } catch(e) {
+                        this.request(route(url)[i]['url'])  
+                    }
+                      
+                } else {
+                    this.request(route(url)[i])
+                }
             };
         }
     }
@@ -154,9 +166,7 @@ export default class router implements iprotocol {
     public async post (url, data) {
        
         const t = DOMManipulation.getInstance();
-        const p = await this.serverHTTP.go(url, 'post', data);
-
-console.log(url, p)
+        const p = await this.serverHTTP.request(url, 'post', data);
 
         try {
             JSON.parse(p)
@@ -169,7 +179,7 @@ console.log(url, p)
             }
             return result;
         }
-console.log(123)
+
 
         let returnURL: string = ''
 
@@ -185,7 +195,7 @@ console.log(123)
 
         window.dispatchEvent(new CustomEvent('pre-pageRequest', {detail: returnURL}));
 
-        let y = this.server.go(returnURL);
+        let y = this.server.request(returnURL);
 
         
         y.then(resolved => {
@@ -194,7 +204,7 @@ console.log(123)
         });
         return p;
 
-        //this.server.go(url, data)
+        //this.server.request(url, data)
     }
     /**
      * This compliments the 'go' function in that it updates page elements instead of
@@ -208,11 +218,16 @@ console.log(123)
     }
 
     public load (cmd: string, data: object = []) {
-        this.request(cmd, data);
+        this.server.request(cmd, data);
     }
 
+    /**
+     * 
+     * @param cmd {string} Command to run
+     * @param data {object} Extra arguments
+     */
     public get (cmd: string, data: object = []) {
-        this.request(cmd, data);
+        this.server.request(cmd, data);
     }
     /**
      * Intercepts hyperlink clicks and events in an attempt to load pages via a background process

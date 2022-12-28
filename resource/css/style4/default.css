@@ -246,7 +246,7 @@ body.connected .status {
     white-space: nowrap;
 }
 
-.status.error {
+.status.log-msg {
 
   border-top-left-radius: 0.75rem;
   border-bottom-left-radius: 0.75rem;
@@ -254,29 +254,33 @@ body.connected .status {
   
 }
 
-.status.error > p {
+.status.log-msg > p {
   transition: all 200ms ease-out;
 }
-.status.error > p > em {
+.status.log-msg > p > em {
   font-weight: 500;
   font-size: 0.9rem;
   color: #888
 }
-.status.error:before,
-.status.error:after {
+
+.status.log-msg:before,
+.status.log-msg:after {
+  animation-duration: 2.5s;
+}
+
+.pulse.connected.log-msg-error:before,
+.pulse.connected.log-msg-error:after {
   border-color: var(--error-bg);
-  animation-duration: 2.5s;
-}
+  }
 
-.status.warn:before,
-.status.warn:after {
+.pulse.connected.log-msg-warn:before,
+.pulse.connected.log-msg-warn:after {
   border-color: var(--warn-bg);
-  animation-duration: 2.5s;
 }
 
-.status.info:before,
-.status.info:after {
-  border-color: var(--info-bg);
+.pulse.connected.log-msg-info:before,
+.pulse.connected.log-msg-info:after {
+  border-color: blue;/*var(--info-bg);*/
 }
 body.loading main.content > * {
 

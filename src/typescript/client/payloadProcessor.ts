@@ -71,6 +71,12 @@ export default class payloadProcessor {
 
             if (cmd == "data") {
                 dommanipulationinstance.DOMData = json.payload
+                try {
+                    dommanipulationinstance.DOMDataKey = json.key
+                } catch(e) {
+                    dommanipulationinstance.DOMDataKey = null
+                }
+                
                 dommanipulationinstance.m(dommanipulationinstance.lastTemplate)
             }
             

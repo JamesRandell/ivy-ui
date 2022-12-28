@@ -9,27 +9,40 @@
 // want to call a page
 //@ts-ignore
 import { socketInit } from './client.js';
+import { Iprotocol, Igo, IrequestData } from './interface/iprotocol.js'
 
 export default {
     //url: Constants.API_URL,
-    request (cmd: string, data: object = []) {
+    /**request (cmd: string, data: object = []) {
         let json = {'cmd':cmd};
         this.build(json);
         return null
-    },
+    },*/
 
-    async go (file: string, data: object) {
-        let json = {'url':file};
+    async request (file: string, data: IrequestData) {
+
+        let key: string = '';
+        let json: object = {};
+
+        try {
+            key = data.key;
+        } catch(e) {}
+        
+        if (key === '') {
+            json = {payload:{'url':file}};
+        } else {
+            json = {payload:{'url':file}, key: key};
+        }
+        
+
         await this.build(json).then(resolved => {
             return true;
         });
     },
 
-    async build (json: object) {
-        const payload = {
-            'payload': json,
-            'key'   : ''
-        };
+    async build (json: Igo) {
+
+        const payload = json;
 
         async function socket (arg) {
             const loop = setInterval(async function(){

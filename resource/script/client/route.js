@@ -1,8 +1,8 @@
 export function route(url) {
     const routes = {
         '/work': [
-            '/api/ocr',
-            '/api/angel/personal/calendar'
+            { url: '/api/ocr' },
+            { url: '/api/angel/personal/calendar', key: 'calendar' }
         ]
     };
     return routes[url];

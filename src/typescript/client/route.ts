@@ -2,8 +2,8 @@ export function route(url: string) {
 
     const routes: Object = {
         '/work': [
-                    '/api/ocr',
-                    '/api/angel/personal/calendar'
+                    {url:'/api/ocr'},
+                    {url:'/api/angel/personal/calendar',key:'calendar'}
                 ]
     };
 

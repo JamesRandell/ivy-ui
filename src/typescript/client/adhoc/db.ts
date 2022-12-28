@@ -26,7 +26,11 @@ window.removeEventListener("in-payload", test);
 window.addEventListener("in-payload", test);
 
 function test(evt) {
-  if ("db" in evt.detail) {} else {return;}
+
+
+  try {
+    if ("db" in evt.detail) {} else {return;}
+  } catch(e) {return}
   if (registry.action != "interface") return;
 
   console.table(registry);
