@@ -34,7 +34,7 @@ npm install -g typescript@latest
 // the typescript transpiler
 npx tsc -w
 
-cd into ivy-build/docker/ivy-ui
+cd ivy-build/docker/ivy-ui
 docker-compose up -d --force-recreate --build
 
 
