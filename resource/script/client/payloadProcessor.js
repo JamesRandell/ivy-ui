@@ -53,6 +53,7 @@ export default class payloadProcessor {
                     dommanipulationinstance.DOMDataKey = null;
                 }
                 dommanipulationinstance.m(dommanipulationinstance.lastTemplate);
+                console.log('socket data:', json.payload, dommanipulationinstance.lastTemplate);
             }
             if (typeof dommanipulationinstance['_' + cmd] !== 'function') {
                 //console.log('Can\'t reload file: Function \'_'+cmd+'\' does not exist in socketRouter');

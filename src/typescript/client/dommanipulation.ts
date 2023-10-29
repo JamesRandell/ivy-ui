@@ -109,7 +109,7 @@ export default class DOMManipulation {
      */
     private _payload (json: object) {
         const key = this._getKey(json);
-
+        
         // what if the value is a string (like loading an html file?)
         if (typeof json[key] === 'string') {
             return this['_'+key](json[key]);
@@ -148,7 +148,7 @@ export default class DOMManipulation {
         if (this.DOMDataKey != null) {
             id = this.DOMDataKey
         }
-console.log(888,id)
+//console.log(888,id)
         try {
             var e = document.getElementById(id);
             e.innerText = json[id];
@@ -323,7 +323,6 @@ console.log(888,id)
      * @returns 
      */
     private _html (json: Ihtml) {
-
         var loadedContent = json.data;
         var isWidget:boolean;
 
@@ -331,16 +330,23 @@ console.log(888,id)
          * template engine. Parses the string then compiles it with what ever is in this.DOMData
          */
         //this.DOMData = json
-        console.log('DOMData',this.DOMData)
-        console.log('DOMDataKey',this.DOMDataKey)
-        console.log('DOMJSON',json)
+        //console.log('DOMData',this.DOMData)
+        //console.log('DOMDataKey',this.DOMDataKey)
+        //console.log('DOMJSON',json)
         //console.log('loadedContent',loadedContent)
         let parsedTemplate = template.parse(loadedContent);//, this.DOMData);
 
         this.lastTemplate = loadedContent
 
-        loadedContent = template.compile(parsedTemplate, this.DOMData, this.DOMDataKey);
+        try {
+            //console.log(33)
+            //console.log(parsedTemplate)
+            loadedContent = template.compile(parsedTemplate, this.DOMData, this.DOMDataKey);
+        } catch (e) {
+            console.error('problem in dom template');
+            console.error(e)
 
+        }
         
         /**
          * we need a way to find out if what's in loadedContent is a complete HTML page, 
@@ -364,7 +370,7 @@ console.log(888,id)
         if (loadedContent == null) {
             if (json.url) router.updateRouter(json.url);
             this._navigateCleanUpLinks(true)
-            //console.warn('dommanipulation::_html: Unable to parse json data into html')
+            console.warn('dommanipulation::_html: Unable to parse json data into html')
             return
         } else if (loadedContent.startsWith('<!DOCTYPE') === true) {
             isWidget = false;

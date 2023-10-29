@@ -4,7 +4,9 @@ var template = {
 
     parse: (templateString: string) => { //, data: object) => {
 
+        
         let result = /{{(.*?)}}/g.exec(templateString);
+
         const arr = [];
         let firstPos;  
 
@@ -19,6 +21,7 @@ var template = {
             arr.push(result[0]);
 //.replace(/\s/g, "-")
             templateString = templateString.slice(result[0].length);
+            
             result = /{{(.*?)}}/g.exec(templateString);
         }
 
@@ -81,23 +84,24 @@ var template = {
             // checking to see if it is an interpolation
             if (string.startsWith("{{") && string.endsWith("}}")) {
 
-                var stringTrim: string = string.replace("{{", "").replace("}}", "").trim();
-                var args: any[] = [];
-                var fn: string = null;
-                var command: string = stringTrim.split(" ")[0];
-                var commandPrefix: string = '';
+                let stringTrim: string = string.replace("{{", "").replace("}}", "").trim();
+                let args: any[] = [];
+                let fn: string = '';
+                let command: string = stringTrim.split(" ")[0];
+                let commandPrefix: string = '';
+                let tempArray = []
 
                 /**
                  * see if there is a function on the end of this command split by a pipe (|) (command|function)
                  */
                 if (stringTrim.indexOf('|') > 0) {
-                    let tempArray = stringTrim.split("|");
+                    tempArray = stringTrim.split("|");
                     command = tempArray[0].split(" ")[0];
                     stringTrim = tempArray[0]
                     fn = tempArray[1];
                 }
 
-                let tempArray = stringTrim.split(" ")
+                tempArray = stringTrim.split(" ")
                 if (tempArray.length > 1) {
                     args.push(tempArray[1])
                 }
@@ -123,7 +127,7 @@ var template = {
                      */
                     args.unshift(command);
                     console.log('No command: _command_' + commandPrefix+command, fn)
-                    tempString = template._keyOrValue(args, fn);
+                    //tempString = template._keyOrValue(args, fn);
                 }
 
                 if (tempString) {
@@ -144,40 +148,64 @@ var template = {
      */
     _command_start_each: (args: string[] = [], fn: any = null) => {
         template.loopDepth++
-        var currentLoopName = template._getCurrentLoopName();
+        let currentLoopName = template._getCurrentLoopName();
+        let currentLoopNameOG = currentLoopName;
         const currentKeyName = template._getCurrentLoopKey();
         const currentValueName = template._getCurrentLoopValue();
+        let currentLoopNameIfCheck = ''
+        let string = ''
 
+        //string += '${' + currentLoopNameOG + ' ??= {}}'
         /**
          * the last argument will always be the name of a function. If it's null, then discard it
          */
+        currentLoopNameIfCheck = '${' + currentLoopNameOG + ' ? `'
+        let test = ''
         if (fn !== null) {
             try {
                 fn*2;
+                currentLoopNameOG = `${currentLoopName}?`;
                 currentLoopName =  `Object.values(${currentLoopName})[${fn}]`;
+                test = `[${fn}]`
+                //currentLoopNameIfCheck = '${' + currentLoopNameOG + '[' + fn + '] ? `'
             } catch(e) {
                 // do nothing
             }
         }
 
+        //string += currentLoopNameIfCheck + string 
+
+        //string = `\$\{${currentLoopName}\} && `
+        //string = (typeof currentLoopNameOG === "undefined") ? 'data' : currentLoopNameOG
+
+        //string = '${data[1]?.data? = {}}'
+        //string += '${data[1] ??= \'\'}'
+        //string += '${data[1].' +`${currentLoopNameOG} ??= ''}`
+        
         /**
          * If empty, then just create the standard loop over the initial data array
          * This means there was no path to an item passed in
          */
         if (args.length === 0) {
-            return `\$\{Object.entries(${currentLoopName}).map(([${currentKeyName}, ${currentValueName}]) => \``;
+            
+            string += '${' + currentLoopNameOG + test + ' ? `'
+            return string+ `\$\{Object.entries(${currentLoopName}).map(([${currentKeyName}, ${currentValueName}]) => \``;
         }
 
         /**
          * if it has one item, then this is the name of the array we need to loop over
          */
-        return `\$\{Object.entries(${currentLoopName}.${args[0]}).map(([${currentKeyName}, ${currentValueName}]) => \``;
+        string += '${' + currentLoopNameOG + `.${args[0]}` + test + ' ? `'
+        return string + `\$\{Object.entries(${currentLoopName}.${args[0]}).map(([${currentKeyName}, ${currentValueName}]) => \``;
     },
 
     _command_end_each: (cmd: string[] = [], fn: any = null) => {
         template.loopDepth--
 
-        return `\`.trim()).join('')\}`;
+        let string = ``
+
+        //string = `: ''\}`
+        return `\`.trim()).join('')\}`+ string + '` : ""}';
     },
 
     _command_start_payload: (args: string[] = []) => {
@@ -242,20 +270,13 @@ var template = {
 
         //data = template._convertObjectToArray(data);
         
-        /**if (key !== null) {
-            console.log(4444,key,payloadKey)
-            if (key != payloadKey) {
-                return
-            }
-        }**/
+        
         if (key === null || key === undefined) { key = 'data' }
 
         console.log(4444,key,payloadKey)
         if (key != payloadKey) {
-            return
+            //return
         }
-        
-        //if (payloadKey)
 
         // update all the keys, change spaces to a hypen -
         const loop = (data) => {
@@ -287,8 +308,9 @@ console.log('retrievedObject: ', JSON.parse(retrievedObject));
 */
             return h;
         } catch (e) {
-            console.error('Problem with template: ' + e.message);
+            //console.error('Problem with template: ' + e.message);
             console.error('Problem with template: ' + e, templateString, data);
+            console.trace();
         }
     },
 

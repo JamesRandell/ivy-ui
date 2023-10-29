@@ -3,20 +3,15 @@
     <section>
     <button id="reload_api">Reload API</button>
     <br>
+    {{main}}
     <table>
         <thead>
-            {{#each date|1}}
+            {{#each db|1}}
             <th>{{key}}</th>
             {{/each}}
         </thead>
         <tbody>
-            {{#each}}
-            <tr>
-                {{#each date}}
-                <td class="editable" contenteditable="true" data-post="/api/angel/personal/work" >{{value}}</td>
-                {{/each}}
-            </tr>
-            {{/each}}
+            
         </tbody>
     </table>
 </section>

@@ -78,6 +78,7 @@ export default class payloadProcessor {
                 }
                 
                 dommanipulationinstance.m(dommanipulationinstance.lastTemplate)
+                console.log('socket data:',json.payload,dommanipulationinstance.lastTemplate)
             }
             
             if (typeof dommanipulationinstance['_'+cmd] !== 'function') {
