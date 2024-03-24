@@ -10,7 +10,7 @@ import protocolWS from "./protocolWS.js";
 //@ts-ignore
 import protocolHTTP from "./protocolHTTP.js";
 
-import iprotocol from "./interface/iprotocol";
+import {Iprotocol} from "./interface/iprotocol";
 
 
 //@ts-ignore
@@ -23,7 +23,7 @@ import { isVoidExpression } from "typescript";
 //@ts-ignore
 import {route} from "./route.js"
 
-export default class router implements iprotocol {
+export default class router implements Iprotocol {
 
     /**
      * configure some sort of variable to select if we're going to send an
