@@ -5,10 +5,11 @@ const log = Log.getInstance();
 export default class editInPlace {
     constructor() {
         const that = this;
-        window.addEventListener("click", function (e) {
-            const editable = e.target.getAttribute('contenteditable');
+        window.addEventListener("click", (event) => {
+            const e = event.target;
+            const editable = e.getAttribute('contenteditable');
             if (editable == 'true') {
-                that.editMode(e.target);
+                that.editMode(event.target);
             }
         });
     }

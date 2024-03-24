@@ -70,11 +70,11 @@ class Ivy extends payloadProcessor {
             //server.send(JSON.stringify({payload:{file:"/ui/fragment"}}));
             //console.log('f')
         });
-        window.addEventListener("post-navigate", function (evt) {
+        window.addEventListener("post-navigate", (event) => {
             //socket({file:"/ui/fragment"});
             //router.updateRouter(evt.detail);
             //dommanipulationinstance._navigateCleanUpLinks();
-            console.log(':: post-navigate', evt.detail);
+            //console.log(':: post-navigate', event.detail) -- no longer works TS error?
         });
         window.addEventListener("fileNotFound", function (evt) {
             console.log('fileNotFound');
@@ -90,8 +90,9 @@ class Ivy extends payloadProcessor {
         window.addEventListener("localUpdated", function (e) {
             console.log(':: local updated');
         });
-        window.addEventListener("click", function (e) {
-            if (e.target.id == 'reload_api') {
+        window.addEventListener("click", (event) => {
+            const e = event.target;
+            if (e.id == 'reload_api') {
                 routerInstance.get('/api/angel/personal/calendar', { key: 'calendar' });
             }
         });

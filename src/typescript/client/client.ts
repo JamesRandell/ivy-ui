@@ -107,13 +107,13 @@ class Ivy extends payloadProcessor {
       //console.log('f')
     });
     
-    window.addEventListener("post-navigate", function(evt){
-
+    window.addEventListener("post-navigate", (event) => {
+      
       //socket({file:"/ui/fragment"});
       
       //router.updateRouter(evt.detail);
       //dommanipulationinstance._navigateCleanUpLinks();
-      console.log(':: post-navigate', evt.detail)
+      //console.log(':: post-navigate', event.detail) -- no longer works TS error?
     });
 
     window.addEventListener("fileNotFound", function(evt: any) {
@@ -134,8 +134,9 @@ class Ivy extends payloadProcessor {
       console.log(':: local updated');
     });
 
-    window.addEventListener("click", function(e) {
-      if (e.target.id == 'reload_api') {
+    window.addEventListener("click", (event) => {
+      const e = event.target as HTMLInputElement;
+      if (e.id == 'reload_api') {
         routerInstance.get('/api/angel/personal/calendar', {key:'calendar'});
       }
     });
