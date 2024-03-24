@@ -1,6 +1,6 @@
 export default class hmrc {
     constructor() {
-        const that = this0
+        const that = this
     }
     
     public login() {

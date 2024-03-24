@@ -1,6 +1,6 @@
 export default class hmrc {
     constructor() {
-        const that = this0;
+        const that = this;
     }
     login() {
         let url = 'https://test-www.tax.service.gov.uk/oauth/authorize?'
